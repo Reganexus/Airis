@@ -105,7 +105,7 @@ export function ByteChatBot() {
 
       {/* Main Content */}
       <div className="flex flex-1 flex-col">
-        <header className="sticky top-0 z-10 flex justify-between h-14 items-center gap-4 border-b bg-background px-4 sm:h-[60px] sm:px-6">
+        <header className="sticky top-0 z-10 flex justify-between h-14 items-center gap-4 border-b border-slate-200 bg-background px-4 sm:h-[60px] sm:px-6">
           {/* <Button variant="ghost" size="icon" className="sm:hidden">
             <MenuIcon className="h-5 w-5" />
             <span className="sr-only">Toggle Menu</span>
@@ -127,8 +127,8 @@ export function ByteChatBot() {
           </div> */}
         </header>
 
-        <main className="flex-1 overflow-auto p-4 sm:p-6">
-          <div className="grid gap-6 bg-secondary">
+        <main className="flex-1 overflow-auto p-4 sm:p-6 bg-slate-100">
+          <div className="grid gap-6 max-w-5xl m-auto">
             {messages.map((m, i) => {
               if (m.role === "user") {
                 {
@@ -136,8 +136,8 @@ export function ByteChatBot() {
                 }
                 return (
                   <div key={i} className="flex items-start gap-4 justify-end">
-                    <div className="grid gap-1.5 rounded-md bg-primary p-3 text-sm text-primary-foreground">
-                      <p>{m.content}</p>
+                    <div className="grid gap-1.5 rounded-full bg-primary p-3 px-4 text-sm">
+                      <p className="text-white">{m.content}</p>
                     </div>
                   </div>
                 );
@@ -147,7 +147,12 @@ export function ByteChatBot() {
                 }
                 return (
                   <div key={m.id} className="flex items-start gap-4">
-                    <div className="grid gap-1.5 rounded-md bg-muted p-3 text-sm">
+                    <div className="pt-3">
+                      <div className="h-[40px] w-[40px] rounded-full bg-slate-400 "></div>
+                    </div>
+
+                    <div className="grid gap-1.5 rounded-full p-3 px-4 text-sm">
+                      <h1 className="font-semibold">Ai Chatbot</h1>
                       <p>{m.content}</p>
                     </div>
                   </div>
@@ -157,16 +162,16 @@ export function ByteChatBot() {
           </div>
         </main>
 
-        <form onSubmit={handleSubmit}>
-          <footer className="sticky bottom-0 z-10 flex h-14 items-center gap-2 border-t bg-background px-4 sm:h-[60px] sm:px-6">
+        <form onSubmit={handleSubmit} className="pb-[50px] bg-slate-100">
+          <footer className="rounded-lg max-w-5xl m-auto sticky bottom-0 z-10 flex h-14 items-center gap-2 border bg-background px-4 sm:h-[60px] sm:px-3">
             <Input
               type="text"
               placeholder="Type your message..."
-              className="flex-1 rounded-md border border-input bg-transparent p-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+              className="flex-1 bg-transparent p-2 text-sm "
               onChange={handleInputChange}
             />
 
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" className="bg-primary">
               <SendIcon className="h-5 w-5" />
               <span className="sr-only">Send</span>
             </Button>
@@ -178,7 +183,7 @@ export function ByteChatBot() {
 }
 
 // MenuIcon(props: React.SVGProps<SVGSVGElement>)
-function MenuIcon(props) {
+function MenuIcon(props: any) {
   return (
     <svg
       {...props}
@@ -199,7 +204,7 @@ function MenuIcon(props) {
   );
 }
 
-function MoveHorizontalIcon(props) {
+function MoveHorizontalIcon(props: any) {
   return (
     <svg
       {...props}
@@ -220,7 +225,7 @@ function MoveHorizontalIcon(props) {
   );
 }
 
-function PlusIcon(props) {
+function PlusIcon(props: any) {
   return (
     <svg
       {...props}
@@ -240,7 +245,7 @@ function PlusIcon(props) {
   );
 }
 
-function SearchIcon(props) {
+function SearchIcon(props: any) {
   return (
     <svg
       {...props}
@@ -269,7 +274,7 @@ function SendIcon(props: any) {
       height="24"
       viewBox="0 0 24 24"
       fill="none"
-      stroke="currentColor"
+      stroke="white"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -280,7 +285,7 @@ function SendIcon(props: any) {
   );
 }
 
-function SettingsIcon(props) {
+function SettingsIcon(props: any) {
   return (
     <svg
       {...props}
@@ -300,7 +305,7 @@ function SettingsIcon(props) {
   );
 }
 
-function XIcon(props) {
+function XIcon(props: any) {
   return (
     <svg
       {...props}
