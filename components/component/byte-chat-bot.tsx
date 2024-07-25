@@ -130,7 +130,6 @@ export function ByteChatBot() {
         px-5"
         >
           <div className="rounded-lg max-w-5xl m-auto sticky bottom-0 z-10 flex h-14 items-center gap-2 border bg-background px-4 sm:h-[60px] sm:px-3">
-            <ToggleButton iconA={<TextIcon />} iconB={<ImageIcon />} />
             <Input
               type="text"
               placeholder="Type your message..."
@@ -139,9 +138,18 @@ export function ByteChatBot() {
             />
 
             <Button
+              variant="default"
+              size="icon"
+              className="bg-primary order-last"
+            >
+              <SendIcon />
+              <span className="sr-only">Send</span>
+            </Button>
+
+            <Button
               variant="ghost"
               size="icon"
-              className="bg-none"
+              className="bg-none "
               onClick={(e) => {
                 e.preventDefault();
               }}
@@ -150,10 +158,11 @@ export function ByteChatBot() {
               <span className="sr-only">More</span>
             </Button>
 
-            <Button variant="default" size="icon" className="bg-primary">
-              <SendIcon />
-              <span className="sr-only">Send</span>
-            </Button>
+            <ToggleButton
+              iconA={<TextIcon />}
+              iconB={<ImageIcon />}
+              className="order-first"
+            />
           </div>
           <p className="text-sm text-center pt-3 text-slate-500">
             This AI chatbot is for informational purposes only and should not be
