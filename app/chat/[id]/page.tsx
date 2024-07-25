@@ -4,11 +4,13 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Input } from "@/components/ui/input"
-
+import Spinner from "@/components/outputs/spinner"
 import { useChat } from 'ai/react';
 import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import { Assistant } from "next/font/google";
+import { Attachment } from '@ai-sdk/ui-utils';
+
 
 async function fetchDALLE(prompt: string) {
   const res = await fetch('/api/image',
@@ -38,7 +40,7 @@ async function fetchDALLE(prompt: string) {
 
 export default function Chat({ params } : any) {
 
-    // Consists of the prrompts
+    // Consists of the prompts
     const persona = [
         'You are Airis, StartUpLab\'s internship advisor with 30 years of experience. You help Filipino students looking for interns prepare for internship applications. You are adept at creating resumes based on the information provided by clients, consulting with clients about their careers, and recommending career paths according to the clients\' skills and interests. Offer detailed answers to questions related to internships, including but not limited to application processes, interview tips, selecting suitable opportunities and preparing necessary documents. Speak in professional but comforting tone and ALWAYS TELL the user IF the topic goes out of your expertise.',
         'You are Airis, StartUpLab\'s marketing analyst with 30 years of experience. You help clients such as business owners understand market trends and consumer behavior. Your task is to offer deep-dive consultations tailored to the client\'s issues, including various analysis documents and progress reports. ALWAYS TELL the user IF the topic goes out of your expertise.',
@@ -53,16 +55,28 @@ export default function Chat({ params } : any) {
     const [placeholder, setPlaceholder] = useState('Type your message...');
     const [model, setModel] = useState('gpt-4o-mini');
     const [modelBtn, setModelBtn] = useState('GPT');
+    const [dallid, setdallid] = useState(0);
+    const [uploadUrl, setUploadUrl] = useState("");
+
+    const [attachments] = useState<Attachment[]>([
+      {
+        name: 'earth.png',
+        contentType: 'image/png',
+        url: 'https://example.com/earth.png',
+      },
+    ]);
 
 
+    const handleImageChange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const url = URL.createObjectURL(file);
+        setUploadUrl(url);
+      }
+    };
 
-    const { messages, setMessages, input, handleInputChange, handleSubmit } = useChat({
+    const { messages, setMessages, input, handleInputChange, handleSubmit, isLoading } = useChat({
       initialMessages: [
-          {
-              id: "",
-              role: 'system',
-              content: persona[params.id],
-          }
       ],
     });
     
@@ -70,8 +84,14 @@ export default function Chat({ params } : any) {
       e.preventDefault();
       if (model == 'gpt-4o-mini') {
         // GPT-4o MODEL
-        handleSubmit();
-      } else {
+        handleSubmit(e, {
+          data: { imageUrl: uploadUrl,
+                  persona: persona[params.id],
+           },
+          
+        });
+        }
+      else {
         // DALL-E MODEL
         setMessages([
           ...messages, 
@@ -201,17 +221,19 @@ export default function Chat({ params } : any) {
           </div>
         </header>
         <main className="flex-1 overflow-auto p-4 sm:p-6">
+          <p>{JSON.stringify(messages)}</p>
           <div className="grid gap-6">
-            <p>{JSON.stringify(messages)}</p>
                     {messages.map((m, index) => {
           if (m.role === 'user') {
             // User message
             return (
-              <div key={index} className="flex items-start gap-4 justify-end">
-                <div className="grid gap-1.5 rounded-md bg-primary p-3 text-sm text-primary-foreground">
-                  <p>{m.content}</p>
+              <>
+                <div key={index} className="flex items-start gap-4 justify-end">
+                  <div className="grid gap-1.5 rounded-md bg-primary p-3 text-sm text-primary-foreground">
+                    <p>{m.content}</p>
+                  </div>
                 </div>
-              </div>
+              </>
             );
           } else if (m.role === 'assistant') {
             // Chatbot message
@@ -231,7 +253,17 @@ export default function Chat({ params } : any) {
         })}
 
           </div>
+          
         </main>
+
+        {isLoading && (
+        <div>
+          <Spinner />
+          <button type="button" onClick={() => stop()}>
+            Stop
+          </button>
+        </div>
+        )}
 
         <form onSubmit={promptSubmit}>
           <footer className="sticky bottom-0 z-10 flex h-14 items-center gap-2 border-t bg-background px-4 sm:h-[60px] sm:px-6">
@@ -242,9 +274,20 @@ export default function Chat({ params } : any) {
               value={input}
               className="flex-1 rounded-md border border-input bg-transparent p-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
               onChange={handleInputChange}
+              disabled={isLoading}
             />
+  
+            {uploadUrl && <img src={uploadUrl} width={80} height={50} alt="Uploaded" />}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="flex-1 rounded-md border border-input bg-transparent p-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+              disabled={isLoading}
+            />
+                
 
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" disabled={isLoading}>
               <SendIcon className="h-5 w-5" />
               <span className="sr-only">Send</span>
             </Button>
