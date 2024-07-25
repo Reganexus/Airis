@@ -66,7 +66,7 @@ export default function Chat({ params } : any) {
       ],
     });
     
-    function promptSubmit(e: { preventDefault: () => void; }) {
+    async function promptSubmit(e: { preventDefault: () => void; }) {
       e.preventDefault();
       if (model == 'gpt-4o-mini') {
         // GPT-4o MODEL
@@ -90,7 +90,7 @@ export default function Chat({ params } : any) {
             {
               id: "",
               role: 'user',
-              content: res.user_prompt
+              content: res.prompt
             },
             {
               id: "",
@@ -202,32 +202,34 @@ export default function Chat({ params } : any) {
         </header>
         <main className="flex-1 overflow-auto p-4 sm:p-6">
           <div className="grid gap-6">
-          { messages.map(m => { 
-              if (m.role == 'user') {
-                {/* User message */}
-                return (
-                  <div className="flex items-start gap-4 justify-end">
-                    <div className="grid gap-1.5 rounded-md bg-primary p-3 text-sm text-primary-foreground">
-                      <p>{m.content}</p>
-                    </div>
-                  </div>
-                );
-              } else if (m.role == 'assistant') {
-                {/* Chatbot message */}
-                return (
-                  <div key={m.id}  className="flex items-start gap-4">
-                    <div className="grid gap-1.5 rounded-md bg-muted p-3 text-sm">
-                      {m.content.startsWith('http') ? (
-                        <img src={m.content} alt="Generated" />
-                      ) : (
-                        <p>{m.content}</p>
-                      )}
-                    </div>
-                  </div>
-                );
-              }
-            })
+            <p>{JSON.stringify(messages)}</p>
+                    {messages.map((m, index) => {
+          if (m.role === 'user') {
+            // User message
+            return (
+              <div key={index} className="flex items-start gap-4 justify-end">
+                <div className="grid gap-1.5 rounded-md bg-primary p-3 text-sm text-primary-foreground">
+                  <p>{m.content}</p>
+                </div>
+              </div>
+            );
+          } else if (m.role === 'assistant') {
+            // Chatbot message
+            return (
+              <div key={index} className="flex items-start gap-4">
+                <div className="grid gap-1.5 rounded-md bg-muted p-3 text-sm">
+                  {m.content.startsWith('http') ? (
+                    <img src={m.content} alt="Generated" />
+                  ) : (
+                    <p>{m.content}</p>
+                  )}
+                </div>
+              </div>
+            );
           }
+          return null;
+        })}
+
           </div>
         </main>
 
