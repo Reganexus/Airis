@@ -9,6 +9,32 @@ import { useChat } from 'ai/react';
 import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 
+async function fetchDALLE(prompt: string) {
+  const res = await fetch('/api/image',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(
+        {
+          model: "dall-e-2",
+          user_prompt: prompt,
+        }
+      )
+    }
+  )
+  // The return value is *not* serialized
+  // You can return Date, Map, Set, etc.
+  if (!res.ok) {
+    // This will activate the closest `error.js` Error Boundary
+    throw new Error('Failed to fetch data')
+  }
+ 
+  return res.json()
+}
+
+
 export default function Chat({ params } : any) {
 
     // Consists of the prrompts
@@ -21,6 +47,14 @@ export default function Chat({ params } : any) {
         'You are Airis, StartUpLab\'s mentor for teachers with 30 years of experience in all academic subjects and managing online courses. You help clients, including teachers, authors, and online instructors, with classroom management, curriculum development, student engagement, instructional strategies, and technology integration. You provide comprehensive answers and, if requested, create lesson plans, teaching materials, assessment tools, and progress reports. Speak in a formal and professional tone, and ALWAYS TELL the user IF the topic goes out of your expertise.'
     ]; 
 
+
+    // default ang gpt-4o on the textbox thingy
+    const [placeholder, setPlaceholder] = useState('Type your message...');
+    const [model, setModel] = useState('gpt-4o-mini');
+    const [modelBtn, setModelBtn] = useState('GPT');
+
+
+
     const { messages, input, handleInputChange, handleSubmit } = useChat({
       initialMessages: [
           {
@@ -30,7 +64,46 @@ export default function Chat({ params } : any) {
           }
       ],
     });
-  
+    
+    function promptSubmit(e: { preventDefault: () => void; }) {
+      e.preventDefault();
+      if (model == 'gpt-4o-mini') {
+        // GPT-4o MODEL
+        handleSubmit();
+        console.log('aaa');
+      } else {
+        console.log('bbbb');
+        // DALL-E MODEL
+        messages.push({
+          id: "",
+          role: 'user',
+          content: input
+        })
+
+        /*fetchDALLE(input).then((res) => {
+          console.log(res.response);
+          messages.push({
+            id: "",
+            role: 'assistant',
+            content: res.response
+          });
+        });*/
+      }
+    }
+
+    function handleClick(){
+      if(model == 'gpt-4o-mini'){
+        setModel('dall-e-2');
+        setModelBtn('DALL-E');
+        setPlaceholder('Generate an image...');
+      }
+      else{
+        setModel('gpt-4o-mini');
+        setModelBtn('GPT');
+        setPlaceholder('Type your message...');
+
+      }
+    }
    
 
   return (
@@ -43,9 +116,7 @@ export default function Chat({ params } : any) {
             <AvatarFallback>AC</AvatarFallback>
           </Avatar>
           <div className="flex-1 truncate">
-            <p className="font-medium">
             
-            </p>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -81,11 +152,13 @@ export default function Chat({ params } : any) {
             </Link>
           </div>
         </div>
+        
       </div>
 
 
       {/* Main Content */}
       <div className="flex flex-1 flex-col">
+        
         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 sm:h-[60px] sm:px-6">
           <Button variant="ghost" size="icon" className="sm:hidden">
             {/*<MenuIcon className="h-5 w-5" />*/}
@@ -132,7 +205,11 @@ export default function Chat({ params } : any) {
                 return (
                   <div key={m.id}  className="flex items-start gap-4">
                     <div className="grid gap-1.5 rounded-md bg-muted p-3 text-sm">
-                      <p>{m.content}</p>
+                      {m.content.startsWith('http') ? (
+                        <img src={m.content} alt="Generated" />
+                      ) : (
+                        <p>{m.content}</p>
+                      )}
                     </div>
                   </div>
                 );
@@ -141,11 +218,14 @@ export default function Chat({ params } : any) {
           }
           </div>
         </main>
-        <form onSubmit={handleSubmit}>
+
+        <form onSubmit={promptSubmit}>
           <footer className="sticky bottom-0 z-10 flex h-14 items-center gap-2 border-t bg-background px-4 sm:h-[60px] sm:px-6">
+          <button onClick = {handleClick}  type = "button" id = "model-btn">{modelBtn}</button>
             <Input
               type="text"
-              placeholder="Type your message..."
+              placeholder={placeholder}
+              value={input}
               className="flex-1 rounded-md border border-input bg-transparent p-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
               onChange={handleInputChange}
             />
