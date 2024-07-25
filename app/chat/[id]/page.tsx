@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { useChat } from 'ai/react';
 import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
+import { Assistant } from "next/font/google";
 
 async function fetchDALLE(prompt: string) {
   const res = await fetch('/api/image',
@@ -55,7 +56,7 @@ export default function Chat({ params } : any) {
 
 
 
-    const { messages, input, handleInputChange, handleSubmit } = useChat({
+    const { messages, setMessages, input, handleInputChange, handleSubmit } = useChat({
       initialMessages: [
           {
               id: "",
@@ -70,24 +71,30 @@ export default function Chat({ params } : any) {
       if (model == 'gpt-4o-mini') {
         // GPT-4o MODEL
         handleSubmit();
-        console.log('aaa');
       } else {
-        console.log('bbbb');
         // DALL-E MODEL
-        messages.push({
-          id: "",
-          role: 'user',
-          content: input
-        })
-
-        /*fetchDALLE(input).then((res) => {
-          console.log(res.response);
-          messages.push({
+        
+        setMessages([
+          ...messages, 
+          {
             id: "",
-            role: 'assistant',
-            content: res.response
-          });
-        });*/
+            role: 'user',
+            content: input
+          }
+        ]);
+        
+        fetchDALLE(input).then((res) => {
+          console.log('bbbasdasdgasgasdfgasdfhdafhadfhb');
+          console.log(res.response);
+          setMessages([
+            ...messages, 
+            {
+              id: "",
+              role: 'assistant',
+              content: res.response
+            }
+          ]);
+        });
       }
     }
 
@@ -191,7 +198,7 @@ export default function Chat({ params } : any) {
         <main className="flex-1 overflow-auto p-4 sm:p-6">
           <div className="grid gap-6">
           { messages.map(m => { 
-              if (m.role === 'user') {
+              if (m.role == 'user') {
                 {/* User message */}
                 return (
                   <div className="flex items-start gap-4 justify-end">
@@ -200,7 +207,7 @@ export default function Chat({ params } : any) {
                     </div>
                   </div>
                 );
-              } else if (m.role === 'assistant') {
+              } else if (m.role == 'assistant') {
                 {/* Chatbot message */}
                 return (
                   <div key={m.id}  className="flex items-start gap-4">
