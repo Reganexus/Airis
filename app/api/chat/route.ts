@@ -23,7 +23,7 @@ export async function POST(req: Request) {
 
     // Call the language model with the transformed messages
     const result = await streamText({
-      model: openai('gpt-4o-mini'),
+      model: openai('gpt-4o'),
       system: data.persona,
       messages: coreMessages,
     });
