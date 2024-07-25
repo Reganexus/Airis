@@ -19,5 +19,10 @@ export async function POST(request: Request) {
     );
   console.log(image.data[0]['url']);
   
-  return new Response(JSON.stringify({response: image.data[0]['url'] }));
+  return new Response(JSON.stringify(
+        {
+            prompt: user_prompt, 
+            response: image.data[0]['url'],
+        }
+    ));
 }

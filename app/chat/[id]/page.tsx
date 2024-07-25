@@ -73,7 +73,6 @@ export default function Chat({ params } : any) {
         handleSubmit();
       } else {
         // DALL-E MODEL
-        
         setMessages([
           ...messages, 
           {
@@ -83,11 +82,16 @@ export default function Chat({ params } : any) {
           }
         ]);
         
+        
         fetchDALLE(input).then((res) => {
-          console.log('bbbasdasdgasgasdfgasdfhdafhadfhb');
-          console.log(res.response);
+
           setMessages([
             ...messages, 
+            {
+              id: "",
+              role: 'user',
+              content: res.user_prompt
+            },
             {
               id: "",
               role: 'assistant',
@@ -108,6 +112,7 @@ export default function Chat({ params } : any) {
         setModel('gpt-4o-mini');
         setModelBtn('GPT');
         setPlaceholder('Type your message...');
+
 
       }
     }
