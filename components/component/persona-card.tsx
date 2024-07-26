@@ -4,10 +4,11 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
 interface PersonaCardProps {
-  title: string;
+  persona: string;
 }
 
-const PersonaCard: React.FC<PersonaCardProps> = ({title}) => {
+
+const PersonaCard: React.FC<PersonaCardProps> = ({ persona }) => {
   return (
     <div className="sticky top-0 z-10 flex justify-between items-center gap-4 max-w-5xl m-auto bg-white p-2 px-3 rounded-lg border shadow-md shadow-slate-600/20">
       <div className="flex items-center gap-2">
@@ -21,9 +22,9 @@ const PersonaCard: React.FC<PersonaCardProps> = ({title}) => {
         </div>
 
         <div>
-          <h2 className="text-md font-semibold text-slate-800">{title}</h2>
+          <h2 className="text-md font-semibold text-slate-800">{persona}</h2>
           <p className="text-sm text-slate-500">
-            A chatbot for all your needs.
+            A reliable chatbot  
           </p>
         </div>
       </div>

@@ -5,7 +5,21 @@ import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 
-const SideBar: React.FC = () => {
+
+interface SideBarProps {
+    onPersonaChange: (personacode: any) => void; 
+    // Adjust the type according to your data structure
+    // will be passed back to parent component
+}
+
+const SideBar: React.FC<SideBarProps> = ({ onPersonaChange }) => {
+
+    const handlePersonaChange = (personacode: any) => {
+        // Add any additional logic to handle persona changes
+        onPersonaChange(personacode);
+    };
+
+
   return (
     <div className="flex flex-col gap-y-2 bg-slate-200 h-screen w-[80px] p-2 border-l-2 border-slate-300">
       {/* User Card */}
@@ -34,7 +48,7 @@ const SideBar: React.FC = () => {
       </div>
 
       {/* Persona Selection Card */}
-      <PersonaSelectionCard />
+      <PersonaSelectionCard onPersonaChange={handlePersonaChange} />
 
       {/* Chat History Card */}
       <div className="grow flex flex-col items-center rounded-lg border border-slate-300 bg-white overflow-auto">
@@ -50,32 +64,41 @@ const SideBar: React.FC = () => {
 
 export default SideBar;
 
-interface PersonaSelectionCardProps {}
+interface PersonaSelectionCardProps {
+    onPersonaChange: (personacode: any) => void; 
+    // Adjust the type according to your data structure
+    // will be passed back to parent component
+}
 
-const PersonaSelectionCard: React.FC<PersonaSelectionCardProps> = ({}) => {
-  const [activePersona, setActivePersona] = React.useState(0);
-  const personas = [
-    { picture: "/default_blue.png", aiTooltipName: "Legal AI" },
-    { picture: "/3_var.png", aiTooltipName: "Marketing AI" },
-    { picture: "/6_var.png", aiTooltipName: "Human Resources AI" },
-    { picture: "/2_var.png", aiTooltipName: "Internship Guide AI" },
-    { picture: "/4_var.png", aiTooltipName: "Mentor AI" },
-    { picture: "/5_var.png", aiTooltipName: "Admin AI" },
-  ];
+const PersonaSelectionCard: React.FC<PersonaSelectionCardProps> = ({ onPersonaChange }) => {
+    const [activePersona, setActivePersona] = React.useState(0);
+    const personas = [
+        { picture: "/default_blue.png", aiTooltipName: "Law AI", personacode: "law" },
+        { picture: "/3_var.png", aiTooltipName: "Marketing AI", personacode: "marketing" },
+        { picture: "/6_var.png", aiTooltipName: "Human Resources AI", personacode: "hr" },
+        { picture: "/2_var.png", aiTooltipName: "Intern Advisor AI", personacode: "intern" },
+        { picture: "/4_var.png", aiTooltipName: "Teacher AI", personacode: "teacher" },
+        { picture: "/5_var.png", aiTooltipName: "Admin AI", personacode: "admin" },
+    ];
 
-  return (
-    <div className="flex flex-col items-center rounded-lg border border-slate-300 bg-white pb-4">
-      {personas.map((persona, index) => (
-        <PersonaAvatar
-          key={index}
-          picture={persona.picture}
-          aiTooltipName={persona.aiTooltipName}
-          isActive={index === activePersona}
-          onClick={() => setActivePersona(index)}
-        />
-      ))}
-    </div>
-  );
+    const handlePersonaChange = (index: number) => {
+        setActivePersona(index);
+        onPersonaChange(personas[index].personacode); // Call the callback function with the selected persona
+    };
+
+    return (
+        <div className="flex flex-col items-center rounded-lg border border-slate-300 bg-white pb-4">
+            {personas.map((persona, index) => (
+                <PersonaAvatar
+                    key={index}
+                    picture={persona.picture}
+                    aiTooltipName={persona.aiTooltipName}
+                    isActive={index === activePersona}
+                    onClick={() => handlePersonaChange(index)}
+                />
+            ))}
+        </div>
+    );
 };
 
 // Persona Avatar
