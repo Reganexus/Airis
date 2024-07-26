@@ -14,7 +14,7 @@ export async function POST(request: Request) {
         { 
             model: "dall-e-3", 
             prompt: user_prompt,
-            size: '256x256'
+            size: "1024x1024"
         }
     );
     console.log(image);
