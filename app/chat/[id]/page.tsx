@@ -5,13 +5,13 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Input } from "@/components/ui/input"
 import Spinner from "@/components/outputs/spinner"
+import React from 'react';
 import { useChat } from 'ai/react';
 import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import { Assistant } from "next/font/google";
 import { Attachment } from '@ai-sdk/ui-utils';
-
-
+import { formatTextToHTML } from '@/lib/textToHTML';
 async function fetchDALLE(prompt: string) {
   const res = await fetch('/api/image',
     {
@@ -31,11 +31,42 @@ async function fetchDALLE(prompt: string) {
   // You can return Date, Map, Set, etc.
   if (!res.ok) {
     // This will activate the closest `error.js` Error Boundary
-    throw new Error('Failed to fetch data')
+    //throw new Error('Failed to fetch data')
+  
+    return { 
+          response: 'I apologize for the inconvenience, but I am unable to generate the image you are requesting. Can you try again later?'
+      };
+  
   }
- 
   return res.json()
 }
+
+async function generatePreviousChat(convo: any[], messageindex: number, gptcontent: string) {
+
+  const res = await fetch('/api/regenerate',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(
+        {
+          messages: convo.slice(0, messageindex), 
+        }
+      )
+    }
+  )
+  
+  if (!res.ok) {
+    return { 
+          response: gptcontent
+      };
+  
+  }
+  return res.json()
+}
+
+
 
 
 export default function Chat({ params } : any) {
@@ -74,7 +105,7 @@ export default function Chat({ params } : any) {
       }
     };
 
-    const { messages, setMessages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+    const { messages, setMessages, input, stop, isLoading, handleInputChange, handleSubmit } = useChat({
       initialMessages: [
       ],
     });
@@ -98,18 +129,23 @@ export default function Chat({ params } : any) {
             id: "",
             role: 'user',
             content: input
+          },
+          {
+            id: "",
+            role: 'assistant',
+            content: ''
           }
         ]);
         
         
-        fetchDALLE(input).then((res) => {
+        /*fetchDALLE(input).then((res) => {
 
           setMessages([
             ...messages, 
             {
               id: "",
               role: 'user',
-              content: res.prompt
+              content: input
             },
             {
               id: "",
@@ -117,8 +153,34 @@ export default function Chat({ params } : any) {
               content: res.response
             }
           ]);
-        });
+        });*/
       }
+    }
+
+    function handleGenerate(convo: any[], messageid: number, gptcontent: string) {
+
+        setMessages([
+          ...messages.slice(0, messageid),
+          {
+            id: "",
+            role: 'assistant',
+            content: 'Generating...'
+          },
+          ...messages.slice(messageid + 1) 
+        ]);
+      generatePreviousChat(convo, messageid, gptcontent).then((res) => {
+
+        setMessages([
+            ...messages.slice(0, messageid),
+            {
+              id: "",
+              role: 'assistant',
+              content: res.response
+            },
+            ...messages.slice(messageid + 1) 
+          ]);
+        });
+
     }
 
     function handleClick(){
@@ -135,7 +197,6 @@ export default function Chat({ params } : any) {
 
       }
     }
-   
 
   return (
     <div className="flex min-h-screen w-full">
@@ -241,7 +302,14 @@ export default function Chat({ params } : any) {
                   {m.content.startsWith('http') ? (
                     <img src={m.content} alt="Generated" />
                   ) : (
-                    <p>{m.content}</p>
+                    <div>
+                      <div dangerouslySetInnerHTML={{ __html: formatTextToHTML(m.content) }} />
+                      <button type="button" onClick={() => handleGenerate(messages, index, m.content)}>
+                        <b>
+                          Regenerate  
+                        </b>
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
@@ -289,6 +357,13 @@ export default function Chat({ params } : any) {
               <SendIcon className="h-5 w-5" />
               <span className="sr-only">Send</span>
             </Button>
+            {
+              isLoading && (
+              <button type="button" onClick={() => stop()}>
+                Stop
+              </button>
+              )
+            }
           </footer>
         </form>
       </div>
