@@ -16,6 +16,12 @@ import { formatTextToHTML } from '@/lib/textToHTML';
 import Link from "next/link";
 
 async function fetchDALLE(prompt: string) {
+  /**
+   * Fetches an image using the DALL-E model based on the provided prompt.
+   * @param prompt - The prompt for generating the image.
+   * @returns A Promise that resolves to the generated image response or an error message.
+   */
+
   const res = await fetch('/api/image',
     {
       method: 'POST',
@@ -32,17 +38,26 @@ async function fetchDALLE(prompt: string) {
   )
 
   if (!res.ok) {
-
-  
+    // return an error message when the image cannot be generated.
     return { 
           response: 'I apologize for the inconvenience, but I am unable to generate the image you are requesting. Can you try again later?'
       };
   
   }
+
+  
   return res.json()
 }
 
 async function generatePreviousChat(convo: any[], messageindex: number, gptcontent: string) {
+
+  /**
+   * Generates previous chat based on the given conversation, message index, and GPT content.
+   * @param convo - The conversation array of the whole message prompts
+   * @param messageindex - The index of the message to be re-generated.
+   * @param gptcontent - The message content to be re-generated.
+   * @returns A Promise that resolves to the re-generated response from the server or the same previous message if the API call is not successful.
+   */
 
   const res = await fetch('/api/regenerate',
     {
@@ -52,6 +67,7 @@ async function generatePreviousChat(convo: any[], messageindex: number, gptconte
       },
       body: JSON.stringify(
         {
+          // slice the convo array from the top message to the chosen message
           messages: convo.slice(0, messageindex), 
         }
       )
@@ -59,6 +75,7 @@ async function generatePreviousChat(convo: any[], messageindex: number, gptconte
   )
   
   if (!res.ok) {
+    // return the previous chat message if the API response is not
     return { 
           response: gptcontent
       };
@@ -67,7 +84,20 @@ async function generatePreviousChat(convo: any[], messageindex: number, gptconte
   return res.json()
 }
 
+
+/**
+ * Represents the Chat component.
+ * @param {Object} params - The id object, telling which persona will be utilized.
+ * @returns {JSX.Element} The Chat component.
+ */
 export default function Chat({ params } : any) {
+
+  /**
+   * Represents an array of persona descriptions.
+   * Each persona description includes the name, role, and expertise of Airis, a fictional character from StartUpLab.
+   * Airis is an expert in various fields and provides consultations and assistance to clients.
+   * The persona descriptions provide information about Airis's background, skills, and the topics she can help with.
+   */
   const persona = [
     'You are Airis, StartUpLab\'s internship advisor with 30 years of experience. You help Filipino students looking for interns prepare for internship applications. You are adept at creating resumes based on the information provided by clients, consulting with clients about their careers, and recommending career paths according to the clients\' skills and interests. Offer detailed answers to questions related to internships, including but not limited to application processes, interview tips, selecting suitable opportunities and preparing necessary documents. Speak in professional but comforting tone and ALWAYS TELL the user IF the topic goes out of your expertise.',
     'You are Airis, StartUpLab\'s marketing analyst with 30 years of experience. You help clients such as business owners understand market trends and consumer behavior. Your task is to offer deep-dive consultations tailored to the client\'s issues, including various analysis documents and progress reports. ALWAYS TELL the user IF the topic goes out of your expertise.',
@@ -75,40 +105,84 @@ export default function Chat({ params } : any) {
     'You are Airis, StartUpLab\'s Human Resource Manager with 30 years of experience. You specialize in HR policies, employee relations, performance management, talent acquisition, and employee development. Your task is to offer deep-dive consultations and help clients manage their HR needs effectively. Your clients can be business owners, HR managers and employers. Speak in professional tone and ALWAYS TELL the user IF the topic goes out of your expertise.  you may access images or files the user uploaded.',
     'You are Airis, StartUpLab\'s Admin Assistant with 30 years of experience, specializing in administrative management, operations coordination, and support services within the company ONLY. Your task is to offer assistance to StartUpLab\'s managers, admins, and owners on efficient operation and administrative processes. ALWAYS INFORM the user if the topic goes beyond your expertise.  you may access images or files the user uploaded.',
     'You are Airis, StartUpLab\'s mentor for teachers with 30 years of experience in all academic subjects and managing online courses. You help clients, including teachers, authors, and online instructors, with classroom management, curriculum development, student engagement, instructional strategies, and technology integration. You provide comprehensive answers and, if requested, create lesson plans, teaching materials, assessment tools, and progress reports. Speak in a formal and professional tone, and ALWAYS TELL the user IF the topic goes out of your expertise. you may access images or files the user uploaded.'
-]; 
-
-    // default ang gpt-4o on the textbox thingy
-    const [placeholder, setPlaceholder] = useState('Type your message...');
-    const [model, setModel] = useState('gpt-4o-mini');
-    const [uploadUrl, setUploadUrl] = useState("");
-
-    const [attachments] = useState<Attachment[]>([
-      {
-        name: 'earth.png',
-        contentType: 'image/png',
-        url: 'https://example.com/earth.png',
-      },
-    ]);
+  ]; 
 
 
-    const handleImageChange = (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const url = URL.createObjectURL(file);
-        setUploadUrl(url);
-      }
-    };
+  /**
+   * Represents the loading state of the component.
+   * When isLoading2 is true, it indicates that the DALL-E API call or GPT-4o re-generate call is currently loading.
+   */
+  const [isLoading2, setIsLoading2] = useState(false);
+
+
+  /**
+   * Represents the placeholder text for the input field.
+   * The placeholder text is displayed when the input field is empty.
+   */
+  const [placeholder, setPlaceholder] = useState('Type your message...');
+
+  /**
+   * Represents the selected model for generating responses.
+   * The model can be either 'gpt-4o-mini' (default) or 'dall-e-2'.
+   */
+  const [model, setModel] = useState('gpt-4o-mini');
+
+  /**
+   * Represents the URL of the uploaded file.
+   * The uploadUrl is used to display the uploaded image or file.
+   */
+  const [uploadUrl, setUploadUrl] = useState("");
+
+
+  /**
+   * Represents the array of attachments.
+   * The attachments array contains the uploaded images.
+   */
+  const [attachments] = useState<Attachment[]>([
+    {
+      name: 'earth.png',
+      contentType: 'image/png',
+      url: 'https://example.com/earth.png',
+    },
+  ]);
+
+  /**
+   * Handles the change event when an image is selected.
+   */
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setUploadUrl(url);
+    }
+  };
 
 
 
-
+  /**
+   * Represents a useChat hook from ai-sdk
+   * - the main backbone for streaming text like ChatGPT
+   * @messages    - holds the chat messages, with three roles 'system', 'assistant', and 'user'
+   * @setMessages - allows to manually update messages state (important on DALL-E and re-generate previous prompt)
+   * @input       - holds the current input value in the chat component
+   * @stop        - it stops the chat component from further generating a text. Only works on the general streaming the text, not on DALL-E and re-generating previous prompt
+   * @isLoading   - contains the loading state of the chat component, is a boolean
+   * @handleInputChange - handles the change event of the input field
+   * @handleSubmit      - handles submission event of the chat component (GPT-4o only)
+   */
   const { messages, setMessages, input, stop, isLoading, handleInputChange, handleSubmit } = useChat();
 
-
+  /**
+   * Handles the submission event of both chat components (GPT or DALL-E)
+   * this is called by the form
+   */
   async function promptSubmit(e: { preventDefault: () => void; }) {
     e.preventDefault();
     if (model == 'gpt-4o-mini') {
-      // GPT-4o MODEL
+      /**
+       * GPT-4o MODEL
+       * Calls the app/api/chat/route.ts to stream text output
+       */
       handleSubmit(e, {
         data: { imageUrl: uploadUrl,
                 persona: persona[params.id],
@@ -117,7 +191,14 @@ export default function Chat({ params } : any) {
       });
       }
     else {
-      // DALL-E MODEL
+      /**
+       * DALL-E MODEL
+       * Calls the app/api/image/route.ts to generate image output
+       * set isLoading2 to true to disable the form while we wait for DALL-E to finish processing 
+       * then, manually add the user prompt to messages state, since this is not part of useChat hook
+       * fetch DALL-E image url response and manually add it to messages state to display the output on to the UI
+       */
+      setIsLoading2(true);
       setMessages([
         ...messages, 
         {
@@ -133,7 +214,7 @@ export default function Chat({ params } : any) {
       ]);
 
         fetchDALLE(input).then((res) => {
-
+          setIsLoading2(false);
           setMessages([
             ...messages, 
             {
@@ -150,9 +231,17 @@ export default function Chat({ params } : any) {
         });
     }
   }
-
+  
+  /**
+   * Handles the generation of chat messages based on the provided conversation, message ID, and GPT content.
+   * 
+   * @param convo - The conversation array.
+   * @param messageid - The ID of the message to be generated.
+   * @param gptcontent - The GPT content to be used for generation.
+   */
   function handleGenerate(convo: any[], messageid: number, gptcontent: string) {
-
+    
+    setIsLoading2(true);
     setMessages([
       ...messages.slice(0, messageid),
       {
@@ -162,9 +251,9 @@ export default function Chat({ params } : any) {
       },
       ...messages.slice(messageid + 1) 
     ]);
-  generatePreviousChat(convo, messageid, gptcontent).then((res) => {
-
-    setMessages([
+    generatePreviousChat(convo, messageid, gptcontent).then((res) => {
+      setIsLoading2(false);
+      setMessages([
         ...messages.slice(0, messageid),
         {
           id: "",
@@ -174,11 +263,13 @@ export default function Chat({ params } : any) {
         ...messages.slice(messageid + 1) 
       ]);
     });
-
-}
-
+  }
 
 
+
+  /**
+   * Handles the change of the model and updates the placeholder text when toggle button is clicked.
+   */
   function handleModelChange(){
     if(model == 'gpt-4o-mini'){
       setModel('dall-e-2');
@@ -187,17 +278,21 @@ export default function Chat({ params } : any) {
     else{
       setModel('gpt-4o-mini');
       setPlaceholder('Type your message...');
-
-
     }
-
-    console.log(model);
-    console.log()
+    //console.log(model);
   }
 
+  /*
+   *
+   */
   const [hoveredMessageIndex, setHoveredMessageIndex] = React.useState<
     number | null
   >(null);
+
+
+
+
+
 
 
   return (
@@ -215,20 +310,24 @@ export default function Chat({ params } : any) {
         </header>
 
         <main className="relative flex-1 overflow-auto pt-5 bg-slate-100 pb-0">
+
+          { /* Contains the name of the Personas */ }
           <PersonaCard title={
-              params.id == 0 ? 'Internship Advisor AI' :
-              params.id == 1 ? 'Marketing Analyst AI' :
-              params.id == 2 ? 'Legal Consultant AI' :
-              params.id == 3 ? 'Human Resource Manager AI' :
-              params.id == 4 ? 'Admin AI' :
-              params.id == 5 ? 'Teacher' :
-              'Chatbot'
-            } 
-            
-            />
+            params.id == 0 ? 'Internship Advisor AI' :
+            params.id == 1 ? 'Marketing Analyst AI' :
+            params.id == 2 ? 'Legal Consultant AI' :
+            params.id == 3 ? 'Human Resource Manager AI' :
+            params.id == 4 ? 'Admin AI' :
+            params.id == 5 ? 'Teacher' :
+            'Chatbot'
+          } />
 
           <div className="pt-4 px-2 ps-4 pb-8 grid gap-6 max-w-5xl m-auto">
+            
+            
+            { /* Contains the whole conversation in the webpage */ }
             {messages.map((m, i) => {
+              
               const isLastMessage: boolean = i === messages.length - 1;
 
               if (m.role === "user") {
@@ -251,11 +350,12 @@ export default function Chat({ params } : any) {
                 const isHovered: boolean = i === hoveredMessageIndex;
                 return (
                   <div
-                    key={m.id}
+                    key={i}
                     className="flex items-start gap-1"
                     onMouseEnter={() => setHoveredMessageIndex(i)}
                     onMouseLeave={() => setHoveredMessageIndex(null)}
                   >
+                    { /** AI Logo */}
                     <div className="pt-4">
                       <div className="h-[40px] w-[40px] rounded-full bg-slate-400 overflow-clip">
                         <Image
@@ -272,7 +372,7 @@ export default function Chat({ params } : any) {
                       {m.content.startsWith('http') ? (
                           <img src={m.content} alt="Generated" />
                         ) : (
-                          <p>{m.content}</p>
+                          <div dangerouslySetInnerHTML={{ __html: formatTextToHTML(m.content) }} />
                         )}
                       {(isLastMessage || isHovered) && (
                         <div className="absolute z-10 bottom-[-15px] left-4 mt-1 flex gap-2">
@@ -285,10 +385,12 @@ export default function Chat({ params } : any) {
                             <span className="sr-only">More</span>
                           </Button>
 
+                          { /** Regenerate Button */}
                           <Button
                             variant="ghost"
                             size="iconSmall"
                             className="bg-none"
+                            onClick={() => handleGenerate(messages, i, m.content)}
                           >
                             <RegenerateIcon />
                             <span className="sr-only">More</span>
@@ -308,8 +410,7 @@ export default function Chat({ params } : any) {
 
         <form
           onSubmit={promptSubmit}
-          className="pb-[20px] bg-slate-100
-        px-5"
+          className="pb-[20px] bg-slate-100 px-5"
         >
           <div className="rounded-lg max-w-5xl m-auto sticky bottom-0 z-10 flex h-14 items-center gap-2 border bg-background px-4 sm:h-[60px] sm:px-3">
             <Input
@@ -318,23 +419,23 @@ export default function Chat({ params } : any) {
               value={input}
               className="flex-1 bg-transparent p-2 placeholder:text-base"
               onChange={handleInputChange}
-              disabled={isLoading}
+              disabled={isLoading || isLoading2}
             />
 
-          {/* {uploadUrl && <img src={uploadUrl} width={80} height={50} alt="Uploaded" />} */}
-            {/* <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="flex-1 rounded-md border border-input bg-transparent p-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-              disabled={isLoading}
-            /> */}
+            {/* {uploadUrl && <img src={uploadUrl} width={80} height={50} alt="Uploaded" />} */}
+              {/* <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="flex-1 rounded-md border border-input bg-transparent p-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                disabled={isLoading}
+              /> */}
 
             <Button
               variant="default"
               size="icon"
               className="bg-primary order-last"
-              disabled={isLoading}
+              disabled={isLoading || isLoading2}
             >
               <SendIcon />
               <span className="sr-only">Send</span>
