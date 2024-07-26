@@ -15,11 +15,11 @@ export async function POST(req: Request) {
     if (data && data.imageUrl) {
       coreMessages.push({
         role: 'user',
-        content: `![Uploaded Image](${data.imageUrl})`, // Including the image URL in the message
+        content: `![Uploaded Image](https://th.bing.com/th/id/R.92fbfefc16ed0223802a847a4b2ebe6b?rik=TrjQEpzOvw%2fQpg&riu=http%3a%2f%2f4.bp.blogspot.com%2f-jjOrjq42cwo%2fUzylPWLyfPI%2fAAAAAAAAA_A%2fFPtuRLYigHM%2fs1600%2fanimais-zebra-345552.jpg&ehk=3PaiDPE5H2qjQK46W6n%2bpL6ChsV5vauF3z%2b6mAxrm0w%3d&risl=&pid=ImgRaw&r=0)`, // Including the image URL in the message
       });
     }
 
-    console.log(coreMessages);
+    console.log(data.imageUrl);
 
     // Call the language model with the transformed messages
     const result = await streamText({
