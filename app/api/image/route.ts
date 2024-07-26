@@ -17,13 +17,14 @@ export async function POST(request: Request) {
             size: '256x256'
         }
     );
-  console.log(image.data[0]['url']);
-  console.log(JSON.stringify(
-    {
-        prompt: user_prompt, 
-        response: image.data[0]['url'],
-    }
-));
+    console.log(image);
+    //console.log(image.data[0]['url']);
+    //   console.log(JSON.stringify(
+    //     {
+    //         prompt: user_prompt, 
+    //         response: image.data[0]['url'],
+    //     }
+    // ));
   
   return new Response(JSON.stringify(
         {
