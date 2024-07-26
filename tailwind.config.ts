@@ -8,6 +8,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      backgroundImage: {
+        "main-gradient": "url('/a5.png')",
+      },
       fontFamily: {
         zain: ["Zain"],
       },

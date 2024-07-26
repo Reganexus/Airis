@@ -29,6 +29,7 @@ import { useChat } from "ai/react";
 import PersonaCard from "./persona-card";
 
 import Image from "next/image";
+import SideBar from "./side-bar";
 
 export function ByteChatBot() {
   const { messages, input, handleInputChange, handleSubmit } = useChat();
@@ -41,10 +42,15 @@ export function ByteChatBot() {
     <div className="flex h-screen w-full">
       {/* Main Content */}
       <div className="flex flex-1 flex-col">
-        <header className="sticky top-0 z-10 flex justify-between h-14 items-center gap-4 border-b border-slate-200 bg-background px-4 sm:h-[60px] sm:px-6">
+        <header className="sticky top-0 z-10 flex justify-between h-14 items-center gap-4 border-b border-slate-200 bg-background px-4 sm:h-[60px] sm:pl-6 sm:pr-3">
           <Logo />
 
-          <HeaderAvatar />
+          <Button variant="ghost" size="icon" className="bg-none">
+            <LeftArrow />
+            <span className="sr-only">More</span>
+          </Button>
+
+          {/* <HeaderAvatar /> */}
         </header>
 
         <main className="relative flex-1 overflow-auto pt-5 bg-slate-100 pb-0">
@@ -170,6 +176,9 @@ export function ByteChatBot() {
           </p>
         </form>
       </div>
+
+      {/* Sidebar */}
+      <SideBar />
     </div>
   );
 }
@@ -283,6 +292,25 @@ function ImageIcon() {
         stroke-linecap="round"
         stroke-linejoin="round"
         d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+      />
+    </svg>
+  );
+}
+
+function LeftArrow() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke-width="1.5"
+      stroke="#64748b"
+      className="size-6"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75"
       />
     </svg>
   );
