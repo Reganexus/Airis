@@ -208,7 +208,7 @@ export function ByteChatBot() {
        */
       handleSubmit(e, {
         data: { imageUrl: uploadUrl,
-                persona: chosenPersona.persona,
+                persona: chosenPersona.prompt,
          },
         
       });
@@ -308,9 +308,8 @@ export function ByteChatBot() {
   const handlePersonaChange = (personacode: any) => {
     // Add any additional logic to handle persona changes
     console.log(personacode);
-    const thecode = personacode;
     
-    setChosenPersona(personas[thecode]);
+    setChosenPersona(personas[personacode]);
     setMessages([]);
   };
 
