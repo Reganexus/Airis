@@ -6,17 +6,20 @@ interface ToggleButtonProps {
   iconA: JSX.Element;
   iconB: JSX.Element;
   className?: string;
+  changeModel: () => void;
 }
 
 const ToggleButton: React.FC<ToggleButtonProps> = ({
   iconA,
   iconB,
   className,
+  changeModel,
 }) => {
   const [isToggled, setIsToggled] = useState(false);
 
   const handleToggle = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault(); // Prevent the default button action
+    changeModel();
     setIsToggled((prev) => !prev);
   };
 
