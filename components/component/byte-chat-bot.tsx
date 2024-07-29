@@ -29,7 +29,7 @@ async function fetchDALLE(prompt: string) {
       },
       body: JSON.stringify(
         {
-          model: "dall-e-2",
+          model: "dall-e-3",
           user_prompt: prompt,
         }
       )
@@ -37,6 +37,7 @@ async function fetchDALLE(prompt: string) {
   )
 
   if (!res.ok) {
+
     // return an error message when the image cannot be generated.
     return { 
           response: 'I apologize for the inconvenience, but I am unable to generate the image you are requesting. Can you try again later?'
@@ -201,7 +202,7 @@ export function ByteChatBot() {
        */
       handleSubmit(e, {
         data: { imageUrl: uploadUrl,
-                persona: chosenPersona.persona,
+                persona: chosenPersona.prompt,
          },
         
       });
@@ -303,7 +304,7 @@ export function ByteChatBot() {
     console.log("PERSONA: "+ personacode);
     const thecode = personacode;
     
-    setChosenPersona(personas[thecode]);
+    setChosenPersona(personas[personacode]);
     setMessages([]);
   };
 
