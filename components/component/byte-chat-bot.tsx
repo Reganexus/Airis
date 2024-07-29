@@ -10,7 +10,6 @@ import HeaderAvatar from "@/components/component/header-avatar";
 
 import { useChat } from "ai/react";
 import PersonaCard from "./persona-card";
-import { Attachment } from '@ai-sdk/ui-utils';
 import { formatTextToHTML } from '@/lib/textToHTML';
 import Image from "next/image";
 import SideBar from "./side-bar";
@@ -159,13 +158,7 @@ export function ByteChatBot() {
    * Represents the array of attachments.
    * The attachments array contains the uploaded images.
    */
-  const [attachments] = useState<Attachment[]>([
-    {
-      name: 'earth.png',
-      contentType: 'image/png',
-      url: 'https://example.com/earth.png',
-    },
-  ]);
+
 
   /**
    * Handles the change event when an image is selected.
@@ -307,7 +300,7 @@ export function ByteChatBot() {
 
   const handlePersonaChange = (personacode: any) => {
     // Add any additional logic to handle persona changes
-    console.log(personacode);
+    console.log("PERSONA: "+ personacode);
     const thecode = personacode;
     
     setChosenPersona(personas[thecode]);
