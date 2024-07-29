@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import ToggleButton from "@/components/ui/toggle-button";
 
 import Logo from "@/components/component/logo";
-import HeaderAvatar from "@/components/component/header-avatar";
+// import HeaderAvatar from "@/components/component/header-avatar";
 
 import { useChat } from "ai/react";
 import PersonaCard from "./persona-card";
