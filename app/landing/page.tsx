@@ -1,6 +1,10 @@
 import React, { FC } from "react";
 import Hero from "./hero";
 import Personas from "./personas";
+import Features from "./features";
+import Team from "./team";
+import Pricing from "./pricing";
+import Footer from "./footer";
 
 // Define Props Interface
 interface MyComponentProps {}
@@ -11,6 +15,10 @@ const LandingMainContent: FC<MyComponentProps> = () => {
     <>
       <Hero />
       <Personas />
+      <Features />
+      <Pricing />
+      <Team />
+      <Footer />
     </>
   );
 };

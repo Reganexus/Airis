@@ -43,7 +43,7 @@ interface AvatarPicNameProps {
   name: string;
 }
 
-const AvatarPicName: FC<AvatarPicNameProps> = ({ picture, name }) => {
+export const AvatarPicName: FC<AvatarPicNameProps> = ({ picture, name }) => {
   return (
     <div className="flex items-center gap-2">
       <div className="rounded-full overflow-clip">
@@ -57,7 +57,7 @@ const AvatarPicName: FC<AvatarPicNameProps> = ({ picture, name }) => {
 
 const BotPart: FC<MyComponentProps> = () => {
   return (
-    <div className="flex p-20">
+    <div className="flex p-20 bg-persona-bg bg-cover">
       <div className="flex max-w-[1200px] m-auto">
         <div className="flex flex-col gap-4 basis-[30%] p-10 pr-20">
           <h2 className="text-3xl font-medium text-slate-800">
@@ -98,7 +98,7 @@ const BotPart: FC<MyComponentProps> = () => {
             <PersonaIcons className="absolute m-4 bg-white z-10">
               <InternIcon />
             </PersonaIcons>
-            <h2 className="z-10 absolute bottom-28 w-full text-center text-white text-2xl">
+            <h2 className="z-10 absolute bottom-28 w-full text-center text-white text-3xl">
               How do I make a Resume?
             </h2>
             <div className="z-10 absolute top-12 w-full p-4">

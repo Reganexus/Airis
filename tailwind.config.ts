@@ -10,6 +10,7 @@ const config: Config = {
     extend: {
       backgroundImage: {
         "main-gradient": "url('/a5.png')",
+        "persona-bg": "url('/a8.png')",
       },
       fontFamily: {
         zain: ["Zain"],
