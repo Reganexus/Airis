@@ -1,5 +1,6 @@
 import React, { FC } from "react";
 import Hero from "./hero";
+import Personas from "./personas";
 
 // Define Props Interface
 interface MyComponentProps {}
@@ -9,6 +10,7 @@ const LandingMainContent: FC<MyComponentProps> = () => {
   return (
     <>
       <Hero />
+      <Personas />
     </>
   );
 };

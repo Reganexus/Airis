@@ -26,7 +26,7 @@ const Hero: FC<MyComponentProps> = () => {
         </Link>
         <Link
           href="#"
-          className=" text-2xl px-8 py-2 text-white border-2 text-white border-white rounded-lg px-4 flex items-center hover:bg-white hover:text-slate-700"
+          className="text-2xl px-8 py-2 text-white border-2 text-white border-white rounded-lg px-4 flex items-center hover:bg-white hover:text-slate-700"
         >
           Sign Up
         </Link>
