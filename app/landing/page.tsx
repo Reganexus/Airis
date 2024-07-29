@@ -1,11 +1,16 @@
 import React, { FC } from "react";
+import Hero from "./hero";
 
 // Define Props Interface
 interface MyComponentProps {}
 
 // Functional Component
 const LandingMainContent: FC<MyComponentProps> = () => {
-  return <div className="my-component"></div>;
+  return (
+    <>
+      <Hero />
+    </>
+  );
 };
 
 export default LandingMainContent;

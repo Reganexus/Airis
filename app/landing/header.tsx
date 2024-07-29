@@ -10,16 +10,16 @@ interface MyComponentProps {}
 // Functional Component
 const Header: FC<MyComponentProps> = () => {
   return (
-    <header className="sticky shadow flex justify-between items-align h-[4rem] border-b border-slate-300 px-4">
+    <header className="z-20 sticky relative shadow flex justify-between items-align h-[4rem] border-b border-slate-300 px-4">
       <Logo />
 
-      <ul className="flex items-center gap-10">
+      <ul className="absolute inset-0 flex justify-center items-center gap-10">
         <Link href="#">Features</Link>
         <Link href="#">Pricing</Link>
         <Link href="#">About Us</Link>
       </ul>
 
-      <div className="flex items-align gap-4 py-3">
+      <div className="flex items-align gap-4 py-3 z-20">
         <Link
           href="#"
           className="bg-none border border-slate-700 rounded-lg px-4 hover:bg-slate-200 flex items-center"
@@ -28,7 +28,7 @@ const Header: FC<MyComponentProps> = () => {
         </Link>
         <Link
           href="#"
-          className="bg-primary hover:bg-sky-700 text-white rounded-lg px-4 flex items-center"
+          className="bg-primary hover:bg-sky-700 text-white rounded-lg px-4 flex items-center "
         >
           Sign in
         </Link>

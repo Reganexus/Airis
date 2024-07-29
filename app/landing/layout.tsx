@@ -18,7 +18,7 @@ export default function LandingLayout({
   return (
     <div className="relative">
       <Header />
-      <main className={`${outfit.className} bg-slate-200`}>{children}</main>
+      <main className={`${outfit.className} bg-slate-100`}>{children}</main>
     </div>
   );
 }

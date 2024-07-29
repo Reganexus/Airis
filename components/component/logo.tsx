@@ -3,7 +3,7 @@ import Image from "next/image";
 
 const Logo: React.FC = () => {
   return (
-    <div className="flex items-center justify-center gap-1">
+    <div className="z-20 flex items-center justify-center gap-1">
       <div>
         <Image
           src="/airis_logo_sq_trans.png"
