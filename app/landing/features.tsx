@@ -18,9 +18,9 @@ export default Features;
 
 const Feature1: FC = () => {
   return (
-    <div className="flex max-w-[1200px] m-auto">
+    <div className="flex max-w-[1200px] m-auto mb-8">
       <div className="basis-[40%] flex justify-center items-center p-8">
-        <div className="bg-slate-700 w-full h-[30rem] rounded-lg bg-main-gradient bg-cover border border-slate-500 shadow relative">
+        <div className="w-full h-[30rem] rounded-lg bg-feature1 bg-contain bg-center bg-no-repeat">
           {/* picture here */}
         </div>
       </div>
@@ -50,7 +50,7 @@ const Feature1: FC = () => {
 
 const Feature2: FC = () => {
   return (
-    <div className="flex max-w-[1200px] m-auto">
+    <div className="flex max-w-[1200px] m-auto mb-12">
       <div className="basis-[60%] p-10 flex flex-col justify-center">
         <h2 className="text-4xl font-bold text-slate-700 mb-6">
           A collection of personas for your business needs
@@ -70,8 +70,8 @@ const Feature2: FC = () => {
           </Link>
         </div>
       </div>
-      <div className="basis-[40%] flex justify-center items-center p-8">
-        <div className="bg-slate-700 w-full h-[30rem] rounded-lg bg-main-gradient bg-cover border border-slate-500 shadow relative">
+      <div className="basis-[40%] flex justify-center items-center">
+        <div className="w-full h-[30rem] rounded-lg bg-feature2 bg-contain bg-center bg-no-repeat">
           {/* picture here */}
         </div>
       </div>
@@ -81,9 +81,9 @@ const Feature2: FC = () => {
 
 const Feature3: FC = () => {
   return (
-    <div className="flex max-w-[1200px] m-auto">
-      <div className="basis-[40%] flex justify-center items-center p-8">
-        <div className="bg-slate-700 w-full h-[30rem] rounded-lg bg-main-gradient bg-cover border border-slate-500 shadow relative">
+    <div className="flex max-w-[1200px] m-auto mb-12">
+      <div className="basis-[40%] flex justify-center items-center">
+        <div className="w-full h-[30rem] rounded-lg bg-feature3 bg-contain bg-center bg-no-repeat">
           {/* picture here */}
         </div>
       </div>

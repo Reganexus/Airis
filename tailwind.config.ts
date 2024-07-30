@@ -11,6 +11,12 @@ const config: Config = {
       backgroundImage: {
         "main-gradient": "url('/a5.png')",
         "persona-bg": "url('/a8.png')",
+        feature1: "url('/f1.png')",
+        feature2: "url('/f2.png')",
+        feature3: "url('/f3.png')",
+        pricing: "url('/pricing-bg.png')",
+        plus: "url('/plus-tier-bg.png')",
+        premium: "url('/premium-tier-bg.jpg')",
       },
       fontFamily: {
         zain: ["Zain"],
