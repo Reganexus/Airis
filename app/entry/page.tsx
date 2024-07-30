@@ -1,6 +1,7 @@
 import React, { FC } from "react";
 import Logo from "@/components/component/logo";
 import Link from "next/link";
+import Marquee from "./marquee";
 
 // Define Props Interface
 interface MyComponentProps {}
@@ -10,7 +11,7 @@ const EntryPage: FC<MyComponentProps> = () => {
   return (
     <div className="bg-entry h-screen bg-cover">
       <div className="h-full w-full max-w-7xl flex justify-center items-center  m-auto">
-        <div className="basis-[65%] ">Pic</div>
+        <Marquee />
 
         <div className="basis-[35%] flex justify-center items-center">
           <div className="bg-white w-full p-8 h-[40rem] rounded-lg flex flex-col">
