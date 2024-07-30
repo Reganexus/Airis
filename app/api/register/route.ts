@@ -1,6 +1,7 @@
 import { sql } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { hash } from 'bcrypt';
 
 export async function POST(req: Request) {
   try {
@@ -35,9 +36,10 @@ export async function POST(req: Request) {
     if (!parse.success) {
       return NextResponse.json({ error: 'Failed validation' }, { status: 400 });
     }
-  
     const data = parse.data;
-  
+    
+    // pass hashing
+    const hashedPassword = await hash(data.password, 10);
     // Validate the data (basic validation example)
     // if (!username || !email || !password) {
     //   return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
@@ -59,7 +61,7 @@ export async function POST(req: Request) {
         ${data.username}, 
         ${data.email}, 
         'basic', 
-        ${data.password}, 
+        ${hashedPassword}, 
         false
         );`;
 
