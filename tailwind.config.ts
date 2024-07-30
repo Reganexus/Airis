@@ -17,6 +17,7 @@ const config: Config = {
         pricing: "url('/pricing-bg.png')",
         plus: "url('/plus-tier-bg.png')",
         premium: "url('/premium-tier-bg.jpg')",
+        entry: "url('/a7.png')",
       },
       fontFamily: {
         zain: ["Zain"],

@@ -21,13 +21,13 @@ const Header: FC<MyComponentProps> = () => {
 
       <div className="flex items-align gap-4 py-3 z-20">
         <Link
-          href="#"
+          href="/entry"
           className="bg-none border border-slate-700 rounded-lg px-4 hover:bg-slate-200 flex items-center"
         >
           Sign Up
         </Link>
         <Link
-          href="#"
+          href="/entry"
           className="bg-primary hover:bg-sky-700 text-white rounded-lg px-4 flex items-center "
         >
           Sign in
