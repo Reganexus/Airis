@@ -16,20 +16,22 @@ function SubmitButton({ pending }) {
 function RegisterUser() {
   const [formData, setFormData] = useState({
     username: "",
+    firstname: "",
+    lastname: "",
     email: "",
     password: "",
   });
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState(initialState.message);
 
-  const handleChange = (e) => {
+  const handleChange = (e: { target: { name: any; value: any; }; }) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     setPending(true);
     try {
@@ -54,6 +56,22 @@ function RegisterUser() {
         name="username"
         placeholder="Username"
         value={formData.username}
+        onChange={handleChange}
+      />
+      <input
+        className="border border-black"
+        type="text"
+        name="firstname"
+        placeholder="firstname"
+        value={formData.firstname}
+        onChange={handleChange}
+      />
+      <input
+        className="border border-black"
+        type="text"
+        name="lastname"
+        placeholder="lastname"
+        value={formData.lastname}
         onChange={handleChange}
       />
       <input
