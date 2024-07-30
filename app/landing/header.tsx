@@ -10,7 +10,7 @@ interface MyComponentProps {}
 // Functional Component
 const Header: FC<MyComponentProps> = () => {
   return (
-    <header className="z-20 sticky inset-0 relative shadow flex justify-between items-align h-[4rem] border-b border-slate-300 px-4 bg-white">
+    <header className="z-20 sticky inset-0 shadow flex justify-between items-align h-[4rem] border-b border-slate-300 px-4 bg-white">
       <Logo />
 
       <ul className="absolute inset-0 flex justify-center items-center gap-10">
