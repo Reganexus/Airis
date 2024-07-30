@@ -164,7 +164,7 @@ export function ByteChatBot() {
   /**
    * Handles the change event when an image is selected.
    */
-  const handleImageChange = (e) => {
+  const handleImageChange = (e: { target: { files: any[]; }; }) => {
     const file = e.target.files[0];
     if (file) {
       const url = URL.createObjectURL(file);
