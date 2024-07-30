@@ -1,0 +1,21 @@
+/* Ensure your slick slider CSS is imported */
+.slick-slide {
+  transition: transform 0.5s ease;
+}
+
+.slick-center .slide-wrapper {
+  /* Highlight center slide */
+  padding: 10px;
+  /* Add other styles like shadow or scale */
+  transform: scale(1.1); /* Example: Slightly zoom in the center slide */
+}
+
+.slick-center .team-card {
+  border-color: #2392fa;
+  border-width: 2px;
+}
+
+.slick-list {
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+}

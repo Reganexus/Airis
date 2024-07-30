@@ -1,10 +1,69 @@
+"use client";
+
 import Link from "next/link";
 import React, { FC } from "react";
+import Image from "next/image";
+
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import "./carousel.css";
+
+interface TeamMember {
+  pic: string;
+  name: string;
+  title: string;
+  description: string;
+}
+const team: TeamMember[] = [
+  {
+    pic: "/c1.png",
+    name: "Fernando Alonso",
+    title: "Chief Executive Officer",
+    description:
+      "Fernando leads with vision and passion for technology, driving innovation and ensuring client satisfaction.",
+  },
+  {
+    pic: "/c2.png",
+    name: "Maria Johnson",
+    title: "Chief Operating Officer",
+    description:
+      "Maria ensures smooth operations with a focus on efficiency and detail, keeping us on track with our goals.",
+  },
+  {
+    pic: "/c3.png",
+    name: "James Smith",
+    title: "Chief Technology Officer",
+    description:
+      "James leads tech development with expertise and innovation, helping us stay competitive in the market.",
+  },
+  {
+    pic: "/c4.png",
+    name: "Linda Davis",
+    title: "Chief Marketing Officer",
+    description:
+      "Linda crafts strategies that boost our brand and engage customers, thanks to her understanding of market trends.",
+  },
+  {
+    pic: "/c5.png",
+    name: "Robert Brown",
+    title: "Chief Financial Officer",
+    description:
+      "Robert oversees our finances with strategic planning, ensuring growth and stability.",
+  },
+  {
+    pic: "/c6.png",
+    name: "Emily Wilson",
+    title: "Chief Human Resources Officer",
+    description:
+      "Emily fosters a positive work environment and focuses on employee development to attract and retain talent.",
+  },
+];
 
 const Team: FC = () => {
   return (
-    <section className="bg-plus bg-cover min-h-[50rem] flex flex-col items-center">
-      <div className="bg-white w-full text-center py-16">
+    <section className="bg-plus bg-cover min-h-[50rem] flex flex-col items-center pb-28">
+      <div className="bg-white w-full text-center py-16 shadow-lg">
         <h2 className="text-4xl font-bold mb-8 text-slate-800">
           Meet the Team
         </h2>
@@ -22,7 +81,67 @@ const Team: FC = () => {
 };
 
 const Carousel: FC = () => {
-  return <div className="">Carou</div>;
+  const settings = {
+    className: "center",
+    centerMode: true,
+    infinite: true,
+    centerPadding: "60px",
+    slidesToShow: 3,
+    speed: 500,
+    autoplay: true,
+    autoplaySpeed: 3000,
+    pauseOnHover: true,
+  };
+
+  return (
+    <div className="slider-container w-full max-w-7xl my-16 p-8">
+      <Slider {...settings}>
+        {team.map((member: any) => (
+          <div className="slide-wrapper" key={member.name}>
+            <TeamCard
+              key={member.name}
+              pic={member.pic}
+              name={member.name}
+              title={member.title}
+              description={member.description}
+            />
+          </div>
+        ))}
+      </Slider>
+    </div>
+  );
+};
+
+interface TeamCardProps {
+  pic: string;
+  name: string;
+  title: string;
+  description: string;
+}
+
+const TeamCard: FC<TeamCardProps> = ({ pic, name, title, description }) => {
+  return (
+    <div className="team-card bg-white rounded-lg border border-slate-400 shadow-md p-4 h-[28rem] m-2 flex flex-col">
+      {/* Picture */}
+      <div className="relative w-full basis-1/2">
+        <Image
+          src={pic}
+          alt={`picture of ${name}`}
+          layout="fill"
+          objectFit="cover"
+          objectPosition="30% 20%"
+          className="rounded-lg"
+        />
+      </div>
+
+      {/* Text */}
+      <div className="basis-1/2">
+        <h3 className="text-2xl text-primary font-semibold pt-4">{name}</h3>
+        <h6 className="font-medium text-slate-700 mb-3">{title}</h6>
+        <p className="text-slate-600">{description}</p>
+      </div>
+    </div>
+  );
 };
 
 const CTA: FC = () => {
