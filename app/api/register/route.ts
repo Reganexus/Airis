@@ -21,23 +21,22 @@ export async function POST(req: Request) {
     // Insert the data into the USERS table
     const result = await sql`
       INSERT INTO Users (
-  firstname, 
-  lastname, 
-  username, 
-  email, 
-  subscription_level, 
-  password, 
-  admin
-) VALUES (
-  'John', 
-  'Doe', 
-  ${username}, 
-   ${email}, 
-  'basic', 
-   ${password}', 
-  false
-);
-    `;
+        firstname, 
+        lastname, 
+        username, 
+        email, 
+        subscription_level, 
+        password, 
+        admin
+        ) VALUES (
+        'John', 
+        'Doe', 
+        ${username}, 
+        ${email}, 
+        'basic', 
+        ${password}, 
+        false
+        );`;
 
     return NextResponse.json({ result }, { status: 200 });
   } catch (error) {
