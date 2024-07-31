@@ -1,16 +1,45 @@
 "use client";
 
 import React from "react";
+import { FormEvent } from 'react';
 import Logo from "@/components/component/logo";
-
 interface RegisterFormProps {
   onClick: Function;
 }
+
 
 const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
   const handleToggleForm = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     onClick();
+  };
+
+  
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const response = await fetch(`/api/auth/register`, {
+      method: 'POST',
+      body: JSON.stringify({
+        fname: formData.get('fname'),
+        lname: formData.get('lname'),
+        username: formData.get('username'),
+        email: formData.get('email'),
+        password: formData.get('password'),
+        password2: formData.get('password2'),
+      }),
+    });
+    if(response.status == 200){
+        console.log("REGISTRATION SUCCESS")
+        console.log({ response });
+        onClick();
+        // router.push('/login');
+        // router.refresh();
+    }
+    else{
+      console.log("REGISTRATION FAILED")
+      console.log({ response });
+    }
   };
 
   return (
@@ -29,7 +58,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
       </div>
 
       {/* FORM HERE */}
-      <form action="">
+      <form onSubmit={handleSubmit}>
         {/* First and Last Name */}
         <div className="relative flex mb-3 gap-2">
           <div>
@@ -60,7 +89,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
           <label htmlFor="uname">Username</label>
           <input
             type="text"
-            name="uname"
+            name="username"
             id="uname"
             placeholder="Username"
             className="border py-2 px-3 rounded-lg"
@@ -84,7 +113,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
           <label htmlFor="pword">Password</label>
           <input
             type="password"
-            name="pword"
+            name="password"
             id="pword"
             placeholder="Password"
             className="border py-2 px-3 rounded-lg"
@@ -98,7 +127,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
           <label htmlFor="cpword">Confirm Password</label>
           <input
             type="password"
-            name="cpword"
+            name="password2"
             id="cpword"
             placeholder="Password"
             className="border py-2 px-3 rounded-lg"
@@ -106,7 +135,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
         </div>
 
         <input
-          type="button"
+          type="submit"
           value="Sign Up"
           className="bg-primary w-full my-2 text-white py-3 rounded-lg"
         />
