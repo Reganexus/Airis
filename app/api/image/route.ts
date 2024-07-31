@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 
 export async function POST(request: Request) {
-    const { user_prompt, model} = await request.json();
+    const { user_prompt, model } = await request.json();
 
     console.log("PROMPT:" + user_prompt);
     console.log("MODEL:" + model);
