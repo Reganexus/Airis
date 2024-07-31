@@ -26,6 +26,10 @@ const config: Config = {
         zain: ["Zain"],
       },
       colors: {
+        "password-v-weak" : "#EE4035",
+        "password-weak" : "#F37736",
+        "password-strong" : "#FDF498",
+        "password-v-strong" : "#7BC043",
         "ai-intern": "#3CA2D1",
         "ai-marketing": "#AE729F",
         "ai-hr": "#532B48",
