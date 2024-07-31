@@ -3,15 +3,38 @@
 import React from "react";
 import Logo from "@/components/component/logo";
 import Link from "next/link";
+import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { FormEvent } from 'react';
+
 
 interface LoginFormProps {
   onClick: Function;
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onClick }) => {
+  const router = useRouter();
   const handleToggleForm = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     onClick();
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const response = await signIn('credentials', {
+      user_or_email: formData.get('user_or_email'),
+      password: formData.get('password'),
+      redirect: false,
+    });
+
+    console.log({ response });
+
+    // Redirect user to the main page if the credentials are valid
+    if (!response?.error) {
+      router.push('/');
+      router.refresh();
+    }
   };
 
   return (
@@ -24,12 +47,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClick }) => {
       </div>
 
       {/* FORM HERE */}
-      <form action="">
+      <form onSubmit={handleSubmit}>
         <div className="relative flex flex-col mb-3">
           <label htmlFor="username">Username or Email</label>
           <input
             type="text"
-            name="username"
+            name="user_or_email"
             id="username"
             placeholder="Username"
             className="border py-2 px-3 rounded-lg"
@@ -50,7 +73,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClick }) => {
           </button>
         </div>
         <input
-          type="button"
+          type="submit"
           value="Sign In"
           className="bg-primary w-full my-2 text-white py-3 rounded-lg"
         />
