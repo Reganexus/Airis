@@ -17,42 +17,42 @@ interface TeamMember {
 }
 const team: TeamMember[] = [
   {
-    pic: "/c1.png",
+    pic: "/img/team_1.png",
     name: "Fernando Alonso",
     title: "Chief Executive Officer",
     description:
       "Fernando leads with vision and passion for technology, driving innovation and ensuring client satisfaction.",
   },
   {
-    pic: "/c2.png",
+    pic: "/img/team_2.png",
     name: "Maria Johnson",
     title: "Chief Operating Officer",
     description:
       "Maria ensures smooth operations with a focus on efficiency and detail, keeping us on track with our goals.",
   },
   {
-    pic: "/c3.png",
-    name: "James Smith",
+    pic: "/img/team_3.png",
+    name: "Charles Leclerc",
     title: "Chief Technology Officer",
     description:
-      "James leads tech development with expertise and innovation, helping us stay competitive in the market.",
+      "Charles leads tech development with expertise and innovation, helping us stay competitive in the market.",
   },
   {
-    pic: "/c4.png",
+    pic: "/img/team_4.png",
     name: "Linda Davis",
     title: "Chief Marketing Officer",
     description:
       "Linda crafts strategies that boost our brand and engage customers, thanks to her understanding of market trends.",
   },
   {
-    pic: "/c5.png",
+    pic: "/img/team_5.png",
     name: "Robert Brown",
     title: "Chief Financial Officer",
     description:
       "Robert oversees our finances with strategic planning, ensuring growth and stability.",
   },
   {
-    pic: "/c6.png",
+    pic: "/img/team_6.png",
     name: "Emily Wilson",
     title: "Chief Human Resources Officer",
     description:

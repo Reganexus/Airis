@@ -11,7 +11,7 @@ const Logo: React.FC<LogoProps> = ({ logoSize = 50, textSize = "4xl" }) => {
     <div className="z-20 flex items-center justify-center gap-1">
       <div>
         <Image
-          src="/airis_logo_sq_trans.png"
+          src="/logo/airis_logo_sq_trans.png"
           alt="airis logo"
           width={logoSize}
           height={logoSize}

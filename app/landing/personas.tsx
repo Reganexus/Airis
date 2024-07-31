@@ -27,12 +27,12 @@ const TopPart: FC<MyComponentProps> = () => {
       </h3>
 
       <div className="flex justify-center items-center gap-8">
-        <AvatarPicName picture="/default_blue.png" name="Legal" />
-        <AvatarPicName picture="/6_var.png" name="Human Resources" />
-        <AvatarPicName picture="/3_var.png" name="Marketing" />
-        <AvatarPicName picture="/2_var.png" name="Internship" />
-        <AvatarPicName picture="/5_var.png" name="Admin" />
-        <AvatarPicName picture="/4_var.png" name="Mentorship" />
+        <AvatarPicName picture="/persona_icons/icon_law.png" name="Legal" />
+        <AvatarPicName picture="/persona_icons/icon_hr.png" name="Human Resources" />
+        <AvatarPicName picture="/persona_icons/icon_marketing.png" name="Marketing" />
+        <AvatarPicName picture="/persona_icons/icon_intern.png" name="Internship" />
+        <AvatarPicName picture="/persona_icons/icon_admin.png" name="Admin" />
+        <AvatarPicName picture="/persona_icons/icon_teacher.png" name="Mentorship" />
       </div>
     </div>
   );
