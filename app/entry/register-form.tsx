@@ -121,6 +121,59 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
 
 export default RegisterForm;
 
+interface PasswordStrengthProps {
+  strength?: "" | "very weak" | "weak" | "strong" | "very strong";
+}
+
+const PasswordStrength: React.FC<PasswordStrengthProps> = ({
+  strength = "",
+}) => {
+  let barColor = "";
+  let fill = 0;
+
+  switch (strength) {
+    case "very weak":
+      barColor = "bg-password-v-weak";
+      fill = 1;
+      break;
+    case "weak":
+      barColor = "bg-password-weak";
+      fill = 2;
+      break;
+    case "strong":
+      barColor = "bg-password-strong";
+      fill = 3;
+      break;
+    case "very strong":
+      barColor = "bg-password-v-strong";
+      fill = 4;
+      break;
+    default:
+      barColor = "";
+      break;
+  }
+
+  return (
+    <div className="flex items-center mt-1 gap-2 nowrap">
+      <p className="text-slate-600 text-sm">
+        <span className="font-medium">Strength:</span> {strength}
+      </p>
+
+      {/* Visual indicator the bar */}
+      <div className="border border-slate-300 grow flex p-1 gap-1 rounded-lg h-4">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div
+            key={index}
+            className={`${
+              fill - 1 >= index ? barColor : ""
+            } border border-slate-300 rounded-md flex-1`}
+          ></div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const BackButtonIcon = () => {
   return (
     <svg
@@ -137,23 +190,5 @@ const BackButtonIcon = () => {
         d="M15.75 19.5 8.25 12l7.5-7.5"
       />
     </svg>
-  );
-};
-
-const PasswordStrength = () => {
-  return (
-    <div className="flex mt-1 gap-1 nowrap">
-      <p className="text-slate-600 text-sm">
-        <span className="font-medium">Strength:</span> {"%Strength%"}
-      </p>
-
-      {/* Visual indicator the bar */}
-      <div className="bg-slate-300 grow flex p-1 gap-1 rounded-lg">
-        <div className="bg-slate-500 rounded-md flex-1"></div>
-        <div className="bg-slate-500 rounded-md flex-1"></div>
-        <div className="bg-slate-500 rounded-md flex-1"></div>
-        <div className="bg-slate-500 rounded-md flex-1"></div>
-      </div>
-    </div>
   );
 };
