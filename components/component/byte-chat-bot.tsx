@@ -141,6 +141,7 @@ async function fetchSaveConvo(message: any[], email: any, chatbot_id: number, co
 }
 
 async function fetchChatHistory(email: any) {
+  console.log(email)
   const response = await fetch('/api/query/query-chat-history', {
     method: 'POST',
     body: JSON.stringify({
@@ -152,7 +153,7 @@ async function fetchChatHistory(email: any) {
   }
   // must return status, convo_id
   const data = await response.json();
-  return data
+  return data.chat_history
 }
 
 
@@ -424,26 +425,25 @@ export function ByteChatBot() {
     }
   }, [isLoading, isLoading2]);
 
+  const [chatHistory, setChatHistory] = useState<Array<any>>();
+
   useEffect(() => {
-
+    if (status === 'authenticated' && user) {
       // a generation has stopped
-      const chatHistory = async () => {
-      
-        try {
+      const getChatHistory = async () => {
+        
+        console.log("caaaaa", user?.email)
           const data = await fetchChatHistory(user?.email);
-          console.log("chat history fetched");
-
-          console.log(data)
-          
-        } catch (error) {
-          console.error("Failed to fetch chatbot data", error);
-        }
+          console.log("chat history fetched", data);
+          setChatHistory(data)
       };
 
       
-      chatHistory
+      getChatHistory()
+
+    }
       
-  }, []);
+  }, [status, user]);
   
   /**
    * Handles the generation of chat messages based on the provided conversation, message ID, and GPT content.
@@ -662,7 +662,7 @@ export function ByteChatBot() {
       </div>
 
       {/* Sidebar */}
-      <SideBar onPersonaChange={handlePersonaChange} />
+      <SideBar onPersonaChange={handlePersonaChange} chatHistory={chatHistory} />
     </div>
   );
 }

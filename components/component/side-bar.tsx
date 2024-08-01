@@ -8,13 +8,16 @@ import { Persona } from '@/lib/types';
 import { Personas } from '@/lib/types';
 import { PersonaCode } from '@/lib/types';
 
+
+
 interface SideBarProps {
-    onPersonaChange: (personacode: PersonaCode) => void; 
+    onPersonaChange: (personacode: PersonaCode) => void;
+    chatHistory: any[] | undefined
     // Adjust the type according to your data structure
     // will be passed back to parent component
 }
 
-const SideBar: React.FC<SideBarProps> = ({ onPersonaChange }) => {
+const SideBar: React.FC<SideBarProps> = ({ onPersonaChange, chatHistory }) => {
 
     const handlePersonaChange = (personacode: PersonaCode) => {
         // Add any additional logic to handle persona changes
@@ -54,11 +57,16 @@ const SideBar: React.FC<SideBarProps> = ({ onPersonaChange }) => {
 
       {/* Chat History Card */}
       <div className="grow flex flex-col items-center rounded-lg border border-slate-300 bg-white overflow-auto">
-        <ChatHistory emoji="😂" />
+        {chatHistory && chatHistory.map((chat, i) => (
+            <div key={i}>
+                <ChatHistory emoji={chat.title} chatId={chat.conversation_id} />
+            </div>
+        ))}
+        {/* <ChatHistory emoji="😂" />
         <ChatHistory emoji="🍃" />
         <ChatHistory emoji="👌" />
         <ChatHistory emoji="❤️" />
-        <ChatHistory emoji="😁" />
+        <ChatHistory emoji="😁" /> */}
       </div>
     </div>
   );
@@ -152,12 +160,13 @@ const PersonaAvatar: React.FC<PersonaAvatarProps> = ({
 interface ChatHistoryProps {
   onClick?: MouseEventHandler<HTMLButtonElement>;
   emoji: string;
+  chatId: number;
 }
 
-const ChatHistory: React.FC<ChatHistoryProps> = ({ onClick, emoji }) => {
+const ChatHistory: React.FC<ChatHistoryProps> = ({ onClick, emoji, chatId }) => {
   return (
     <button className="pt-4 hover:cursor-pointer" onClick={onClick}>
-      <div className="h-[40px] w-[40px] rounded-lg bg-slate-100 hover:bg-slate-200 overflow-clip border border-slate-300 flex items-center justify-center text-[20px]">
+      <div className="h-[40px] rounded-lg bg-slate-100 hover:bg-slate-200 overflow-clip border border-slate-300 flex items-center justify-center text-[20px]">
         {emoji}
       </div>
     </button>
