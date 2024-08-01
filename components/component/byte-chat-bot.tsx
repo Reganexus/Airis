@@ -201,7 +201,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const { data: session, status } = useSession();
   // Access user information from session
   const user = session?.user;
-
+  
   //  consists of the chatbot conversation id
   const [conversationId, setConversationId] =  useState(0);
   // if a chathistory is clllicked, this will be saved
@@ -218,48 +218,58 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
           router.push('/chat'); 
           return;
         }
+
+
         // VALIDATE - User should be logged in, with right account
-        if (status === 'authenticated' && user) { 
+        if (status === 'unauthenticated') {
+          router.push('/chat');
+          return;
+        }
+        
+        console.log(status)
+
+        if (status === 'authenticated' && user != undefined) { 
           const validateUser = async () => {
               const data = await fetchChatUID(numberHistoryConversationId, user?.email);
-              
+            
               if (data == 'wrong uid') {
                 router.push('/chat');
                 return;
               }
           }
           validateUser()
-  
+
+          setConversationId(numberHistoryConversationId);
+
+          const getOldChat = async () => {
+            try {
+              const data = await fetchOldChat(numberHistoryConversationId);
+              if (data.error != '') {
+                console.log("Cannot find old conversation", data.error);
+                router.push('/chat'); 
+                return
+              }
+
+              // Fetch the Chatbot as well
+              const chatdata = await fetchChatbot();
+              setChosenChatbot(chatdata.chatbot);
+
+
+              console.log("Messages Set")
+              setMessages(data.messages);
+              
+            } catch (error) {
+              console.error("Failed to fetch chatbot data", error);
+            }
+          }
+          getOldChat()
+
+          // Allow the system to save the conversation after the user has  sent a message
+          isPromptRendered.current = false; 
         }
 
       
-        setConversationId(numberHistoryConversationId);
-
-        const getOldChat = async () => {
-          try {
-            const data = await fetchOldChat(numberHistoryConversationId);
-            if (data.error != '') {
-              console.log("Cannot find old conversation", data.error);
-              router.push('/chat'); 
-              return
-            }
-
-            // Fetch the Chatbot as well
-            const chatdata = await fetchChatbot();
-            setChosenChatbot(chatdata.chatbot);
-
-
-            console.log("Messages Set")
-            setMessages(data.messages);
-            
-          } catch (error) {
-            console.error("Failed to fetch chatbot data", error);
-          }
-        }
-        getOldChat()
-
-        // Allow the system to save the conversation after the user has  sent a message
-        isPromptRendered.current = false;  
+         
     } else {
       if (!mounted.current) return;
 
@@ -290,7 +300,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
         mounted.current = false;
       };
     }
-  }, [historyConversationId]);
+  }, [historyConversationId, status]);
 
 
   
