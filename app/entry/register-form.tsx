@@ -36,7 +36,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
 
     if(response.status == 200){
         console.log("REGISTRATION SUCCESS")
-        const [errors, setErrors] = useState([]);
+        setErrors([]);
         console.log({ response });
         onClick();
         // router.push('/login');
