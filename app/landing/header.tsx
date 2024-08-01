@@ -13,13 +13,13 @@ const Header: FC<MyComponentProps> = () => {
     <header className="z-20 sticky inset-0 shadow flex justify-between items-align h-[4rem] border-b border-slate-300 px-4 bg-white">
       <Logo />
 
-      <ul className="absolute inset-0 flex justify-center items-center gap-10">
+      <ul className="hidden sm:flex sm:gap-3 absolute inset-0 justify-center items-center gap-10">
         <Link href="#">Features</Link>
         <Link href="#">Pricing</Link>
         <Link href="#">About Us</Link>
       </ul>
 
-      <div className="flex items-align gap-4 py-3 z-20">
+      <div className="hidden sm:flex sm:gap-3 items-align gap-4 py-3 z-20">
         <Link
           href="/entry"
           className="bg-none border border-slate-700 rounded-lg px-4 hover:bg-slate-200 flex items-center"
