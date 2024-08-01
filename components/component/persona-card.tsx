@@ -118,12 +118,18 @@ const BackToPersonaSelectionButton = () => {
   );
 };
 
-const PersonaChatHistoryButton = ({ setIsOpenHistory }) => {
+interface PersonaChatHistoryButtonProps {
+  setIsOpenHistory: Function;
+}
+
+const PersonaChatHistoryButton: React.FC<PersonaChatHistoryButtonProps> = ({
+  setIsOpenHistory,
+}) => {
   const [isToggled, setIsToggled] = React.useState(false);
 
   const handleToggle = () => {
     setIsToggled((t) => !t);
-    setIsOpenHistory((h) => !h);
+    setIsOpenHistory((h: any) => !h);
   };
 
   return (
