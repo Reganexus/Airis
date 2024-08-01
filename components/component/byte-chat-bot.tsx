@@ -1,18 +1,19 @@
-
 "use client";
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ToggleButton from "@/components/ui/toggle-button";
 
-import Logo from "@/components/component/logo";
+// import Logo from "@/components/component/logo";
 // import HeaderAvatar from "@/components/component/header-avatar";
+
+import SideBar from "@/app/main/side-bar";
+import PersonaChatHistory from "@/app/chat/persona-chat-history";
 
 import { useChat } from "ai/react";
 import PersonaCard from "./persona-card";
-import { formatTextToHTML } from '@/lib/textToHTML';
+import { formatTextToHTML } from "@/lib/textToHTML";
 import Image from "next/image";
-import SideBar from "./side-bar";
 
 async function fetchDALLE(prompt: string) {
   /**
@@ -21,36 +22,33 @@ async function fetchDALLE(prompt: string) {
    * @returns A Promise that resolves to the generated image response or an error message.
    */
 
-  const res = await fetch('/api/image',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(
-        {
-          model: "dall-e-3",
-          user_prompt: prompt,
-        }
-      )
-    }
-  )
+  const res = await fetch("/api/image", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "dall-e-3",
+      user_prompt: prompt,
+    }),
+  });
 
   if (!res.ok) {
-
     // return an error message when the image cannot be generated.
-    return { 
-          response: 'I apologize for the inconvenience, but I am unable to generate the image you are requesting. Can you try again later?'
-      };
-  
+    return {
+      response:
+        "I apologize for the inconvenience, but I am unable to generate the image you are requesting. Can you try again later?",
+    };
   }
 
-  
-  return res.json()
+  return res.json();
 }
 
-async function generatePreviousChat(convo: any[], messageindex: number, gptcontent: string) {
-
+async function generatePreviousChat(
+  convo: any[],
+  messageindex: number,
+  gptcontent: string
+) {
   /**
    * Generates previous chat based on the given conversation, message index, and GPT content.
    * @param convo - The conversation array of the whole message prompts
@@ -59,33 +57,25 @@ async function generatePreviousChat(convo: any[], messageindex: number, gptconte
    * @returns A Promise that resolves to the re-generated response from the server or the same previous message if the API call is not successful.
    */
 
-  const res = await fetch('/api/regenerate',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(
-        {
-          // slice the convo array from the top message to the chosen message
-          messages: convo.slice(0, messageindex), 
-        }
-      )
-    }
-  )
-  
+  const res = await fetch("/api/regenerate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      // slice the convo array from the top message to the chosen message
+      messages: convo.slice(0, messageindex),
+    }),
+  });
+
   if (!res.ok) {
     // return the previous chat message if the API response is not
-    return { 
-          response: gptcontent
-      };
-  
+    return {
+      response: gptcontent,
+    };
   }
-  return res.json()
+  return res.json();
 }
-
-
-
 
 /**
  * Represents the Chat component.
@@ -100,34 +90,40 @@ export function ByteChatBot() {
    * The persona descriptions provide information about Airis's background, skills, and the topics she can help with.
    */
   const personas = {
-    'law': {
-      persona: 'Law AI',
-      prompt: 'You are Airis, StartUpLab\'s Philippine legal consultant with 30 years of experience. You are an expert on Philippine laws, and you specialize in creating various legal documents necessary to the clients\' needs. Your task is to offer deep-dive consultations tailored to the client\'s issues. They rely on your expertise to ensure compliance with Philippine laws. Ask questions for further information on legal documents when necessary. Speak in professional tone and ALWAYS TELL the user IF the topic goes out of your expertise. you may access images or files the user uploaded.'
+    law: {
+      persona: "Law AI",
+      prompt:
+        "You are Airis, StartUpLab's Philippine legal consultant with 30 years of experience. You are an expert on Philippine laws, and you specialize in creating various legal documents necessary to the clients' needs. Your task is to offer deep-dive consultations tailored to the client's issues. They rely on your expertise to ensure compliance with Philippine laws. Ask questions for further information on legal documents when necessary. Speak in professional tone and ALWAYS TELL the user IF the topic goes out of your expertise. you may access images or files the user uploaded.",
     },
-    'marketing': {
-      persona: 'Marketing AI',
-      prompt: 'You are Airis, StartUpLab\'s marketing analyst with 30 years of experience. You help clients such as business owners understand market trends and consumer behavior. Your task is to offer deep-dive consultations tailored to the client\'s issues, including various analysis documents and progress reports. ALWAYS TELL the user IF the topic goes out of your expertise.'
+    marketing: {
+      persona: "Marketing AI",
+      prompt:
+        "You are Airis, StartUpLab's marketing analyst with 30 years of experience. You help clients such as business owners understand market trends and consumer behavior. Your task is to offer deep-dive consultations tailored to the client's issues, including various analysis documents and progress reports. ALWAYS TELL the user IF the topic goes out of your expertise.",
     },
-    'hr': {
-      persona: 'Human Resources AI',
-      prompt: 'You are Airis, StartUpLab\'s Human Resource Manager with 30 years of experience. You specialize in HR policies, employee relations, performance management, talent acquisition, and employee development. Your task is to offer deep-dive consultations and help clients manage their HR needs effectively. Your clients can be business owners, HR managers and employers. Speak in professional tone and ALWAYS TELL the user IF the topic goes out of your expertise. you may access images or files the user uploaded.'
+    hr: {
+      persona: "Human Resources AI",
+      prompt:
+        "You are Airis, StartUpLab's Human Resource Manager with 30 years of experience. You specialize in HR policies, employee relations, performance management, talent acquisition, and employee development. Your task is to offer deep-dive consultations and help clients manage their HR needs effectively. Your clients can be business owners, HR managers and employers. Speak in professional tone and ALWAYS TELL the user IF the topic goes out of your expertise. you may access images or files the user uploaded.",
     },
-    'intern': {
-      persona: 'Intern Advisor AI',
-      prompt: 'You are Airis, StartUpLab\'s internship advisor with 30 years of experience. You help Filipino students looking for interns prepare for internship applications. You are adept at creating resumes based on the information provided by clients, consulting with clients about their careers, and recommending career paths according to the clients\' skills and interests. Offer detailed answers to questions related to internships, including but not limited to application processes, interview tips, selecting suitable opportunities and preparing necessary documents. Speak in professional but comforting tone and ALWAYS TELL the user IF the topic goes out of your expertise.'
+    intern: {
+      persona: "Intern Advisor AI",
+      prompt:
+        "You are Airis, StartUpLab's internship advisor with 30 years of experience. You help Filipino students looking for interns prepare for internship applications. You are adept at creating resumes based on the information provided by clients, consulting with clients about their careers, and recommending career paths according to the clients' skills and interests. Offer detailed answers to questions related to internships, including but not limited to application processes, interview tips, selecting suitable opportunities and preparing necessary documents. Speak in professional but comforting tone and ALWAYS TELL the user IF the topic goes out of your expertise.",
     },
-    'teacher': {
-      persona: 'Teacher AI',
-      prompt: 'You are Airis, StartUpLab\'s mentor for teachers with 30 years of experience in all academic subjects and managing online courses. You help clients, including teachers, authors, and online instructors, with classroom management, curriculum development, student engagement, instructional strategies, and technology integration. You provide comprehensive answers and, if requested, create lesson plans, teaching materials, assessment tools, and progress reports. Speak in a formal and professional tone, and ALWAYS TELL the user IF the topic goes out of your expertise. you may access images or files the user uploaded.'
+    teacher: {
+      persona: "Teacher AI",
+      prompt:
+        "You are Airis, StartUpLab's mentor for teachers with 30 years of experience in all academic subjects and managing online courses. You help clients, including teachers, authors, and online instructors, with classroom management, curriculum development, student engagement, instructional strategies, and technology integration. You provide comprehensive answers and, if requested, create lesson plans, teaching materials, assessment tools, and progress reports. Speak in a formal and professional tone, and ALWAYS TELL the user IF the topic goes out of your expertise. you may access images or files the user uploaded.",
     },
-    'admin': {
-      persona: 'Admin AI',
-      prompt: 'You are Airis, StartUpLab\'s Admin Assistant with 30 years of experience, specializing in administrative management, operations coordination, and support services within the company ONLY. Your task is to offer assistance to StartUpLab\'s managers, admins, and owners on efficient operation and administrative processes. ALWAYS INFORM the user if the topic goes beyond your expertise. you may access images or files the user uploaded.'
-    }
+    admin: {
+      persona: "Admin AI",
+      prompt:
+        "You are Airis, StartUpLab's Admin Assistant with 30 years of experience, specializing in administrative management, operations coordination, and support services within the company ONLY. Your task is to offer assistance to StartUpLab's managers, admins, and owners on efficient operation and administrative processes. ALWAYS INFORM the user if the topic goes beyond your expertise. you may access images or files the user uploaded.",
+    },
   };
-  
+
   // Default
-  const [chosenPersona, setChosenPersona] = useState(personas['law']);
+  const [chosenPersona, setChosenPersona] = useState(personas["law"]);
 
   /**
    * Represents the loading state of the component.
@@ -135,18 +131,17 @@ export function ByteChatBot() {
    */
   const [isLoading2, setIsLoading2] = useState(false);
 
-
   /**
    * Represents the placeholder text for the input field.
    * The placeholder text is displayed when the input field is empty.
    */
-  const [placeholder, setPlaceholder] = useState('Type your message...');
+  const [placeholder, setPlaceholder] = useState("Type your message...");
 
   /**
    * Represents the selected model for generating responses.
    * The model can be either 'gpt-4o-mini' (default) or 'dall-e-2'.
    */
-  const [model, setModel] = useState('gpt-4o-mini');
+  const [model, setModel] = useState("gpt-4o-mini");
 
   /**
    * Represents the URL of the uploaded file.
@@ -154,12 +149,10 @@ export function ByteChatBot() {
    */
   const [uploadUrl, setUploadUrl] = useState("");
 
-
   /**
    * Represents the array of attachments.
    * The attachments array contains the uploaded images.
    */
-
 
   /**
    * Handles the change event when an image is selected.
@@ -172,8 +165,6 @@ export function ByteChatBot() {
     }
   };
 
-
-
   /**
    * Represents a useChat hook from ai-sdk
    * - the main backbone for streaming text like ChatGPT
@@ -185,88 +176,89 @@ export function ByteChatBot() {
    * @handleInputChange - handles the change event of the input field
    * @handleSubmit      - handles submission event of the chat component (GPT-4o only)
    */
-  const { messages, setMessages, input, stop, isLoading, handleInputChange, handleSubmit } = useChat();
-
-
+  const {
+    messages,
+    setMessages,
+    input,
+    stop,
+    isLoading,
+    handleInputChange,
+    handleSubmit,
+  } = useChat();
 
   /**
    * Handles the submission event of both chat components (GPT or DALL-E)
    * this is called by the form
    */
-  async function promptSubmit(e: { preventDefault: () => void; }) {
+  async function promptSubmit(e: { preventDefault: () => void }) {
     e.preventDefault();
-    if (model == 'gpt-4o-mini') {
+    if (model == "gpt-4o-mini") {
       /**
        * GPT-4o MODEL
        * Calls the app/api/chat/route.ts to stream text output
        */
       handleSubmit(e, {
-        data: { imageUrl: uploadUrl,
-                persona: chosenPersona.prompt,
-         },
-        
+        data: { imageUrl: uploadUrl, persona: chosenPersona.prompt },
       });
-      }
-    else {
+    } else {
       /**
        * DALL-E MODEL
        * Calls the app/api/image/route.ts to generate image output
-       * set isLoading2 to true to disable the form while we wait for DALL-E to finish processing 
+       * set isLoading2 to true to disable the form while we wait for DALL-E to finish processing
        * then, manually add the user prompt to messages state, since this is not part of useChat hook
        * fetch DALL-E image url response and manually add it to messages state to display the output on to the UI
        */
       setIsLoading2(true);
       setMessages([
-        ...messages, 
+        ...messages,
         {
           id: "",
-          role: 'user',
-          content: input
+          role: "user",
+          content: input,
         },
         {
           id: "",
-          role: 'assistant',
-          content: ''
-        }
+          role: "assistant",
+          content: "",
+        },
       ]);
 
-        fetchDALLE(input).then((res) => {
-          setIsLoading2(false);
-          setMessages([
-            ...messages, 
-            {
-              id: "",
-              role: 'user',
-              content: input
-            },
-            {
-              id: "",
-              role: 'assistant',
-              content: res.response
-            }
-          ]);
-        });
+      fetchDALLE(input).then((res) => {
+        setIsLoading2(false);
+        setMessages([
+          ...messages,
+          {
+            id: "",
+            role: "user",
+            content: input,
+          },
+          {
+            id: "",
+            role: "assistant",
+            content: res.response,
+          },
+        ]);
+      });
     }
   }
-  
+
   /**
    * Handles the generation of chat messages based on the provided conversation, message ID, and GPT content.
-   * 
+   *
    * @param convo - The conversation array.
    * @param messageid - The ID of the message to be generated.
    * @param gptcontent - The GPT content to be used for generation.
    */
   function handleGenerate(convo: any[], messageid: number, gptcontent: string) {
-    
     setIsLoading2(true);
     setMessages([
       ...messages.slice(0, messageid),
       {
         id: "",
-        role: 'assistant',
-        content: 'Generating...'
+        role: "assistant",
+        content: "Generating...",
       },
-      ...messages.slice(messageid + 1) 
+      ...messages.slice(messageid + 1),
     ]);
     generatePreviousChat(convo, messageid, gptcontent).then((res) => {
       setIsLoading2(false);
@@ -274,40 +266,36 @@ export function ByteChatBot() {
         ...messages.slice(0, messageid),
         {
           id: "",
-          role: 'assistant',
-          content: res.response
+          role: "assistant",
+          content: res.response,
         },
-        ...messages.slice(messageid + 1) 
+        ...messages.slice(messageid + 1),
       ]);
     });
   }
 
-
-
   /**
    * Handles the change of the model and updates the placeholder text when toggle button is clicked.
    */
-  function handleModelChange(){
-    if(model == 'gpt-4o-mini'){
-      setModel('dall-e-2');
-      setPlaceholder('Generate an image...');
-    }
-    else{
-      setModel('gpt-4o-mini');
-      setPlaceholder('Type your message...');
+  function handleModelChange() {
+    if (model == "gpt-4o-mini") {
+      setModel("dall-e-2");
+      setPlaceholder("Generate an image...");
+    } else {
+      setModel("gpt-4o-mini");
+      setPlaceholder("Type your message...");
     }
     //console.log(model);
   }
 
   const handlePersonaChange = (personacode: any) => {
     // Add any additional logic to handle persona changes
-    console.log("PERSONA: "+ personacode);
+    console.log("PERSONA: " + personacode);
     const thecode = personacode;
-    
+
     setChosenPersona(personas[personacode]);
     setMessages([]);
   };
-
 
   /*
    *
@@ -316,27 +304,25 @@ export function ByteChatBot() {
     number | null
   >(null);
 
+  const [isHistoryOpen, setIsHistoryOpen] = React.useState<boolean>(false);
+
+  // JSX ELEMENT:
   return (
     <div className="flex h-screen w-full">
+      <SideBar />
+
+      {isHistoryOpen && <PersonaChatHistory />}
+
       {/* Main Content */}
       <div className="flex flex-1 flex-col">
-        <header className="sticky top-0 z-10 flex justify-between h-14 items-center gap-4 border-b border-slate-200 bg-background px-4 sm:h-[60px] sm:pl-6 sm:pr-3">
-          <Logo />
-
-          <Button variant="ghost" size="icon" className="bg-none">
-            <LeftArrow />
-            <span className="sr-only">More</span>
-          </Button>
-
-          {/* <HeaderAvatar /> */}
-        </header>
-
         <main className="relative flex-1 overflow-auto pt-5 bg-slate-100 pb-0">
-          <PersonaCard persona={chosenPersona.persona} />
+          <PersonaCard
+            persona={chosenPersona.persona}
+            setIsOpenHistory={setIsHistoryOpen}
+          />
 
           <div className="pt-4 px-2 ps-4 pb-8 grid gap-6 max-w-5xl m-auto">
             {messages.map((m, i) => {
-
               const isLastMessage: boolean = i === messages.length - 1;
 
               if (m.role === "user") {
@@ -363,7 +349,7 @@ export function ByteChatBot() {
                     onMouseEnter={() => setHoveredMessageIndex(i)}
                     onMouseLeave={() => setHoveredMessageIndex(null)}
                   >
-                    { /** AI Logo */}
+                    {/** AI Logo */}
                     <div className="pt-4">
                       <div className="h-[40px] w-[40px] rounded-full bg-slate-400 overflow-clip">
                         <Image
@@ -376,11 +362,15 @@ export function ByteChatBot() {
                     </div>
 
                     <div className="relative grid gap-1.5 p-3 px-4 text-base">
-                      <h1 className="font-semibold">{ chosenPersona.persona }</h1>
-                      {m.content.startsWith('http') ? (
+                      <h1 className="font-semibold">{chosenPersona.persona}</h1>
+                      {m.content.startsWith("http") ? (
                         <img src={m.content} alt="Generated" />
                       ) : (
-                        <div dangerouslySetInnerHTML={{ __html: formatTextToHTML(m.content) }} />
+                        <div
+                          dangerouslySetInnerHTML={{
+                            __html: formatTextToHTML(m.content),
+                          }}
+                        />
                       )}
                       {(isLastMessage || isHovered) && (
                         <div className="absolute z-10 bottom-[-15px] left-4 mt-1 flex gap-2">
@@ -397,7 +387,9 @@ export function ByteChatBot() {
                             variant="ghost"
                             size="iconSmall"
                             className="bg-none"
-                            onClick={() => handleGenerate(messages, i, m.content)}
+                            onClick={() =>
+                              handleGenerate(messages, i, m.content)
+                            }
                           >
                             <RegenerateIcon />
                             <span className="sr-only">More</span>
@@ -466,12 +458,13 @@ export function ByteChatBot() {
         </form>
       </div>
 
-      {/* Sidebar */}
-      <SideBar onPersonaChange={handlePersonaChange} />
+      {/* Previus Sidebar commented out by ken */}
+      {/* <SideBar onPersonaChange={handlePersonaChange} /> */}
     </div>
   );
 }
 
+// ICONS
 function SendIcon() {
   return (
     <svg
@@ -490,7 +483,6 @@ function SendIcon() {
     </svg>
   );
 }
-
 function PlusIcon() {
   return (
     <svg
@@ -509,7 +501,6 @@ function PlusIcon() {
     </svg>
   );
 }
-
 function CopyIcon() {
   return (
     <svg
@@ -528,7 +519,6 @@ function CopyIcon() {
     </svg>
   );
 }
-
 function RegenerateIcon() {
   return (
     <svg
@@ -547,7 +537,6 @@ function RegenerateIcon() {
     </svg>
   );
 }
-
 function TextIcon() {
   return (
     <svg
