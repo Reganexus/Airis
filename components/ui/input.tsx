@@ -3,15 +3,15 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 export interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {}
+  extends React.InputHTMLAttributes<HTMLTextAreaElement> {}
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(
+const Input = React.forwardRef<HTMLTextAreaElement, InputProps>(
   ({ className, type, ...props }, ref) => {
     return (
-      <input
-        type={type}
+      <textarea
+        // type={type}
         className={cn(
-          "flex h-10 w-full bg-background px-3 py-2 text-base placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none",
+          "w-full bg-background text-base placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none resize-none",
           className
         )}
         ref={ref}

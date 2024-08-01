@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ToggleButton from "@/components/ui/toggle-button";
+import "@/app/main/persona-selection-scrollbar.css";
 
 // import Logo from "@/components/component/logo";
 // import HeaderAvatar from "@/components/component/header-avatar";
@@ -157,13 +158,13 @@ export function ByteChatBot() {
   /**
    * Handles the change event when an image is selected.
    */
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setUploadUrl(url);
-    }
-  };
+  // const handleImageChange = (e: any) => {
+  //   const file = e.target.files[0];
+  //   if (file) {
+  //     const url = URL.createObjectURL(file);
+  //     setUploadUrl(url);
+  //   }
+  // };
 
   /**
    * Represents a useChat hook from ai-sdk
@@ -285,26 +286,18 @@ export function ByteChatBot() {
       setModel("gpt-4o-mini");
       setPlaceholder("Type your message...");
     }
+
+    setIsImageModel((i) => !i);
     //console.log(model);
   }
 
-  const handlePersonaChange = (personacode: any) => {
-    // Add any additional logic to handle persona changes
-    console.log("PERSONA: " + personacode);
-    const thecode = personacode;
-
-    setChosenPersona(personas[personacode]);
-    setMessages([]);
-  };
-
-  /*
-   *
-   */
   const [hoveredMessageIndex, setHoveredMessageIndex] = React.useState<
     number | null
   >(null);
 
   const [isHistoryOpen, setIsHistoryOpen] = React.useState<boolean>(false);
+
+  const [isImageModel, setIsImageModel] = React.useState<boolean>(false);
 
   // JSX ELEMENT:
   return (
@@ -314,8 +307,8 @@ export function ByteChatBot() {
       {isHistoryOpen && <PersonaChatHistory />}
 
       {/* Main Content */}
-      <div className="flex flex-1 flex-col">
-        <main className="relative flex-1 overflow-auto pt-5 bg-slate-100 pb-0">
+      <div className="flex flex-1 flex-col h-screen">
+        <main className="relative overflow-auto pt-5 bg-slate-100 pb-0 h-full">
           <PersonaCard
             persona={chosenPersona.persona}
             setIsOpenHistory={setIsHistoryOpen}
@@ -407,50 +400,160 @@ export function ByteChatBot() {
           <div className="sticky bottom-0 h-4 bg-gradient-to-b from-transparent to-slate-100"></div>
         </main>
 
+        {/* INPUT */}
         <form
           onSubmit={promptSubmit}
-          className="pb-[20px] bg-slate-100
-        px-5"
+          className="pb-[20px] bg-slate-100 px-5 max-h-96 flex-1"
         >
-          <div className="rounded-lg max-w-5xl m-auto sticky bottom-0 z-10 flex h-14 items-center gap-2 border bg-background px-4 sm:h-[60px] sm:px-3">
-            <Input
-              type="text"
-              placeholder={placeholder}
-              value={input}
-              className="flex-1 bg-transparent p-2 placeholder:text-base"
-              onChange={handleInputChange}
-              disabled={isLoading || isLoading2}
-            />
-
-            <Button
-              variant="default"
-              size="icon"
-              className="bg-primary order-last"
-              disabled={isLoading || isLoading2}
+          <div
+            className={
+              !isImageModel
+                ? `rounded-lg max-w-5xl m-auto z-10 flex items-start gap-2 border bg-white px-4 h-auto sm:px-3 p-2`
+                : `rounded-lg max-w-5xl m-auto z-10 flex gap-2 border bg-white px-4 h-auto sm:px-3 p-2`
+            }
+          >
+            <div
+              className={
+                !isImageModel
+                  ? `w-full flex items-start justify-between`
+                  : `w-full flex flex-col h-auto gap-1 border rounded-md p-2`
+              }
             >
-              <SendIcon />
-              <span className="sr-only">Send</span>
-            </Button>
+              {/* Text Prompt input */}
+              <Input
+                placeholder={placeholder}
+                value={input}
+                className={
+                  !isImageModel
+                    ? `bg-transparent placeholder:text-base p-2 px-4 persona-selection-scrollbar h-auto` //text mode
+                    : `bg-transparent px-1 pt-1 placeholder:text-base h-full persona-selection-scrollbar` //image mode
+                }
+                onChange={handleInputChange}
+                disabled={isLoading || isLoading2}
+              />
 
-            <Button
-              variant="ghost"
-              size="icon"
-              className="bg-none "
-              onClick={(e) => {
-                e.preventDefault();
-              }}
-            >
-              <PlusIcon />
-              <span className="sr-only">More</span>
-            </Button>
+              {/* Hide these buttons if Image mode */}
+              {!isImageModel && (
+                <>
+                  <Button
+                    variant="default"
+                    size="icon"
+                    className="bg-primary order-last p-3"
+                    disabled={isLoading || isLoading2}
+                  >
+                    <SendIcon />
+                    <span className="sr-only">Send</span>
+                  </Button>
 
-            <ToggleButton
-              iconA={<TextIcon />}
-              iconB={<ImageIcon />}
-              className="order-first"
-              changeModel={handleModelChange}
-            />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="bg-none p-2 mx-2"
+                    onClick={(e) => {
+                      e.preventDefault();
+                    }}
+                  >
+                    <PlusIcon />
+                    <span className="sr-only">More</span>
+                  </Button>
+                </>
+              )}
+
+              {/* Toggle between text and image generation */}
+              <ToggleButton
+                iconA={<TextIcon />}
+                iconB={<ImageIcon />}
+                className="order-first self-start"
+                changeModel={handleModelChange}
+              />
+
+              {/* Suggestion Chips */}
+              {isImageModel && <SuggestionChips />}
+            </div>
+
+            {/* Image model setting */}
+            {isImageModel && (
+              <div className="min-w-80 border rounded-lg h-auto flex flex-col p-3 gap-2">
+                <div className="flex justify-between items-center">
+                  <label className="font-semibold text-slate-700" htmlFor="">
+                    Model
+                  </label>
+
+                  <select
+                    name=""
+                    id=""
+                    className="text-sm text-slate-600 py-1 px-2 border rounded-md bg-slate-50"
+                  >
+                    <option value="">DALL-E 3</option>
+                  </select>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <label className="font-semibold text-slate-700" htmlFor="">
+                    Quality{" "}
+                    <sup className="font-normal text-slate-600">DALL-E3</sup>
+                  </label>
+
+                  <select
+                    name=""
+                    id=""
+                    className="text-sm text-slate-600 py-1 px-2 border rounded-md bg-slate-50"
+                  >
+                    <option value="">Standard</option>
+                  </select>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <label className="font-semibold text-slate-700" htmlFor="">
+                    Size
+                  </label>
+
+                  <select
+                    name=""
+                    id=""
+                    className="text-sm text-slate-600 py-1 px-2 border rounded-md bg-slate-50"
+                  >
+                    <option value="">1024x1024</option>
+                  </select>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <label className="font-semibold text-slate-700" htmlFor="">
+                    Style{" "}
+                    <sup className="font-normal text-slate-600">DALL-E3</sup>
+                  </label>
+
+                  <select
+                    name=""
+                    id=""
+                    className="text-sm text-slate-600 py-1 px-2 border rounded-md bg-slate-50"
+                  >
+                    <option value="">Natural</option>
+                  </select>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <label className="font-semibold text-slate-700" htmlFor="">
+                    Quantity{" "}
+                    <sup className="font-normal text-slate-600">DALL-E2</sup>
+                  </label>
+
+                  <select
+                    name=""
+                    id=""
+                    className="text-sm text-slate-600 py-1 px-2 border rounded-md bg-slate-50"
+                  >
+                    <option value="">1</option>
+                  </select>
+                </div>
+
+                <button className="py-2 bg-primary text-white rounded-lg mt-2">
+                  Generate
+                </button>
+              </div>
+            )}
           </div>
+
           <p className="text-sm text-center pt-3 text-slate-500">
             This AI chatbot is for informational purposes only and should not be
             considered professional advice.
@@ -463,6 +566,41 @@ export function ByteChatBot() {
     </div>
   );
 }
+
+const dummySuggestions = [
+  { suggestion: "photo" },
+  { suggestion: "illustration" },
+  { suggestion: "3d render" },
+  { suggestion: "typography" },
+];
+
+const SuggestionChips = ({ suggestions = dummySuggestions }) => {
+  return (
+    <div className="w-full mt-auto flex gap-1">
+      {suggestions.map((s) => (
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+          }}
+          key={s.suggestion}
+          className="bg-slate-50 border rounded-sm py-1 px-2 text-sm text-slate-500 hover:bg-slate-100 hover:text-slate-600"
+        >
+          {s.suggestion}
+        </button>
+      ))}
+
+      {/* More button? */}
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+        }}
+        className="bg-slate-50 border rounded-sm py-1 px-2 text-sm text-slate-500 hover:bg-slate-100 hover:text-slate-600"
+      >
+        ...
+      </button>
+    </div>
+  );
+};
 
 // ICONS
 function SendIcon() {
