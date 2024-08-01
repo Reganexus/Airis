@@ -3,14 +3,17 @@ import { sql } from '@vercel/postgres';
 export async function POST(req: Request) {
   try {
     const information = await req.json()
+    console.log("heeeeeeeeee", information)
     const result = await sql`SELECT user_id FROM users WHERE email = ${information.email}`;
     const user_id = result.rows[0].user_id;
 
     if (information.conversation_id == 0) {
         // this means the convo is new
-        const result2 = await sql`INSERT INTO conversation (user_id, chatbot_id, messages) VALUES (${user_id}, ${information.chatbot_id}, ${information.messages[0]}::jsonb) RETURNING conversation_id`;
-        const conversation_id = result2.rows[0].conversation_id;
 
+        const messageStringify = JSON.stringify(information.messages);
+        const result2 = await sql`INSERT INTO conversation (user_id, chatbot_id, messages) VALUES (${user_id}, ${information.chatbot_id}, ${messageStringify}::jsonb) RETURNING conversation_id`;
+        const conversation_id = result2.rows[0].conversation_id;
+        console.log("waaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:", information.messages);
         if (result2) {
             console.log("Query executed successfully");
             console.log("Conversation ID:", conversation_id);
@@ -22,7 +25,7 @@ export async function POST(req: Request) {
         // conversation is old
 
         //  stringify the messages to include all messages on updating it
-        const messageStringify = JSON.stringify(information.messages[0])
+        const messageStringify = JSON.stringify(information.messages)
 
         const result2 = await sql`UPDATE conversation SET messages = ${messageStringify}::jsonb, chatbot_id = ${information.chatbot_id} WHERE conversation_id = ${information.conversation_id}`;
 
@@ -37,6 +40,6 @@ export async function POST(req: Request) {
     }
   } catch (error) {
     
-    return new Response(JSON.stringify({ error: 'Error fetching chatbot', chatbot: null }));
+    return new Response(JSON.stringify({ error: 'Error saving chatbot', chatbot: null }));
   }
 }

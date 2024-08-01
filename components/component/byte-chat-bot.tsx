@@ -283,7 +283,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
           content: stringify
         },
         ]);
-        //promptSubmit({ preventDefault: () => {} });
+        promptSubmit({ preventDefault: () => {} });
       } catch (error) {
         console.error("Failed to fetch chatbot data", error);
       }
@@ -437,7 +437,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       return;
     }
     
-    if (!isLoading && !isLoading2 && status == 'authenticated') {
+    if (!isLoading && !isLoading2 && status == 'authenticated' && user) {
       // do not save if when first prompt is being shown 
       
       if (isPromptRendered.current) {
@@ -450,11 +450,13 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
         try {
           const data = await fetchSaveConvo(messages, user?.email, chosenChatbot.chatbot_id, conversationId);
           console.log("Conversation Saved");
-
+          console.log(data)
           // we need to run GPT to generate title on the new convo only
           if (data.new_convo) {
+            console.log("setting")
             setConversationId(data.convo_id);
-            const data2 = await generateTitle(conversationId);
+            const data2 = await generateTitle(data.convo_id);
+            console.log(data2)
           }
           
         } catch (error) {

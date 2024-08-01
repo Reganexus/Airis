@@ -6,7 +6,8 @@ export async function POST(req: Request) {
     const information = await req.json()
     const retrieveMessages = await sql`SELECT messages FROM conversation WHERE conversation_id = ${information.conversation_id}`;
     const { rows: chatbot } = retrieveMessages;
-    console.log(chatbot[0].messages)
+    chatbot[0].messages.shift();
+    console.log('waaaaaaaaaaaaaaaaaaaa', chatbot[0].messages);
     
     // chatbot[0].map((m: any) => {
         //     if (m.id == )
@@ -16,7 +17,7 @@ export async function POST(req: Request) {
     // Generate on GPT
     const result = await generateText({
         model: openai('gpt-4o-mini'),
-        system: "Generate a 3 to 5 word title about this conversation for sidebar",
+        system: "Analyze the provided conversation and generate a concise title, no more than 5 words, that accurately reflects the main topic or outcome of the discussion. STRICTLY GENERATE TEXT ONLY.",
         messages: chatbot[0].messages,
     });
     
@@ -32,6 +33,6 @@ export async function POST(req: Request) {
     return new Response(JSON.stringify({ error: '' }));
   } catch (error) {
     
-    return new Response(JSON.stringify({ error: 'Error fetching conversation' }));
+    return new Response(JSON.stringify({ error: 'Error setting title' }));
   }
 }
