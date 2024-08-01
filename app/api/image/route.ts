@@ -1,30 +1,7 @@
 import OpenAI from "openai";
-import { put } from '@vercel/blob';
+import { list, put } from '@vercel/blob';
 import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-
-async function getImageAsFile(imageUrl: string | URL | Request, fileName: string) {
-    try {
-        // Fetch the image from the URL
-        const response = await fetch(imageUrl);
-        if (!response.ok) {
-            throw new Error('Failed to fetch image');
-        }
-
-        // Convert the response into a Blob
-        const imageBlob = await response.blob();
-
-        // Create a File from the Blob
-        const imageFile = new File([imageBlob], fileName, {
-            type: imageBlob.type,
-        });
-
-        return imageFile;
-    } catch (error) {
-        console.error('Error fetching and converting image:', error);
-        return null;
-    }
-}
 
 
 export async function POST(request: Request) {
@@ -53,7 +30,8 @@ export async function POST(request: Request) {
     }
 
     const { user_prompt, model, quality, size, style, quantity } = await request.json();
-
+    const imgList = await list();
+    console.log(imgList);
     console.log("PROMPT:" + user_prompt);
     console.log("MODEL:" + model);
     console.log("QUALITY:" + quality);
@@ -102,7 +80,8 @@ export async function POST(request: Request) {
                 const blob = await put(filename, imgFile, {
                     access: 'public',
                 });
-    
+                
+                console.log(blob);
                 console.log('Blob URL:', blob.url);
                 revalidatePath('/');
             } else {
