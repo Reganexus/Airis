@@ -3,12 +3,15 @@
 import React from "react";
 import { FormEvent } from 'react';
 import Logo from "@/components/component/logo";
+import { useState } from "react";
 interface RegisterFormProps {
   onClick: Function;
 }
 
 
 const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
+
+  const [errors, setErrors] = useState([]);
   const handleToggleForm = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     onClick();
@@ -29,16 +32,22 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
         password2: formData.get('password2'),
       }),
     });
+    
+
     if(response.status == 200){
         console.log("REGISTRATION SUCCESS")
+        const [errors, setErrors] = useState([]);
         console.log({ response });
         onClick();
         // router.push('/login');
         // router.refresh();
     }
     else{
+      const errorData = await response.json(); 
+      
       console.log("REGISTRATION FAILED")
-      console.log({ response });
+      setErrors(errorData['errors']);
+      console.log(errorData['errors']);
     }
   };
 
@@ -69,7 +78,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
               id="fname"
               placeholder="First Name"
               className="border py-2 px-3 rounded-lg"
-            />
+              required />
           </div>
 
           <div>
@@ -80,7 +89,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
               id="lname"
               placeholder="Last Name"
               className="border py-2 px-3 rounded-lg"
-            />
+              required />
           </div>
         </div>
 
@@ -93,7 +102,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
             id="uname"
             placeholder="Username"
             className="border py-2 px-3 rounded-lg"
-          />
+            required/>
         </div>
 
         {/* Email */}
@@ -105,7 +114,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
             id="email"
             placeholder="Email"
             className="border py-2 px-3 rounded-lg"
-          />
+            required/>
         </div>
 
         {/* Password */}
@@ -139,6 +148,16 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
           value="Sign Up"
           className="bg-primary w-full my-2 text-white py-3 rounded-lg"
         />
+
+      <div>
+        {errors != null && (
+          <ul>
+            {errors.map((error, index) => (
+              <li key={index}>{error}</li>
+            ))}
+          </ul>
+        )}
+      </div>
       </form>
 
       <p className="mt-auto text-center text-slate-600">
