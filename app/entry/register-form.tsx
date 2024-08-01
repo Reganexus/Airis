@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { ChangeEvent } from "react";
 import { FormEvent } from 'react';
 import Logo from "@/components/component/logo";
 import { useState } from "react";
@@ -12,6 +12,7 @@ interface RegisterFormProps {
 const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
 
   const [errors, setErrors] = useState([]);
+  const [strnth, setStrnth] = useState("");
   const handleToggleForm = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     onClick();
@@ -32,7 +33,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
         password2: formData.get('password2'),
       }),
     });
-    
+
 
     if(response.status == 200){
         console.log("REGISTRATION SUCCESS")
@@ -50,6 +51,41 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
       console.log(errorData['errors']);
     }
   };
+
+  function handlePasswordChange(e: ChangeEvent<HTMLInputElement>): void {
+    const newPassword = e.target.value;
+
+    // return an empty string if newPassword is equal to zero
+    if (newPassword.length === 0) {
+      setStrnth("");
+      return;
+  }
+    // Initialize variables to count the different characteristics
+    let hasUpperCase = /[A-Z]/.test(newPassword);
+    let hasLowerCase = /[a-z]/.test(newPassword);
+    let hasNumber = /[0-9]/.test(newPassword);
+    let hasSpecialChar = /[^A-Za-z0-9]/.test(newPassword);
+    let lengthValid = newPassword.length >= 8;
+
+
+    let strength = 0;
+    if(hasUpperCase) strength++;
+    if(hasLowerCase) strength++;
+    if(hasNumber) strength++;
+    if(hasSpecialChar) strength++;
+    if(lengthValid) strength++;
+
+    // Determine strength label based on the criteria met
+      if (strength === 5) {
+        setStrnth("very strong");
+    } else if (strength === 4) {
+        setStrnth("strong");
+    } else if (strength === 3) {
+        setStrnth("weak");
+    } else {
+        setStrnth("very weak");
+    }
+  }
 
   return (
     <div className="bg-white w-full p-8 h-[40rem] rounded-lg flex flex-col relative">
@@ -124,11 +160,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
             type="password"
             name="password"
             id="pword"
+            onChange={handlePasswordChange}
             placeholder="Password"
             className="border py-2 px-3 rounded-lg"
           />
           {/* Password Strength */}
-          <PasswordStrength />
+          <PasswordStrength strength={strnth} />
         </div>
 
         {/* Confirm Password */}
