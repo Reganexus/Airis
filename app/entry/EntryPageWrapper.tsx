@@ -10,7 +10,6 @@ const EntryPageWrapper = async () => {
     redirect('/');
     return null; // The component doesn't need to render anything if redirecting
   }
-
   return <EntryPage />;
 };
 
