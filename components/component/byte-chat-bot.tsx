@@ -423,6 +423,27 @@ export function ByteChatBot() {
       
     }
   }, [isLoading, isLoading2]);
+
+  useEffect(() => {
+
+      // a generation has stopped
+      const chatHistory = async () => {
+      
+        try {
+          const data = await fetchChatHistory(user?.email);
+          console.log("chat history fetched");
+
+          console.log(data)
+          
+        } catch (error) {
+          console.error("Failed to fetch chatbot data", error);
+        }
+      };
+
+      
+      chatHistory
+      
+  }, []);
   
   /**
    * Handles the generation of chat messages based on the provided conversation, message ID, and GPT content.
