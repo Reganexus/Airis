@@ -13,6 +13,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
 
   const [errors, setErrors] = useState([]);
   const [strnth, setStrnth] = useState("");
+
   const handleToggleForm = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     onClick();
@@ -33,7 +34,6 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
         password2: formData.get('password2'),
       }),
     });
-
 
     if(response.status == 200){
         console.log("REGISTRATION SUCCESS")

@@ -1,6 +1,6 @@
 
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ToggleButton from "@/components/ui/toggle-button";
@@ -16,41 +16,10 @@ import SideBar from "./side-bar";
 import { Persona } from '@/lib/types';
 import { Personas } from '@/lib/types';
 import { PersonaCode } from '@/lib/types';
+import { getServerSession } from "next-auth";
+import { useSession } from "next-auth/react";
 
-async function fetchDALLE(prompt: string) {
-  /**
-   * Fetches an image using the DALL-E model based on the provided prompt.
-   * @param prompt - The prompt for generating the image.
-   * @returns A Promise that resolves to the generated image response or an error message.
-   */
 
-  const res = await fetch('/api/image',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(
-        {
-          model: "dall-e-3",
-          user_prompt: prompt,
-        }
-      )
-    }
-  )
-
-  if (!res.ok) {
-
-    // return an error message when the image cannot be generated.
-    return { 
-          response: 'I apologize for the inconvenience, but I am unable to generate the image you are requesting. Can you try again later?'
-      };
-  
-  }
-
-  
-  return res.json()
-}
 
 async function generatePreviousChat(convo: any[], messageindex: number, gptcontent: string) {
 
@@ -87,6 +56,106 @@ async function generatePreviousChat(convo: any[], messageindex: number, gptconte
   return res.json()
 }
 
+async function generateTitle(convo_id: number) {
+  const response = await fetch('/api/query/query-chat-title', {
+    method: 'POST',
+    body: JSON.stringify({
+      conversation_id: convo_id
+    })
+  });
+  if (!response.ok) {
+    throw new Error(`Network response was not ok: ${response.statusText}`);
+  }
+  // must return status, convo_id
+  const data = await response.json();
+  return data
+}
+
+async function fetchDALLE(prompt: string) {
+  /**
+   * Fetches an image using the DALL-E model based on the provided prompt.
+   * @param prompt - The prompt for generating the image.
+   * @returns A Promise that resolves to the generated image response or an error message.
+   */
+
+  const res = await fetch('/api/image',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(
+        {
+          model: "dall-e-3",
+          user_prompt: prompt,
+        }
+      )
+    }
+  )
+
+  if (!res.ok) {
+
+    // return an error message when the image cannot be generated.
+    return { 
+          response: 'I apologize for the inconvenience, but I am unable to generate the image you are requesting. Can you try again later?'
+      };
+  
+  }
+
+  
+  return res.json()
+}
+
+async function fetchChatbot() {
+  const response = await fetch('/api/query', {
+    method: 'POST',
+    body: JSON.stringify({
+      id: '2'
+    })
+  });
+  if (!response.ok) {
+    throw new Error(`Network response was not ok: ${response.statusText}`);
+  }
+  
+  const data = await response.json();
+  console.log("Data: ", data.chatbot);
+  return data
+}
+
+async function fetchSaveConvo(message: any[], email: any, chatbot_id: number, convo_id: number) {
+  const response = await fetch('/api/query/query-save-convo', {
+    method: 'POST',
+    body: JSON.stringify({
+      conversation_id: convo_id,
+      messages: message,
+      email: email,
+      chatbot_id: chatbot_id
+    })
+  });
+  if (!response.ok) {
+    throw new Error(`Network response was not ok: ${response.statusText}`);
+  }
+  // must return status, convo_id
+  const data = await response.json();
+  return data
+}
+
+async function fetchChatHistory(email: any) {
+  const response = await fetch('/api/query/query-chat-history', {
+    method: 'POST',
+    body: JSON.stringify({
+      email: email
+    })
+  });
+  if (!response.ok) {
+    throw new Error(`Network response was not ok: ${response.statusText}`);
+  }
+  // must return status, convo_id
+  const data = await response.json();
+  return data
+}
+
+
 
 
 
@@ -96,6 +165,11 @@ async function generatePreviousChat(convo: any[], messageindex: number, gptconte
  * @returns {JSX.Element} The Chat component.
  */
 export function ByteChatBot() {
+
+  const { data: session, status } = useSession();
+  // Access user information from session
+  const user = session?.user;
+  
   /**
    * Represents an array of persona descriptions.
    * Each persona description includes the name, role, and expertise of Airis, a fictional character from StartUpLab.
@@ -129,7 +203,57 @@ export function ByteChatBot() {
       prompt: 'You are Airis, StartUpLab\'s Admin Assistant with 30 years of experience, specializing in administrative management, operations coordination, and support services within the company ONLY. Your task is to offer assistance to StartUpLab\'s managers, admins, and owners on efficient operation and administrative processes. ALWAYS INFORM the user if the topic goes beyond your expertise. you may access images or files the user uploaded.'
     }
   };
-  
+
+  // Default
+  // chosenChatbot contains:
+  /**
+   * chatbot_id:
+   * created_at:
+   * persona_id:
+   * role:
+   * subpersona:
+   * task:
+   * sysprompt:
+   * 
+   * Only sysprompt will be used in the chatbot page, others will be used on selection page 
+   */
+  // Define a state variable to store the chosen chatbot
+  const [chosenChatbot, setChosenChatbot] = useState<any>(null);
+  const mounted = useRef(true);
+  useEffect(() => {
+    if (!mounted.current) return;
+    console.log("useEffect called");
+    // fetch the chatbot data
+    const fetchData = async () => {
+      
+      console.log("fetchData called");
+      try {
+        const data = await fetchChatbot();
+        setChosenChatbot(data.chatbot);
+        const stringify = JSON.stringify(data.chatbot?.sysprompt)
+        setMessages([
+        {
+          id: "firstprompt",
+          role: 'user',
+          content: stringify
+        },
+        ]);
+        console.log("Data fetched and state set");
+        //promptSubmit({ preventDefault: () => {} });
+      } catch (error) {
+        console.error("Failed to fetch chatbot data", error);
+      }
+    };
+    
+    fetchData();
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
+  const [firstchat, setFirstChat] = useState(true);
+
+
   // Initialize state with the default persona
   const [chosenPersona, setChosenPersona] = useState<Persona>(personas['law']);
 
@@ -157,7 +281,8 @@ export function ByteChatBot() {
    * The uploadUrl is used to display the uploaded image or file.
    */
   const [uploadUrl, setUploadUrl] = useState("");
-
+  
+  
 
   /**
    * Represents the array of attachments.
@@ -189,8 +314,6 @@ export function ByteChatBot() {
    */
   const { messages, setMessages, input, stop, isLoading, handleInputChange, handleSubmit } = useChat();
 
-
-
   /**
    * Handles the submission event of both chat components (GPT or DALL-E)
    * this is called by the form
@@ -203,13 +326,9 @@ export function ByteChatBot() {
        * Calls the app/api/chat/route.ts to stream text output
        */
       handleSubmit(e, {
-        data: { imageUrl: uploadUrl,
-                persona: chosenPersona.prompt,
-         },
-        
+        data: { imageUrl: uploadUrl },
       });
-      }
-    else {
+    } else {
       /**
        * DALL-E MODEL
        * Calls the app/api/image/route.ts to generate image output
@@ -249,7 +368,82 @@ export function ByteChatBot() {
           ]);
         });
     }
+    if (input != '') {
+      setFirstChat(false);
+    }
   }
+
+  /**
+   * Should only be triggered when isLoading is changed
+   */
+  const isFirstRender = useRef(true);
+  const isSecondRender = useRef(true);
+  const isPromptRendered = useRef(true);
+
+  // TO BE CHANGED IF THE HISTORY CONVERSATION  IS CLICKED INSTEAD,  
+  const [conversationId, setConversationId] =  useState(0);
+
+  useEffect(() => {
+    // Skip the first and second render
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    } else if (isSecondRender.current) {
+      isSecondRender.current = false;
+      return;
+    }
+    
+    if (!isLoading && !isLoading2 && status == 'authenticated') {
+      // do not save if when first prompt is being shown 
+      
+      if (isPromptRendered.current) {
+        isPromptRendered.current = false;
+        return;
+      }
+      // a generation has stopped
+      const saveData = async () => {
+      
+        try {
+          const data = await fetchSaveConvo(messages, user?.email, chosenChatbot.chatbot_id, conversationId);
+          console.log("Conversation Saved");
+
+          // we need to run GPT to generate title on the new convo only
+          if (data.new_convo) {
+            setConversationId(data.convo_id);
+            const data2 = await generateTitle(conversationId);
+          }
+          
+        } catch (error) {
+          console.error("Failed to fetch chatbot data", error);
+        }
+      };
+
+      
+      saveData()
+      
+    }
+  }, [isLoading, isLoading2]);
+
+  useEffect(() => {
+
+      // a generation has stopped
+      const chatHistory = async () => {
+      
+        try {
+          const data = await fetchChatHistory(user?.email);
+          console.log("chat history fetched");
+
+          console.log(data)
+          
+        } catch (error) {
+          console.error("Failed to fetch chatbot data", error);
+        }
+      };
+
+      
+      chatHistory
+      
+  }, []);
   
   /**
    * Handles the generation of chat messages based on the provided conversation, message ID, and GPT content.
@@ -340,7 +534,7 @@ export function ByteChatBot() {
 
               const isLastMessage: boolean = i === messages.length - 1;
 
-              if (m.role === "user") {
+              if (m.role === "user" && m.id != 'firstprompt') {
                 {
                   /* User message */
                 }
@@ -351,7 +545,7 @@ export function ByteChatBot() {
                     </div>
                   </div>
                 );
-              } else {
+              } else if (m.role == 'assistant') {
                 {
                   /* Chatbot message */
                 }
