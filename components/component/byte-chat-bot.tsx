@@ -71,7 +71,7 @@ async function generateTitle(convo_id: number) {
   return data
 }
 
-async function fetchDALLE(prompt: string) {
+async function fetchDALLE(model: string, prompt: string, quality: string, size: string, style: string, quantity: number) {
   /**
    * Fetches an image using the DALL-E model based on the provided prompt.
    * @param prompt - The prompt for generating the image.
@@ -86,15 +86,22 @@ async function fetchDALLE(prompt: string) {
       },
       body: JSON.stringify(
         {
-          model: "dall-e-3",
+          model: model,
           user_prompt: prompt,
+          quality: quality,
+          size: size, 
+          style: style,
+          quantity: quantity,
         }
       )
     }
   )
 
-  if (!res.ok) {
+  const data = await res.json();
+  console.log(data.response);
 
+  if (!res.ok) {
+    
     // return an error message when the image cannot be generated.
     return { 
           response: 'I apologize for the inconvenience, but I am unable to generate the image you are requesting. Can you try again later?'
@@ -103,7 +110,7 @@ async function fetchDALLE(prompt: string) {
   }
 
   
-  return res.json()
+  return data
 }
 
 async function fetchChatbot() {
@@ -275,6 +282,10 @@ export function ByteChatBot() {
    * The model can be either 'gpt-4o-mini' (default) or 'dall-e-2'.
    */
   const [model, setModel] = useState('gpt-4o-mini');
+  const [quality, setQuality] = useState('standard');
+  const [imgSize, setImgSize] = useState('256x256');
+  const [imgStyle, setImgStyle] = useState('natural');
+  const [quantity, setQuantity] = useState(1);
 
   /**
    * Represents the URL of the uploaded file.
@@ -351,7 +362,7 @@ export function ByteChatBot() {
         }
       ]);
 
-        fetchDALLE(input).then((res) => {
+        fetchDALLE(model, input, quality, imgSize, imgStyle, quantity).then((res) => {
           setIsLoading2(false);
           setMessages([
             ...messages, 
@@ -531,7 +542,7 @@ export function ByteChatBot() {
 
           <div className="pt-4 px-2 ps-4 pb-8 grid gap-6 max-w-5xl m-auto">
             {messages.map((m, i) => {
-
+              console.log(m);
               const isLastMessage: boolean = i === messages.length - 1;
 
               if (m.role === "user" && m.id != 'firstprompt') {
@@ -572,11 +583,15 @@ export function ByteChatBot() {
 
                     <div className="relative grid gap-1.5 p-3 px-4 text-base">
                       <h1 className="font-semibold">{ chosenPersona.persona }</h1>
-                      {m.content.startsWith('http') ? (
-                        <img src={m.content} alt="Generated" />
-                      ) : (
-                        <div dangerouslySetInnerHTML={{ __html: formatTextToHTML(m.content) }} />
-                      )}
+                      {
+                        Array.isArray(m.content) ? (
+                          m.content.map((url, index) => (
+                            <img key={index} src={url} alt="Generated" />
+                          ))
+                        ) : (
+                          <div dangerouslySetInnerHTML={{ __html: formatTextToHTML(m.content) }} />
+                        )
+                      }
                       {(isLastMessage || isHovered) && (
                         <div className="absolute z-10 bottom-[-15px] left-4 mt-1 flex gap-2">
                           <Button
@@ -625,6 +640,7 @@ export function ByteChatBot() {
               disabled={isLoading || isLoading2}
             />
 
+
             <Button
               variant="default"
               size="icon"
@@ -652,6 +668,75 @@ export function ByteChatBot() {
               iconB={<ImageIcon />}
               className="order-first"
               changeModel={handleModelChange}
+            />
+
+            <select
+              value={model}
+              onChange={(e) => {
+                setModel(e.target.value);
+                setQuality('standard');
+                setImgStyle('natural');
+                setQuantity(1);
+
+              }}
+              className="flex-1 bg-transparent p-2 placeholder:text-base"
+              disabled={model !== 'dall-e-2' && model !== 'dall-e-3' || isLoading || isLoading2}
+            >
+              <option value="dall-e-2">DALL-E 2</option>
+              <option value="dall-e-3">DALL-E 3</option>
+            </select>
+            <select
+              value={quality}
+              onChange={(e) => setQuality(e.target.value)}
+              className="flex-1 bg-transparent p-2 placeholder:text-base"
+              disabled={model !== 'dall-e-3' || isLoading || isLoading2}
+            >
+              <option value="standard">Standard</option>
+              <option value="hd">HD</option>
+            </select>
+
+            <select
+              value={imgSize}
+              onChange={(e) => setImgSize(e.target.value)}
+              className="flex-1 bg-transparent p-2 placeholder:text-base"
+              disabled={model !== 'dall-e-2' && model !== 'dall-e-3' || isLoading || isLoading2}
+            >
+
+              {model != 'dall-e-3' && (
+                <>
+                  <option value="256x256">256x256</option>
+                  <option value="512x512">512x512</option>
+                  <option value="1024x1024">1024x1024</option>
+                </>
+              )}
+              {model === 'dall-e-3' && (
+                <>
+                  <option value="1024x1024">1024x1024</option>
+                  <option value="1792x1024">1792x1024</option>
+                  <option value="1024x1792">1024x1792</option>
+                </>
+              )}
+            </select>
+
+            <select
+              value={imgStyle}
+              onChange={(e) => setImgStyle(e.target.value)}
+              className="flex-1 bg-transparent p-2 placeholder:text-base"
+              disabled={model !== 'dall-e-3' || isLoading || isLoading2}
+              
+            >
+              <option value="natural">Natural</option>
+              <option value="vivid">Vivid</option>
+            </select>
+
+            <Input
+              type="number"
+              value={quantity}
+              className="flex-1 bg-transparent p-2 placeholder:text-base"
+              onChange={(e) => setQuantity(Number(e.target.value))}
+              min={1}
+              max={10}
+              disabled={model !== 'dall-e-2' ||isLoading || isLoading2}
             />
           </div>
           <p className="text-sm text-center pt-3 text-slate-500">
