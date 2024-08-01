@@ -170,7 +170,7 @@ async function fetchOldChat(convo_id: number) {
 }
 
 async function fetchChatUID(convo_id: number, email: any) {
-  const response = await fetch('/api/query/query-chat-uid', {
+  const response = await fetch('/api/query/query-get-uid', {
     method: 'POST',
     body: JSON.stringify({
       conversation_id: convo_id,
@@ -235,37 +235,39 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
               if (data == 'wrong uid') {
                 router.push('/chat');
                 return;
+              }  else {
+                setConversationId(numberHistoryConversationId);
+
+                const getOldChat = async () => {
+                  try {
+                    const data = await fetchOldChat(numberHistoryConversationId);
+                    if (data.error != '') {
+                      console.log("Cannot find old conversation", data.error);
+                      router.push('/chat'); 
+                      return
+                    }
+      
+                    // Fetch the Chatbot as well
+                    const chatdata = await fetchChatbot();
+                    setChosenChatbot(chatdata.chatbot);
+      
+      
+                    console.log("Messages Set")
+                    setMessages(data.messages);
+                    
+                  } catch (error) {
+                    console.error("Failed to fetch chatbot data", error);
+                  }
+                }
+                getOldChat()
+      
+                // Allow the system to save the conversation after the user has  sent a message
+                isPromptRendered.current = false; 
               }
           }
           validateUser()
 
-          setConversationId(numberHistoryConversationId);
-
-          const getOldChat = async () => {
-            try {
-              const data = await fetchOldChat(numberHistoryConversationId);
-              if (data.error != '') {
-                console.log("Cannot find old conversation", data.error);
-                router.push('/chat'); 
-                return
-              }
-
-              // Fetch the Chatbot as well
-              const chatdata = await fetchChatbot();
-              setChosenChatbot(chatdata.chatbot);
-
-
-              console.log("Messages Set")
-              setMessages(data.messages);
-              
-            } catch (error) {
-              console.error("Failed to fetch chatbot data", error);
-            }
-          }
-          getOldChat()
-
-          // Allow the system to save the conversation after the user has  sent a message
-          isPromptRendered.current = false; 
+          
         }
 
       
@@ -407,7 +409,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       setUploadUrl(url);
     }
   };
-
   /**
    * Represents a useChat hook from ai-sdk
    * - the main backbone for streaming text like ChatGPT
