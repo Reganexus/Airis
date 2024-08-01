@@ -90,8 +90,8 @@ const Prompts = () => {
       {/* Prompts Section and Cards */}
       <div className="flex p-4 h-full pt-0">
         {/* default prompt */}
-        <Link href="/chat">
-          <div className="bg-ai-teacher basis-[35%] h-full relative flex flex-col justify-end rounded-lg p-6 hover:cursor-pointer hover:bg-orange-800">
+        <Link href="/chat" className="basis-[35%]">
+          <div className="bg-ai-teacher  h-full relative flex flex-col justify-end rounded-lg p-6 hover:cursor-pointer hover:bg-orange-800">
             <h4 className="text-4xl text-white">
               Talk to a Marketing Specialist
             </h4>
