@@ -18,8 +18,7 @@ import { Personas } from '@/lib/types';
 import { PersonaCode } from '@/lib/types';
 import { getServerSession } from "next-auth";
 import { useSession } from "next-auth/react";
-
-
+import { useRouter } from "next/navigation";
 
 async function generatePreviousChat(convo: any[], messageindex: number, gptcontent: string) {
 
@@ -170,6 +169,22 @@ async function fetchOldChat(convo_id: number) {
   return data
 }
 
+async function fetchChatUID(convo_id: number, email: any) {
+  const response = await fetch('/api/query/query-chat-uid', {
+    method: 'POST',
+    body: JSON.stringify({
+      conversation_id: convo_id,
+      email: email
+    })
+  });
+  if (!response.ok) {
+    throw new Error(`Network response was not ok: ${response.statusText}`);
+  }
+  // must return status, convo_id
+  const data = await response.json();
+  return data.error
+}
+
 
 interface ByteChatBotProps {
   historyConversationId?: string;
@@ -182,36 +197,100 @@ interface ByteChatBotProps {
  */
 export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
+  const router = useRouter();
   const { data: session, status } = useSession();
   // Access user information from session
   const user = session?.user;
 
-
+  //  consists of the chatbot conversation id
   const [conversationId, setConversationId] =  useState(0);
-
   // if a chathistory is clllicked, this will be saved
-  if (historyConversationId) {
-    console.log("aaaaaaaaaaaaaaaaaaaa")
-    const numberHistoryConversationId = Number(historyConversationId);
-    setConversationId(numberHistoryConversationId);
+  useEffect(() => {
+     if (historyConversationId) {
 
-    fetchOldChat(numberHistoryConversationId)
+        const numberHistoryConversationId = Number(historyConversationId);
+       
+        // VALIDATE -  historyConversationId type should be number
+        if (isNaN(numberHistoryConversationId)) {
+          
+          // Redirect to base chat route if invalid ID
+            // TO BE REVISED, GO TO CHAT SELECTION INSTEEEEEEED
+          router.push('/chat'); 
+          return;
+        }
+        // VALIDATE - User should be logged in, with right account
+        if (status === 'authenticated' && user) { 
+          const validateUser = async () => {
+              const data = await fetchChatUID(numberHistoryConversationId, user?.email);
+              
+              if (data == 'wrong uid') {
+                router.push('/chat');
+                return;
+              }
+          }
+          validateUser()
+  
+        }
 
-
-    const saveData = async () => {
       
-      try {
-        const data = await fetchOldChat(numberHistoryConversationId);
+        setConversationId(numberHistoryConversationId);
 
-        console.log("dataaaaaaaaaaaaa", data)
+        const getOldChat = async () => {
+          try {
+            const data = await fetchOldChat(numberHistoryConversationId);
+            if (data.error != '') {
+              console.log("Cannot find old conversation", data.error);
+              router.push('/chat'); 
+              return
+            }
+
+            // Fetch the Chatbot as well
+            const chatdata = await fetchChatbot();
+            setChosenChatbot(chatdata.chatbot);
+
+
+            console.log("Messages Set")
+            setMessages(data.messages);
+            
+          } catch (error) {
+            console.error("Failed to fetch chatbot data", error);
+          }
+        }
+        getOldChat()
+
+        // Allow the system to save the conversation after the user has  sent a message
+        isPromptRendered.current = false;  
+    } else {
+      if (!mounted.current) return;
+
+      console.log("useEffect called");
+      // fetch the chatbot data
+      const fetchData = async () => {
         
-      } catch (error) {
-        console.error("Failed to fetch chatbot data", error);
-      }
-
+        console.log("fetchData called");
+        try {
+          const data = await fetchChatbot();
+          setChosenChatbot(data.chatbot);
+          const stringify = JSON.stringify(data.chatbot?.sysprompt)
+          setMessages([
+          {
+            id: "firstprompt",
+            role: 'user',
+            content: stringify
+          },
+          ]);
+          promptSubmit({ preventDefault: () => {} });
+        } catch (error) {
+          console.error("Failed to fetch chatbot data", error);
+        }
+      };
+      
+      fetchData();
+      return () => {
+        mounted.current = false;
+      };
     }
-    saveData()  
-  }
+  }, [historyConversationId]);
 
 
   
@@ -266,33 +345,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const [chosenChatbot, setChosenChatbot] = useState<any>(null);
   const mounted = useRef(true);
   useEffect(() => {
-    if (!mounted.current) return;
-    console.log("useEffect called");
-    // fetch the chatbot data
-    const fetchData = async () => {
-      
-      console.log("fetchData called");
-      try {
-        const data = await fetchChatbot();
-        setChosenChatbot(data.chatbot);
-        const stringify = JSON.stringify(data.chatbot?.sysprompt)
-        setMessages([
-        {
-          id: "firstprompt",
-          role: 'user',
-          content: stringify
-        },
-        ]);
-        promptSubmit({ preventDefault: () => {} });
-      } catch (error) {
-        console.error("Failed to fetch chatbot data", error);
-      }
-    };
     
-    fetchData();
-    return () => {
-      mounted.current = false;
-    };
   }, []);
 
   const [firstchat, setFirstChat] = useState(true);
@@ -436,6 +489,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       isSecondRender.current = false;
       return;
     }
+    console.log('huhuhaha')
     
     if (!isLoading && !isLoading2 && status == 'authenticated' && user) {
       // do not save if when first prompt is being shown 
@@ -446,7 +500,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       }
       // a generation has stopped
       const saveData = async () => {
-      
         try {
           const data = await fetchSaveConvo(messages, user?.email, chosenChatbot.chatbot_id, conversationId);
           console.log("Conversation Saved");

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Persona } from '@/lib/types';
 import { Personas } from '@/lib/types';
 import { PersonaCode } from '@/lib/types';
-
+import { useRouter } from "next/navigation";
 
 
 interface SideBarProps {
@@ -18,6 +18,9 @@ interface SideBarProps {
 }
 
 const SideBar: React.FC<SideBarProps> = ({ onPersonaChange, chatHistory }) => {
+
+
+
 
     const handlePersonaChange = (personacode: PersonaCode) => {
         // Add any additional logic to handle persona changes
@@ -164,8 +167,9 @@ interface ChatHistoryProps {
 }
 
 const ChatHistory: React.FC<ChatHistoryProps> = ({ onClick, emoji, chatId }) => {
+  const router = useRouter();
   return (
-    <button className="pt-4 hover:cursor-pointer" onClick={onClick}>
+    <button className="pt-4 hover:cursor-pointer" onClick={() => router.push(`/chat/${chatId}`)}>
       <div className="h-[40px] rounded-lg bg-slate-100 hover:bg-slate-200 overflow-clip border border-slate-300 flex items-center justify-center text-[20px]">
         {emoji}
       </div>

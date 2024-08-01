@@ -5,11 +5,11 @@ import { useParams } from "next/navigation";
 
 export default function ChatPage() {
     //const router = useRouter();
-    const { historyConversationId } = useParams(); // Access the dynamic route parameter
+    const { conversationid } = useParams(); // Access the dynamic route parameter
 
     return (
         <SessionProvider>
-            {historyConversationId && <ByteChatBot historyConversationId={historyConversationId as string} />}
+            {conversationid && <ByteChatBot historyConversationId={conversationid as string} />}
         </SessionProvider>
     );
 }
