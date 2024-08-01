@@ -141,7 +141,6 @@ async function fetchSaveConvo(message: any[], email: any, chatbot_id: number, co
 }
 
 async function fetchChatHistory(email: any) {
-  console.log(email)
   const response = await fetch('/api/query/query-chat-history', {
     method: 'POST',
     body: JSON.stringify({
@@ -156,20 +155,65 @@ async function fetchChatHistory(email: any) {
   return data.chat_history
 }
 
+async function fetchOldChat(convo_id: number) {
+  const response = await fetch('/api/query/query-retrieve-convo', {
+    method: 'POST',
+    body: JSON.stringify({
+      conversation_id: convo_id
+    })
+  });
+  if (!response.ok) {
+    throw new Error(`Network response was not ok: ${response.statusText}`);
+  }
+  // must return status, convo_id
+  const data = await response.json();
+  return data
+}
 
 
-
+interface ByteChatBotProps {
+  historyConversationId?: string;
+}
 
 /**
  * Represents the Chat component.
  * @param {Object} params - The id object, telling which persona will be utilized.
  * @returns {JSX.Element} The Chat component.
  */
-export function ByteChatBot() {
+export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
   const { data: session, status } = useSession();
   // Access user information from session
   const user = session?.user;
+
+
+  const [conversationId, setConversationId] =  useState(0);
+
+  // if a chathistory is clllicked, this will be saved
+  if (historyConversationId) {
+    console.log("aaaaaaaaaaaaaaaaaaaa")
+    const numberHistoryConversationId = Number(historyConversationId);
+    setConversationId(numberHistoryConversationId);
+
+    fetchOldChat(numberHistoryConversationId)
+
+
+    const saveData = async () => {
+      
+      try {
+        const data = await fetchOldChat(numberHistoryConversationId);
+
+        console.log("dataaaaaaaaaaaaa", data)
+        
+      } catch (error) {
+        console.error("Failed to fetch chatbot data", error);
+      }
+
+    }
+    saveData()  
+  }
+
+
   
   /**
    * Represents an array of persona descriptions.
@@ -239,7 +283,6 @@ export function ByteChatBot() {
           content: stringify
         },
         ]);
-        console.log("Data fetched and state set");
         //promptSubmit({ preventDefault: () => {} });
       } catch (error) {
         console.error("Failed to fetch chatbot data", error);
@@ -382,7 +425,7 @@ export function ByteChatBot() {
   const isPromptRendered = useRef(true);
 
   // TO BE CHANGED IF THE HISTORY CONVERSATION  IS CLICKED INSTEAD,  
-  const [conversationId, setConversationId] =  useState(0);
+  
 
   useEffect(() => {
     // Skip the first and second render
@@ -425,6 +468,8 @@ export function ByteChatBot() {
     }
   }, [isLoading, isLoading2]);
 
+
+  // Getting chat history
   const [chatHistory, setChatHistory] = useState<Array<any>>();
 
   useEffect(() => {
@@ -432,7 +477,6 @@ export function ByteChatBot() {
       // a generation has stopped
       const getChatHistory = async () => {
         
-        console.log("caaaaa", user?.email)
           const data = await fetchChatHistory(user?.email);
           console.log("chat history fetched", data);
           setChatHistory(data)
