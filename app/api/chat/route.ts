@@ -12,6 +12,16 @@ export async function POST(req: Request) {
 
     // Ensure messages are correctly structured
     const coreMessages = convertToCoreMessages(messages);
+   
+    // Loop through the coreMessages
+    for (const message of coreMessages) {
+      // Perform some operation on each message
+      if (Array.isArray(message.content)) {
+        message.content = message.content.join(' '); // Convert message.content into a string
+        console.log("This is the previous array convertedd into string", message.content)
+      }
+    }
+
 
     // If the data contains an image URL, include it in the messages
     if (data && data.imageUrl) {

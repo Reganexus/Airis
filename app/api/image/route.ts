@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache';
 
 export async function POST(request: Request) {
 
+    // Function to fetch and convert an image from a URL to a File object
     async function getImageAsFile(imageUrl: string, fileName: string): Promise<File | null> {
         try {
             // Fetch the image from the URL
@@ -29,7 +30,14 @@ export async function POST(request: Request) {
         }
     }
 
+    // Extract the required data from the request body
     const { user_prompt, model, quality, size, style, quantity } = await request.json();
+
+    // List all the images in the storage
+    const imgList = await list();
+    console.log(imgList);
+
+    // Log the extracted data for debugging purposes
     console.log("PROMPT:" + user_prompt);
     console.log("MODEL:" + model);
     console.log("QUALITY:" + quality);
@@ -37,12 +45,12 @@ export async function POST(request: Request) {
     console.log("STYLE:" + style);
     console.log("QUANTITY:" + quantity);
 
-
+    // Create a new instance of the OpenAI API client
     const openai = new OpenAI({
         apiKey: process.env.OPENAI_API_KEY,
     });
 
-
+    // Generate images using the OpenAI API
     const image = await openai.images.generate(
         {
             model: model, 
@@ -54,36 +62,43 @@ export async function POST(request: Request) {
         }
     );
 
-
-    
+    // Array to store the generated image URLs
     let imgURLS= [];
+
+    // Process each generated image
+
     let fileNames =  [];
 
     for(let i = 0; i < image.data.length; i++){
 
         const imageUrl = image.data[i]['url'];
         imgURLS.push(imageUrl);
+
+        // Check if the image URL is a valid string
         if (typeof imageUrl === 'string') {
             const url = new URL(imageUrl);
             const pathname = url.pathname;
             console.log("PATHNAME: " + pathname);
             const filename = pathname.substring(pathname.lastIndexOf('/') + 1);
-            
+
             console.log('FILENAME:', filename);
             fileNames.push(filename);
             // Get the image file
             const imgFile = await getImageAsFile(imageUrl, filename);
-    
+
+            // Check if the image file is successfully fetched and converted
             if (imgFile) {
                 console.log('File:', imgFile);
-    
-                // Now pass the file to the put function
+
+                // Upload the image file to the storage
                 const blob = await put(filename, imgFile, {
                     access: 'public',
                 });
                 
                 console.log(blob);
                 console.log('Blob URL:', blob.url);
+
+                // Revalidate the cache for the root path
                 revalidatePath('/');
             } else {
                 console.error('Failed to get image file');
@@ -105,6 +120,4 @@ export async function POST(request: Request) {
             filenames: fileNames,
         }
     ));
-
-
 }

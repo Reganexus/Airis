@@ -537,7 +537,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const isPromptRendered = useRef(true);
 
   // TO BE CHANGED IF THE HISTORY CONVERSATION  IS CLICKED INSTEAD,  
-  
 
   useEffect(() => {
     // Skip the first and second render
@@ -548,7 +547,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       isSecondRender.current = false;
       return;
     }
-    console.log('huhuhaha')
     
     if (!isLoading && !isLoading2 && status == 'authenticated' && user) {
       // do not save if when first prompt is being shown 
