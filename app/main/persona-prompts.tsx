@@ -1,5 +1,7 @@
+'use client';
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter,notFound } from 'next/navigation';
 
 interface Prompt {
   prompt: string;
@@ -17,13 +19,29 @@ const prompts: Prompt[] = [
   { prompt: "Create a Customer Journey", isNested: false },
 ];
 
-const PersonaPrompts = () => {
+// make this dynamic as well using the database
+const persona_id_list = {
+  'intern-profile' : 1, 
+  'marketing-profile': 2,
+  'hr-profile': 3, 
+  'law-profile': 4,
+  'admin-profile': 5,
+  'teacher-profile': 6
+};
+
+interface PersonaPromptsProps {
+  id?: string;
+}
+
+const PersonaPrompts: React.FC<PersonaPromptsProps> = ({ id })=> {
+
+  // TEMPORARY SOLUTION, TRY TO USE DB TO MAKE IT MORE DYNAMIC.
   return (
     <div className="h-full w-full p-8">
       {/* The big card */}
       <div className="h-full w-full bg-white rounded-lg border border-slate-300 shadow flex flex-col p-4 gap-2">
-        <PersonaProfile />
-        <Prompts />
+        <PersonaProfile id ={id} />
+        <Prompts id ={id} />
       </div>
     </div>
   );
@@ -31,7 +49,38 @@ const PersonaPrompts = () => {
 
 export default PersonaPrompts;
 
-const PersonaProfile = () => {
+
+interface PersonaProfileProps {
+  id?: string;
+}
+
+const PersonaProfile: React.FC<PersonaProfileProps> = ({ id })  => {
+  const router = useRouter();
+
+  // make this dynamic as well using db
+  const profileRoutes = [
+    'intern-profile',
+    'marketing-profile',
+    'hr-profile',
+    'law-profile',
+    'admin-profile',
+    'teacher-profile'
+  ];
+
+  if (typeof id === 'undefined' || !profileRoutes.includes(id)) {
+
+    // TEMPORARY SOLUTION, ADD AN INVALID PAGE AND REDIRECT THE USER TO IT
+    notFound();
+  }
+
+  const aiName = (id == 'intern-profile') ? "Intern AI" : 
+                  (id == 'marketing-profile') ? "Marketing AI" : 
+                  (id == 'hr-profile') ? "Human Resources AI" : 
+                  (id == 'law-profile') ? "Law AI" : 
+                  (id == 'admin-profile') ? "Admin AI" : 
+                  (id == 'teacher-profile') ? "Teacher AI" : 
+                  "Intern AI";
+
   return (
     <div className="basis-[35%] border rounded-md bg-ai-marketing relative overflow-clip">
       <div className="absolute w-full h-[45%] bottom-0 bg-white">
@@ -47,7 +96,7 @@ const PersonaProfile = () => {
         </div>
 
         <div className="flex gap-4 items-center pl-36 pt-3 mb-2">
-          <h2 className="text-3xl text-slate-800 font-bold">Marketing AI</h2>
+          <h2 className="text-3xl text-slate-800 font-bold">{aiName}</h2>
           <PersonaSettingsButton />
           <button className="text-slate-500 p-2 px-4 hover:bg-slate-100 border border-slate-500 rounded-full">
             Add or Modify Prompt
@@ -64,7 +113,14 @@ const PersonaProfile = () => {
   );
 };
 
-const Prompts = () => {
+
+interface PromptsProps {
+  id: string;
+}
+
+const Prompts: React.FC<PromptsProps> = ({ id })=> {
+
+  
   return (
     <div className="basis-[65%] border rounded-md flex flex-col">
       {/* Header of Prompts */}
@@ -72,7 +128,7 @@ const Prompts = () => {
         {/* text */}
         <div>
           <h2 className="text-2xl font-semibold text-slate-800">
-            Select a Prompt
+            {id}
           </h2>
           <p className="text-slate-600">
             Select the prompt the best matches your needs.

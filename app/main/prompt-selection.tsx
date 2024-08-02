@@ -1,11 +1,16 @@
 import PersonaPrompts from "./persona-prompts";
 import WelcomeScreen from "./welcome-screen";
 
-const PromptSelection = () => {
+
+interface PromptSelectionProps {
+  id?: string;
+}
+
+const PromptSelection: React.FC<PromptSelectionProps> = ({ id }) => {
   return (
     <div className="bg-slate-200 grow flex justify-center items-center">
       {/* <WelcomeScreen /> */}
-      <PersonaPrompts />
+      <PersonaPrompts id={id} />
     </div>
   );
 };

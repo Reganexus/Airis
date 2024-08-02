@@ -6,7 +6,13 @@ import { signOut } from 'next-auth/react';
 import { useRouter } from "next/navigation";
 import { getServerSession } from 'next-auth';
 
-const SideBar = () => {
+
+interface SideBarProps {
+  id?: string;
+}
+
+
+const SideBar: React.FC<SideBarProps> = ({ id })=> {
   const [isDarkMode, setIsDarkMode] = React.useState<boolean>(false);
 
   const onDarkModeToggle = () => {
