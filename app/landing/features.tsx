@@ -38,7 +38,7 @@ const Feature1: FC = () => {
         <div>
           <Link
             className="text-xl text-primary border border-primary px-8 py-2 rounded-lg"
-            href="#"
+            href={{ pathname: "/entry", query: { type: "register" } }}
           >
             Sign up
           </Link>
@@ -64,7 +64,7 @@ const Feature2: FC = () => {
         <div>
           <Link
             className="text-xl text-primary border border-primary px-8 py-2 rounded-lg"
-            href="#"
+            href={{ pathname: "/entry", query: { type: "register" } }}
           >
             Sign up
           </Link>
@@ -102,7 +102,7 @@ const Feature3: FC = () => {
         <div>
           <Link
             className="text-xl text-primary border border-primary px-8 py-2 rounded-lg"
-            href="#"
+            href={{ pathname: "/entry", query: { type: "register" } }}
           >
             Sign up
           </Link>

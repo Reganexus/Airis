@@ -3,6 +3,7 @@
 import React, { FC } from "react";
 import Logo from "@/components/component/logo";
 import Link from "next/link";
+import { url } from "inspector";
 
 // Define Props Interface
 interface MyComponentProps {}
@@ -21,7 +22,7 @@ const Header: FC<MyComponentProps> = () => {
 
       <div className="hidden sm:flex sm:gap-3 items-align gap-4 py-3 z-20">
         <Link
-          href="/entry"
+          href={{ pathname: "/entry", query: { type: "register" } }}
           className="bg-none border border-slate-700 rounded-lg px-4 p-2 hover:bg-slate-200 flex items-center"
         >
           Sign Up

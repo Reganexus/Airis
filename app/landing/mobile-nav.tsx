@@ -78,7 +78,7 @@ const MobileNav = () => {
 
           <div className="flex flex-col gap-3">
             <Link
-              href="/entry"
+              href={{ pathname: "/entry", query: { type: "register" } }}
               className="p-4 text-xl border border-slate-700 rounded-lg hover:bg-slate-200"
             >
               Sign Up

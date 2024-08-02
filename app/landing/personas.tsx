@@ -160,7 +160,7 @@ const BotPart: FC<MyComponentProps> = () => {
           </p>
           <div className="mt-4">
             <Link
-              href="#"
+              href={{ pathname: "/entry", query: { type: "register" } }}
               className="text-xl py-2 border-2 text-primary border-primary rounded-lg px-8 hover:bg-primary hover:text-white"
             >
               Sign up
