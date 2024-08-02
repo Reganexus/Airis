@@ -6,8 +6,9 @@ export async function POST(req: Request) {
 
     const imgList = await list();
     const information = await req.json()
-    const result = await sql`SELECT messages FROM conversation WHERE conversation_id = ${information.conversation_id}`;
+    const result = await sql`SELECT chatbot_id, messages FROM conversation WHERE conversation_id = ${information.conversation_id}`;
     const conversation = result.rows[0].messages;
+    const chatbot_id = result.rows[0].chatbot_id;
 
     console.log("STORED IMAGES: ");
     console.log(imgList);
@@ -34,7 +35,7 @@ export async function POST(req: Request) {
     }
 
     if (result.rows.length > 0) {
-      return new Response(JSON.stringify({ error: '', messages: conversation }));
+      return new Response(JSON.stringify({ error: '', messages: conversation, chatbot_id: chatbot_id }));
     } else {
       return new Response(JSON.stringify({ error: 'no saved conversation', messages: null }));
     }

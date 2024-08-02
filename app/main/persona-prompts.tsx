@@ -122,6 +122,7 @@ const Prompts: React.FC<PromptsProps> = ({ id })=> {
 
         const data = await response.json();
         setPrompts(data);
+        console.log("aaaaa", data)
       }
     }
 
@@ -131,7 +132,17 @@ const Prompts: React.FC<PromptsProps> = ({ id })=> {
   console.log("PROMPTS 1: ");
   console.log(prompts);
 
-  
+  const router = useRouter();
+
+  const handleClick = (prompt: any) => {
+    // Store values in sessionStorage
+    sessionStorage.setItem('chatbot_id', prompt.chatbot_id);
+    sessionStorage.setItem('persona_id', prompt.persona_id);
+    // Navigate to the desired page
+    router.push('/chat');
+  };
+
+
   return (
     <div className="basis-[65%] border rounded-md flex flex-col">
       {/* Header of Prompts */}
@@ -147,29 +158,34 @@ const Prompts: React.FC<PromptsProps> = ({ id })=> {
         </div>
 
         {/* Breadcrumbs */}
-        <div className="bg-slate-100 rounded-full px-5 text-slate-600 py-1 border">
+        {/* <div className="bg-slate-100 rounded-full px-5 text-slate-600 py-1 border">
           <span>Marketing AI</span>
           <span> &gt; </span>
           <span>Prompts</span>
-        </div>
+        </div> */}
       </div>
 
       {/* Prompts Section and Cards */}
       <div className="flex p-4 h-full pt-0">
-        {/* default prompt */}
-        <Link href="/chat" className="basis-[35%]">
-          <div className="bg-ai-teacher  h-full relative flex flex-col justify-end rounded-lg p-6 hover:cursor-pointer hover:bg-orange-800">
-            <h4 className="text-4xl text-white">
-              Talk to a Marketing Specialist
-            </h4>
-            <DiagonalArrow />
-          </div>
-        </Link>
-
+        {/* Default Prompt */}
+        {prompts.map((p, idx) => (
+          (p.subpersona == false && p.default_prompt == true) && (
+            <div onClick={() => handleClick(p)} className="basis-[35%]">
+              <div className="bg-ai-teacher  h-full relative flex flex-col justify-end rounded-lg p-6 hover:cursor-pointer hover:bg-orange-800">
+                <h4 className="text-4xl text-white">
+                  {p.task}
+                </h4>
+                <DiagonalArrow />
+              </div>
+            </div>
+          )
+        ))}
         {/* Prompt List */}
         <div className="w-full basis-[65%] h-full max-h-full flex flex-col gap-2 pl-4 overflow-auto">
           {prompts.map((p, idx) => (
-            <PromptCard key={idx} promptObj={p} />
+            ((p.subpersona == false && p.default_prompt == false) || (p.subpersona == true)) && (
+              <PromptCard key={idx} promptObj={p} />
+            )
           ))}
         </div>
       </div>
@@ -181,16 +197,29 @@ interface PromptCardProps {
   promptObj: object;
 }
 
+
 const PromptCard: React.FC<PromptCardProps> = ({ promptObj }) => {
   console.log("PROMPT OBJECT: ");
   console.log(promptObj);
+
+  const router = useRouter();
+
+  const handleClick = () => {
+    // Store values in sessionStorage
+    sessionStorage.setItem('chatbot_id', promptObj.chatbot_id);
+    sessionStorage.setItem('persona_id', promptObj.persona_id);
+    // Navigate to the desired page
+    router.push('/chat');
+  };
+
+
   return (
-    <Link href="/chat">
+    <div onClick={handleClick}>
       <div className="w-full flex justify-between items-center p-2 px-4 border rounded-md border-slate-300 text-slate-600 hover:bg-slate-200 hover:text-slate-800 hover:cursor-pointer">
         <p>{promptObj.task}</p>
         {promptObj.subpersona && <ArrowIcon />}
       </div>
-    </Link>
+    </div>
   );
 };
 

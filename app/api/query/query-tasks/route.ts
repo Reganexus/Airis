@@ -3,7 +3,8 @@ import { sql } from '@vercel/postgres';
 
 export async function POST(request: Request) {
   try {
-    const { persona_id } = await request.json(); // Parse the JSON body to get persona_id
+    const { persona_id } = await request.json(); 
+    // Parse the JSON body to get persona_id
 
     // Ensure persona_id is provided
     if (!persona_id) {
@@ -12,7 +13,7 @@ export async function POST(request: Request) {
 
     // Execute the SQL query using the provided persona_id
     const result = await sql`
-      SELECT task, subpersona FROM chatbot WHERE persona_id = ${persona_id};
+      SELECT chatbot_id, persona_id, task, subpersona, default_prompt FROM chatbot WHERE persona_id = ${persona_id};
     `;
 
     console.log("RESULT: ");

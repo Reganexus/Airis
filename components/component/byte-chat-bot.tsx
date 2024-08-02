@@ -115,6 +115,18 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   }, [model]);
 
   // if a chathistory is clicked, this will be saved
+
+  // we will get a chatbot  
+  const [chatbotId, setChatbotId] = useState<string | null>(null);
+  const [personaId, setPersonaId] = useState<string | null>(null);
+  useEffect(() => {
+    // Retrieve values from sessionStorage
+    const chatbot_id = sessionStorage.getItem('chatbot_id');
+    const persona_id = sessionStorage.getItem('persona_id');
+    setChatbotId(chatbot_id);
+    setPersonaId(persona_id);
+  }, []);
+
   useEffect(() => {
     if (historyConversationId) {
 
@@ -155,9 +167,10 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                      router.push('/'); 
                      return
                    }
+                   console.log("Here is the fetched chatbot id of the chosen chat history,", data.chatbot_id)
                    // Fetch the Chatbot as well
-                   const chatdata = await fetchChatbot();
-                   setChosenChatbot(chatdata.chatbot);
+                    const chatdata = await fetchChatbot(data.chatbot_id);
+                    setChosenChatbot(chatdata.chatbot);
      
                    console.log("Messages Set")
                    setMessages(data.messages);
@@ -175,36 +188,36 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
          validateUser()
        }
    } else {
-     if (!mounted.current) return;
-
-     console.log("useEffect called");
-     // fetch the chatbot data
-     const fetchData = async () => {
-       
-       console.log("fetchData called");
-       try {
-         const data = await fetchChatbot();
-         setChosenChatbot(data.chatbot);
-         const stringify = JSON.stringify(data.chatbot?.sysprompt)
-         setMessages([
-         {
-           id: "firstprompt",
-           role: 'user',
-           content: stringify
-         },
-         ]);
-         promptSubmit({ preventDefault: () => {} });
-       } catch (error) {
-         console.error("Failed to fetch chatbot data", error);
-       }
-     };
-     
-     fetchData();
-     return () => {
-       mounted.current = false;
-     };
+      if (!mounted.current) return;
+      if (chatbotId) {
+        // fetch the chatbot data
+        const fetchData = async (chatbotId: string | null) => {
+          console.log("Chatbot ID", chatbotId)
+          console.log("fetchData called");
+          try {
+            const data = await fetchChatbot(chatbotId);
+            setChosenChatbot(data.chatbot);
+            const stringify = JSON.stringify(data.chatbot?.sysprompt)
+            setMessages([
+            {
+              id: "firstprompt",
+              role: 'user',
+              content: stringify
+            },
+            ]);
+            promptSubmit({ preventDefault: () => {} });
+          } catch (error) {
+            console.error("Failed to fetch chatbot data", error);
+          }
+        };
+        fetchData(chatbotId);
+        return () => {
+          mounted.current = false;
+        };
+      }
    }
- }, [historyConversationId, status]);
+ }, [chatbotId, historyConversationId, status]);
+
   // useEffect(() => {
   //   // if a chathistory is clicked, this will be saved
   //   handleChatHistory(
@@ -253,6 +266,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       const saveData = async () => {
         const data = await fetchSaveConvo(messages, user?.email, chosenChatbot.chatbot_id, conversationId);
         // we need to run GPT to generate title on the new convo only
+        console.log("NEW CONVO", data)
         if (data.new_convo) {
           setConversationId(data.convo_id);
           await generateTitle(data.convo_id);
@@ -350,6 +364,10 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
   const [isHistoryOpen, setIsHistoryOpen] = React.useState<boolean>(true);
   const [isImageModel, setIsImageModel] = React.useState<boolean>(false);
+
+  
+
+  
 
 
   // JSX ELEMENT:

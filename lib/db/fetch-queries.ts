@@ -1,8 +1,8 @@
-export async function fetchChatbot() {
-    const response = await fetch('/api/query', {
+export async function fetchChatbot(chatbot_id: string | null) {
+  const response = await fetch('/api/query', {
       method: 'POST',
       body: JSON.stringify({
-        id: '2'
+        id: chatbot_id 
       })
     });
     if (!response.ok) {

@@ -14,7 +14,6 @@ export async function POST(req: Request) {
         const messageStringify = JSON.stringify(information.messages);
         const result2 = await sql`INSERT INTO conversation (user_id, chatbot_id, messages) VALUES (${user_id}, ${information.chatbot_id}, ${messageStringify}::jsonb) RETURNING conversation_id`;
         const conversation_id = result2.rows[0].conversation_id;
-        console.log("waaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:", information.messages);
         if (result2) {
             console.log("Query executed successfully");
             console.log("Conversation ID:", conversation_id);
@@ -28,7 +27,7 @@ export async function POST(req: Request) {
         //  stringify the messages to include all messages on updating it
         const messageStringify = JSON.stringify(information.messages)
 
-        const result2 = await sql`UPDATE conversation SET messages = ${messageStringify}::jsonb, chatbot_id = ${information.chatbot_id} WHERE conversation_id = ${information.conversation_id}`;
+        const result2 = await sql`UPDATE conversation SET messages = ${messageStringify}::jsonb WHERE conversation_id = ${information.conversation_id}`;
 
         if (result2) {
             // Code to execute if the query was successful
