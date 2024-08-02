@@ -35,5 +35,4 @@ const Hero: FC<MyComponentProps> = () => {
   );
 };
 
-
 export default Hero;
