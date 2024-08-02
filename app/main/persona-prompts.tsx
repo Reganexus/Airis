@@ -2,32 +2,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter,notFound } from 'next/navigation';
+import { sql } from '@vercel/postgres';
+import { useEffect, useState } from "react";
 
-interface Prompt {
-  prompt: string;
-  isNested: boolean;
-}
 
-const prompts: Prompt[] = [
-  { prompt: "Product Design", isNested: true },
-  { prompt: "Social media and Public Relations", isNested: true },
-  { prompt: "Company Branding and Identity", isNested: true },
-  { prompt: "Create a Monthly SEO Report", isNested: false },
-  { prompt: "Create a Website Performance Analysis Document", isNested: false },
-  { prompt: "Create a Pricing Analysis Document", isNested: false },
-  { prompt: "Create Customer Personas", isNested: false },
-  { prompt: "Create a Customer Journey", isNested: false },
-];
 
-// make this dynamic as well using the database
-const persona_id_list = {
-  'intern-profile' : 1, 
-  'marketing-profile': 2,
-  'hr-profile': 3, 
-  'law-profile': 4,
-  'admin-profile': 5,
-  'teacher-profile': 6
-};
+
 
 interface PersonaPromptsProps {
   id?: string;
@@ -115,10 +95,41 @@ const PersonaProfile: React.FC<PersonaProfileProps> = ({ id })  => {
 
 
 interface PromptsProps {
-  id: string;
+  id?: string;
 }
 
 const Prompts: React.FC<PromptsProps> = ({ id })=> {
+  const persona_id_list = {
+    'intern-profile' : 1, 
+    'marketing-profile': 2,
+    'hr-profile': 3, 
+    'law-profile': 4,
+    'admin-profile': 5,
+    'teacher-profile': 6
+  };
+  const [prompts, setPrompts] = useState([]);
+    // make this dynamic as well using the database
+  useEffect(() => {
+    async function fetchPrompts() {
+      if (id) {
+        const response = await fetch('/api/query/query-tasks', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ persona_id: persona_id_list[id] }), // Send persona_id in the request body
+        });
+
+        const data = await response.json();
+        setPrompts(data);
+      }
+    }
+
+    fetchPrompts();
+  }, [id]);
+
+  console.log("PROMPTS 1: ");
+  console.log(prompts);
 
   
   return (
@@ -157,8 +168,8 @@ const Prompts: React.FC<PromptsProps> = ({ id })=> {
 
         {/* Prompt List */}
         <div className="w-full basis-[65%] h-full max-h-full flex flex-col gap-2 pl-4 overflow-auto">
-          {prompts.map((p) => (
-            <PromptCard key={p.prompt} promptObj={p} />
+          {prompts.map((p, idx) => (
+            <PromptCard key={idx} promptObj={p} />
           ))}
         </div>
       </div>
@@ -167,17 +178,17 @@ const Prompts: React.FC<PromptsProps> = ({ id })=> {
 };
 
 interface PromptCardProps {
-  promptObj: Prompt;
+  promptObj: object;
 }
 
 const PromptCard: React.FC<PromptCardProps> = ({ promptObj }) => {
-  const { prompt, isNested } = promptObj;
-
+  console.log("PROMPT OBJECT: ");
+  console.log(promptObj);
   return (
     <Link href="/chat">
       <div className="w-full flex justify-between items-center p-2 px-4 border rounded-md border-slate-300 text-slate-600 hover:bg-slate-200 hover:text-slate-800 hover:cursor-pointer">
-        <p>{prompt}</p>
-        {isNested && <ArrowIcon />}
+        <p>{promptObj.task}</p>
+        {promptObj.subpersona && <ArrowIcon />}
       </div>
     </Link>
   );
