@@ -15,7 +15,6 @@ import { useChat } from "ai/react";
 import PersonaCard from "./persona-card";
 import { formatTextToHTML } from "@/lib/textToHTML";
 import Image from "next/image";
-//import SideBar from "./side-bar";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -23,6 +22,9 @@ import { generatePreviousChat, generateTitle } from "@/lib/api/gpt-operations";
 import { generateDALLE } from "@/lib/api/dall-e-operations";
 
 import { fetchChatbot, fetchSaveConvo, fetchChatHistory, fetchOldChat, fetchChatUID } from "@/lib/db/fetch-queries";
+import { fetchAndSetChatHistory } from "@/lib/chat/handle-chat-history";
+import { handleChatRegenerate } from "@/lib/chat/handle-chat-submit";
+
 
 interface ByteChatBotProps {
   historyConversationId?: string;
@@ -40,105 +42,21 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   // Access user information from session
   const { data: session, status } = useSession();
   const user = session?.user;
+  /**
+   * Represents a useChat hook from ai-sdk
+   * - the main backbone for streaming text like ChatGPT
+   * @messages    - holds the chat messages, with three roles 'system', 'assistant', and 'user'
+   * @setMessages - allows to manually update messages state (important on DALL-E and re-generate previous prompt)
+   * @input       - holds the current input value in the chat component
+   * @stop        - it stops the chat component from further generating a text. Only works on the general streaming the text, not on DALL-E and re-generating previous prompt
+   * @isLoading   - contains the loading state of the chat component, is a boolean
+   * @handleInputChange - handles the change event of the input field
+   * @handleSubmit      - handles submission event of the chat component (GPT-4o only)
+   */
+  const { messages, setMessages, input, isLoading, handleInputChange, handleSubmit } = useChat();
 
   //  consists of the chatbot conversation id
-  const [conversationId, setConversationId] = useState(0);
-  // if a chathistory is clicked, this will be saved
-  useEffect(() => {
-    if (historyConversationId) {
-
-      const numberHistoryConversationId = Number(historyConversationId);
-
-      // VALIDATE -  historyConversationId type should be number
-      if (isNaN(numberHistoryConversationId)) {
-
-        // Redirect to base chat route if invalid ID
-        // TO BE REVISED, GO TO CHAT SELECTION INSTEEEEEEED
-        router.push('/chat');
-        return;
-      }
-
-
-      // VALIDATE - User should be logged in, with right account
-      if (status === 'unauthenticated') {
-        router.push('/chat');
-        return;
-      }
-
-      console.log(status)
-
-      if (status === 'authenticated' && user != undefined) {
-        const validateUser = async () => {
-          const data = await fetchChatUID(numberHistoryConversationId, user?.email);
-
-          if (data == 'wrong uid') {
-            router.push('/chat');
-            return;
-          } else {
-            setConversationId(numberHistoryConversationId);
-
-            const getOldChat = async () => {
-              try {
-                const data = await fetchOldChat(numberHistoryConversationId);
-                if (data.error != '') {
-                  console.log("Cannot find old conversation", data.error);
-                  router.push('/chat');
-                  return
-                }
-
-                // Fetch the Chatbot as well
-                const chatdata = await fetchChatbot();
-                setChosenChatbot(chatdata.chatbot);
-
-
-                console.log("Messages Set")
-                setMessages(data.messages);
-
-              } catch (error) {
-                console.error("Failed to fetch chatbot data", error);
-              }
-            }
-            getOldChat()
-
-            // Allow the system to save the conversation after the user has  sent a message
-            isPromptRendered.current = false;
-          }
-        }
-        validateUser()
-      }
-    } else {
-      if (!mounted.current) return;
-
-      console.log("useEffect called");
-      // fetch the chatbot data
-      const fetchData = async () => {
-
-        console.log("fetchData called");
-        try {
-          const data = await fetchChatbot();
-          setChosenChatbot(data.chatbot);
-          const stringify = JSON.stringify(data.chatbot?.sysprompt)
-          setMessages([
-            {
-              id: "firstprompt",
-              role: 'user',
-              content: stringify
-            },
-          ]);
-          promptSubmit({ preventDefault: () => { } });
-        } catch (error) {
-          console.error("Failed to fetch chatbot data", error);
-        }
-      };
-
-      fetchData();
-      return () => {
-        mounted.current = false;
-      };
-    }
-  }, [historyConversationId, status]);
-  // Default
-  // chosenChatbot contains:
+  const [conversationId, setConversationId] =  useState(0);
 
   /**
    * chatbot_id:
@@ -151,9 +69,13 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
    * 
    * Only sysprompt will be used in the chatbot page, others will be used on selection page 
    */
-  // Define a state variable to store the chosen chatbot
   const [chosenChatbot, setChosenChatbot] = useState<any>(null);
+  const [chatHistory, setChatHistory] = useState<Array<any>>();
+  
   const mounted = useRef(true);
+  const isFirstRender = useRef(true);
+  const isSecondRender = useRef(true);
+  const isPromptRendered = useRef(true);
 
   /**
    * Represents the loading state of the component.
@@ -166,34 +88,20 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
    * The placeholder text is displayed when the input field is empty.
    */
   const [placeholder, setPlaceholder] = useState("Type your message...");
-
   /**
    * Represents the selected model for generating responses.
    * The model can be either 'gpt-4o-mini' (default) or 'dall-e-2'.
-   */
-
+  */
   const [quality, setQuality] = useState('standard');
-  useEffect(() => {
-    console.log("QUALITY has been updated to: " + quality);
-  }, [quality]);
-
-
   const [imgSize, setImgSize] = useState('256x256');
-  useEffect(() => {
-    console.log("IMAGE SIZE has been updated to: " + imgSize);
-  }, [imgSize]);
-
   const [imgStyle, setImgStyle] = useState('natural');
-  useEffect(() => {
-    console.log("IMAGE STYLE has been updated to: " + imgStyle);
-  }, [imgStyle]);
-
   const [quantity, setQuantity] = useState(1);
-  useEffect(() => {
-    console.log("IMAGE QUANTITY has been updated to: " + quantity);
-  }, [quantity]);
 
   const [model, setModel] = useState('gpt-4o-mini');
+
+
+
+
   useEffect(() => {
     if (model == 'dall-e-2') {
       setImgSize('256x256');
@@ -206,20 +114,154 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     console.log("MODEL has been updated to: " + model);
   }, [model]);
 
+  // if a chathistory is clicked, this will be saved
+  useEffect(() => {
+    if (historyConversationId) {
 
-  /**
-   * Represents a useChat hook from ai-sdk
-   * - the main backbone for streaming text like ChatGPT
-   * @messages    - holds the chat messages, with three roles 'system', 'assistant', and 'user'
-   * @setMessages - allows to manually update messages state (important on DALL-E and re-generate previous prompt)
-   * @input       - holds the current input value in the chat component
-   * @stop        - it stops the chat component from further generating a text. Only works on the general streaming the text, not on DALL-E and re-generating previous prompt
-   * @isLoading   - contains the loading state of the chat component, is a boolean
-   * @handleInputChange - handles the change event of the input field
-   * @handleSubmit      - handles submission event of the chat component (GPT-4o only)
-   */
+       const numberHistoryConversationId = Number(historyConversationId);
+      
+       // VALIDATE -  historyConversationId type should be number
+       if (isNaN(numberHistoryConversationId)) {
+         
+         // Redirect to base chat route if invalid ID
+           // TO BE REVISED, GO TO CHAT SELECTION INSTEEEEEEED
+         router.push('/'); 
+         return;
+       }
 
-  const { messages, setMessages, input, isLoading, handleInputChange, handleSubmit } = useChat();
+       // VALIDATE - User should be logged in, with right account
+       if (status === 'unauthenticated') {
+         router.push('/');
+         return;
+       }
+       
+       console.log(status)
+
+       if (status === 'authenticated' && user != undefined) { 
+         const validateUser = async () => {
+             const data = await fetchChatUID(numberHistoryConversationId, user?.email);
+           
+             if (data == 'wrong uid') {
+               router.push('/');
+               return;
+             }  else {
+               setConversationId(numberHistoryConversationId);
+
+               const getOldChat = async () => {
+                 try {
+                   const data = await fetchOldChat(numberHistoryConversationId);
+                   if (data.error != '') {
+                     console.log("Cannot find old conversation", data.error);
+                     router.push('/'); 
+                     return
+                   }
+                   // Fetch the Chatbot as well
+                   const chatdata = await fetchChatbot();
+                   setChosenChatbot(chatdata.chatbot);
+     
+                   console.log("Messages Set")
+                   setMessages(data.messages);
+                   
+                 } catch (error) {
+                   console.error("Failed to fetch chatbot data", error);
+                 }
+               }
+               getOldChat()
+     
+               // Allow the system to save the conversation after the user has  sent a message
+               isPromptRendered.current = false; 
+             }
+         }
+         validateUser()
+       }
+   } else {
+     if (!mounted.current) return;
+
+     console.log("useEffect called");
+     // fetch the chatbot data
+     const fetchData = async () => {
+       
+       console.log("fetchData called");
+       try {
+         const data = await fetchChatbot();
+         setChosenChatbot(data.chatbot);
+         const stringify = JSON.stringify(data.chatbot?.sysprompt)
+         setMessages([
+         {
+           id: "firstprompt",
+           role: 'user',
+           content: stringify
+         },
+         ]);
+         promptSubmit({ preventDefault: () => {} });
+       } catch (error) {
+         console.error("Failed to fetch chatbot data", error);
+       }
+     };
+     
+     fetchData();
+     return () => {
+       mounted.current = false;
+     };
+   }
+ }, [historyConversationId, status]);
+  // useEffect(() => {
+  //   // if a chathistory is clicked, this will be saved
+  //   handleChatHistory(
+  //     historyConversationId,
+  //     status,
+  //     user,
+  //     router,
+  //     mounted
+  //   ).then(
+  //     (result) => {
+  //       if (result?.status == 'newchat') {
+  //         // New Chat
+  //         setChosenChatbot(result?.chatbot);
+  //         promptSubmit({ preventDefault: () => {} });
+          
+  //       } else {  
+  //         // Old Chat
+  //         setConversationId(result?.convo_id ?? 0);
+  //         setChosenChatbot(result?.chatbot);
+  //         setMessages(result?.chat);
+  //       }
+  //       console.log("Resltttttttttttttttttt", chosenChatbot)
+  //     }
+  //   );
+  // }, [historyConversationId, status]);
+
+
+  useEffect(() => {
+    // Skip the first and second render
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    } else if (isSecondRender.current) {
+      isSecondRender.current = false;
+      return;
+    }
+    
+    if (!isLoading && !isLoading2 && status == 'authenticated' && user) {
+      // do not save if when first prompt is being shown 
+      
+      if (isPromptRendered.current) {
+        isPromptRendered.current = false;
+        return;
+      }
+      // a generation has stopped
+      const saveData = async () => {
+        const data = await fetchSaveConvo(messages, user?.email, chosenChatbot.chatbot_id, conversationId);
+        // we need to run GPT to generate title on the new convo only
+        if (data.new_convo) {
+          setConversationId(data.convo_id);
+          await generateTitle(data.convo_id);
+        }
+      };
+
+      saveData()
+    }
+  }, [isLoading, isLoading2]);
 
   /**
    * Handles the submission event of both chat components (GPT or DALL-E)
@@ -233,7 +275,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
        * GPT-4o MODEL
        * Calls the app/api/chat/route.ts to stream text output
        */
-
       handleSubmit(e);
     } else {
       /**
@@ -281,110 +322,9 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   }
 
   /**
-   * Should only be triggered when isLoading is changed
-   */
-  const isFirstRender = useRef(true);
-  const isSecondRender = useRef(true);
-  const isPromptRendered = useRef(true);
-
-  useEffect(() => {
-    // Skip the first and second render
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    } else if (isSecondRender.current) {
-      isSecondRender.current = false;
-      return;
-    }
-
-    if (!isLoading && !isLoading2 && status == 'authenticated' && user) {
-      // do not save if when first prompt is being shown 
-
-      if (isPromptRendered.current) {
-        isPromptRendered.current = false;
-        return;
-      }
-      // a generation has stopped
-      const saveData = async () => {
-        try {
-          const data = await fetchSaveConvo(messages, user?.email, chosenChatbot.chatbot_id, conversationId);
-          console.log("Conversation Saved");
-          console.log(data)
-          // we need to run GPT to generate title on the new convo only
-          if (data.new_convo) {
-            console.log("setting")
-            setConversationId(data.convo_id);
-            const data2 = await generateTitle(data.convo_id);
-            console.log(data2)
-          }
-
-        } catch (error) {
-          console.error("Failed to fetch chatbot data", error);
-        }
-      };
-
-      saveData()
-    }
-  }, [isLoading, isLoading2]);
-
-
-  // Getting chat history
-  const [chatHistory, setChatHistory] = useState<Array<any>>();
-
-  useEffect(() => {
-    if (status === 'authenticated' && user) {
-      // a generation has stopped
-      const getChatHistory = async () => {
-
-        const data = await fetchChatHistory(user?.email);
-        console.log("chat history fetched", data);
-        setChatHistory(data)
-      };
-
-
-      getChatHistory()
-
-    }
-
-  }, [status, user]);
-
-  /**
-   * Handles the generation of chat messages based on the provided conversation, message ID, and GPT content.
-   *
-   * @param convo - The conversation array.
-   * @param messageid - The ID of the message to be generated.
-   * @param gptcontent - The GPT content to be used for generation.
-   */
-  function handleGenerate(convo: any[], messageid: number, gptcontent: string) {
-    setIsLoading2(true);
-    setMessages([
-      ...messages.slice(0, messageid),
-      {
-        id: "",
-        role: "assistant",
-        content: "Generating...",
-      },
-      ...messages.slice(messageid + 1),
-    ]);
-    generatePreviousChat(convo, messageid, gptcontent).then((res) => {
-      setIsLoading2(false);
-      setMessages([
-        ...messages.slice(0, messageid),
-        {
-          id: "",
-          role: "assistant",
-          content: res.response,
-        },
-        ...messages.slice(messageid + 1),
-      ]);
-    });
-  }
-
-  /**
    * Handles the change of the model and updates the placeholder text when toggle button is clicked.
    */
-
-  function handleModelChange() {
+  function handleModelChange(){
     setQuality('standard');
     setImgSize('256x256');
     setImgStyle('natural');
@@ -402,16 +342,15 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     }
 
     setIsImageModel((i) => !i);
-    //console.log(model);
   }
 
   const [hoveredMessageIndex, setHoveredMessageIndex] = React.useState<
     number | null
   >(null);
 
-  const [isHistoryOpen, setIsHistoryOpen] = React.useState<boolean>(false);
-
+  const [isHistoryOpen, setIsHistoryOpen] = React.useState<boolean>(true);
   const [isImageModel, setIsImageModel] = React.useState<boolean>(false);
+
 
   // JSX ELEMENT:
   return (
@@ -430,7 +369,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
           <div className="pt-4 px-2 ps-4 pb-8 grid gap-6 max-w-5xl m-auto">
             {messages.map((m, i) => {
-              console.log(m.content);
 
               const isLastMessage: boolean = i === messages.length - 1;
 
@@ -497,7 +435,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                             size="iconSmall"
                             className="bg-none"
                             onClick={() =>
-                              handleGenerate(messages, i, m.content)
+                              handleChatRegenerate(messages, i, m.content, setIsLoading2, setMessages)
                             }
                           >
                             <RegenerateIcon />

@@ -125,7 +125,7 @@ interface PersonaChatHistoryButtonProps {
 const PersonaChatHistoryButton: React.FC<PersonaChatHistoryButtonProps> = ({
   setIsOpenHistory,
 }) => {
-  const [isToggled, setIsToggled] = React.useState(false);
+  const [isToggled, setIsToggled] = React.useState(true);
 
   const handleToggle = () => {
     setIsToggled((t) => !t);
