@@ -4,7 +4,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ToggleButton from "@/components/ui/toggle-button";
-import { list } from '@vercel/blob';
 
 import Logo from "@/components/component/logo";
 // import HeaderAvatar from "@/components/component/header-avatar";
@@ -14,186 +13,14 @@ import PersonaCard from "./persona-card";
 import { formatTextToHTML } from '@/lib/textToHTML';
 import Image from "next/image";
 import SideBar from "./side-bar";
-import { Persona } from '@/lib/types';
-import { Personas } from '@/lib/types';
-import { PersonaCode } from '@/lib/types';
-import { getServerSession } from "next-auth";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
-async function generatePreviousChat(convo: any[], messageindex: number, gptcontent: string) {
+import { generatePreviousChat, generateTitle } from "@/lib/api/gpt-operations";
+import { generateDALLE } from "@/lib/api/dall-e-operations";
 
-  /**
-   * Generates previous chat based on the given conversation, message index, and GPT content.
-   * @param convo - The conversation array of the whole message prompts
-   * @param messageindex - The index of the message to be re-generated.
-   * @param gptcontent - The message content to be re-generated.
-   * @returns A Promise that resolves to the re-generated response from the server or the same previous message if the API call is not successful.
-   */
+import { fetchChatbot, fetchSaveConvo, fetchChatHistory, fetchOldChat, fetchChatUID } from "@/lib/db/fetch-queries";
 
-  const res = await fetch('/api/regenerate',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(
-        {
-          // slice the convo array from the top message to the chosen message
-          messages: convo.slice(0, messageindex), 
-        }
-      )
-    }
-  )
-  
-  if (!res.ok) {
-    // return the previous chat message if the API response is not
-    return { 
-          response: gptcontent
-      };
-  
-  }
-  return res.json()
-}
-
-async function generateTitle(convo_id: number) {
-  const response = await fetch('/api/query/query-chat-title', {
-    method: 'POST',
-    body: JSON.stringify({
-      conversation_id: convo_id
-    })
-  });
-  if (!response.ok) {
-    throw new Error(`Network response was not ok: ${response.statusText}`);
-  }
-  // must return status, convo_id
-  const data = await response.json();
-  return data
-}
-
-async function fetchDALLE(model: string, prompt: string, quality: string, size: string, style: string, quantity: number) {
-  /**
-   * Fetches an image using the DALL-E model based on the provided prompt.
-   * @param prompt - The prompt for generating the image.
-   * @returns A Promise that resolves to the generated image response or an error message.
-   */
-
-  const res = await fetch('/api/image',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(
-        {
-          model: model,
-          user_prompt: prompt,
-          quality: quality,
-          size: size, 
-          style: style,
-          quantity: quantity,
-        }
-      )
-    }
-  )
-
-  const data = await res.json();
-  console.log("FETCH DALL-E RESPONSE: ");
-  console.log(data.filenames);
-  console.log(data.response);
-
-  if (!res.ok) {
-    
-    // return an error message when the image cannot be generated.
-    return { 
-          response: 'I apologize for the inconvenience, but I am unable to generate the image you are requesting. Can you try again later?'
-      };
-  
-  }
-
-  
-  return data
-}
-
-async function fetchChatbot() {
-  const response = await fetch('/api/query', {
-    method: 'POST',
-    body: JSON.stringify({
-      id: '2'
-    })
-  });
-  if (!response.ok) {
-    throw new Error(`Network response was not ok: ${response.statusText}`);
-  }
-  
-  const data = await response.json();
-  console.log("Data: ", data.chatbot);
-  return data
-}
-
-async function fetchSaveConvo(message: any[], email: any, chatbot_id: number, convo_id: number) {
-  const response = await fetch('/api/query/query-save-convo', {
-    method: 'POST',
-    body: JSON.stringify({
-      conversation_id: convo_id,
-      messages: message,
-      email: email,
-      chatbot_id: chatbot_id
-    })
-  });
-  if (!response.ok) {
-    throw new Error(`Network response was not ok: ${response.statusText}`);
-  }
-  // must return status, convo_id
-  const data = await response.json();
-  return data
-}
-
-async function fetchChatHistory(email: any) {
-  const response = await fetch('/api/query/query-chat-history', {
-    method: 'POST',
-    body: JSON.stringify({
-      email: email
-    })
-  });
-  if (!response.ok) {
-    throw new Error(`Network response was not ok: ${response.statusText}`);
-  }
-  // must return status, convo_id
-  const data = await response.json();
-  return data.chat_history
-}
-
-async function fetchOldChat(convo_id: number) {
-  const response = await fetch('/api/query/query-retrieve-convo', {
-    method: 'POST',
-    body: JSON.stringify({
-      conversation_id: convo_id
-    })
-  });
-  if (!response.ok) {
-    throw new Error(`Network response was not ok: ${response.statusText}`);
-  }
-  // must return status, convo_id
-  const data = await response.json();
-  return data
-}
-
-async function fetchChatUID(convo_id: number, email: any) {
-  const response = await fetch('/api/query/query-get-uid', {
-    method: 'POST',
-    body: JSON.stringify({
-      conversation_id: convo_id,
-      email: email
-    })
-  });
-  if (!response.ok) {
-    throw new Error(`Network response was not ok: ${response.statusText}`);
-  }
-  // must return status, convo_id
-  const data = await response.json();
-  return data.error
-}
 
 
 interface ByteChatBotProps {
@@ -207,14 +34,15 @@ interface ByteChatBotProps {
  */
 export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
+  // Router
   const router = useRouter();
-  const { data: session, status } = useSession();
   // Access user information from session
+  const { data: session, status } = useSession();
   const user = session?.user;
   
   //  consists of the chatbot conversation id
   const [conversationId, setConversationId] =  useState(0);
-  // if a chathistory is clllicked, this will be saved
+  // if a chathistory is clicked, this will be saved
   useEffect(() => {
      if (historyConversationId) {
 
@@ -276,12 +104,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
               }
           }
           validateUser()
-
-          
         }
-
-      
-         
     } else {
       if (!mounted.current) return;
 
@@ -314,42 +137,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     }
   }, [historyConversationId, status]);
 
-
-  
-  /**
-   * Represents an array of persona descriptions.
-   * Each persona description includes the name, role, and expertise of Airis, a fictional character from StartUpLab.
-   * Airis is an expert in various fields and provides consultations and assistance to clients.
-   * The persona descriptions provide information about Airis's background, skills, and the topics she can help with.
-   */
-
-  const personas: Personas = {
-    law: {
-      persona: 'Law AI',
-      prompt: 'You are Airis, StartUpLab\'s Philippine legal consultant with 30 years of experience. You are an expert on Philippine laws, and you specialize in creating various legal documents necessary to the clients\' needs. Your task is to offer deep-dive consultations tailored to the client\'s issues. They rely on your expertise to ensure compliance with Philippine laws. Ask questions for further information on legal documents when necessary. Speak in professional tone and ALWAYS TELL the user IF the topic goes out of your expertise. you may access images or files the user uploaded.'
-    },
-    marketing: {
-      persona: 'Marketing AI',
-      prompt: 'You are Airis, StartUpLab\'s marketing analyst with 30 years of experience. You help clients such as business owners understand market trends and consumer behavior. Your task is to offer deep-dive consultations tailored to the client\'s issues, including various analysis documents and progress reports. ALWAYS TELL the user IF the topic goes out of your expertise.'
-    },
-    hr: {
-      persona: 'Human Resources AI',
-      prompt: 'You are Airis, StartUpLab\'s Human Resource Manager with 30 years of experience. You specialize in HR policies, employee relations, performance management, talent acquisition, and employee development. Your task is to offer deep-dive consultations and help clients manage their HR needs effectively. Your clients can be business owners, HR managers and employers. Speak in professional tone and ALWAYS TELL the user IF the topic goes out of your expertise. you may access images or files the user uploaded.'
-    },
-    intern: {
-      persona: 'Intern Advisor AI',
-      prompt: 'You are Airis, StartUpLab\'s internship advisor with 30 years of experience. You help Filipino students looking for interns prepare for internship applications. You are adept at creating resumes based on the information provided by clients, consulting with clients about their careers, and recommending career paths according to the clients\' skills and interests. Offer detailed answers to questions related to internships, including but not limited to application processes, interview tips, selecting suitable opportunities and preparing necessary documents. Speak in professional but comforting tone and ALWAYS TELL the user IF the topic goes out of your expertise.'
-    },
-    teacher: {
-      persona: 'Teacher AI',
-      prompt: 'You are Airis, StartUpLab\'s mentor for teachers with 30 years of experience in all academic subjects and managing online courses. You help clients, including teachers, authors, and online instructors, with classroom management, curriculum development, student engagement, instructional strategies, and technology integration. You provide comprehensive answers and, if requested, create lesson plans, teaching materials, assessment tools, and progress reports. Speak in a formal and professional tone, and ALWAYS TELL the user IF the topic goes out of your expertise. you may access images or files the user uploaded.'
-    },
-    admin: {
-      persona: 'Admin AI',
-      prompt: 'You are Airis, StartUpLab\'s Admin Assistant with 30 years of experience, specializing in administrative management, operations coordination, and support services within the company ONLY. Your task is to offer assistance to StartUpLab\'s managers, admins, and owners on efficient operation and administrative processes. ALWAYS INFORM the user if the topic goes beyond your expertise. you may access images or files the user uploaded.'
-    }
-  };
-
   // Default
   // chosenChatbot contains:
   /**
@@ -366,15 +153,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   // Define a state variable to store the chosen chatbot
   const [chosenChatbot, setChosenChatbot] = useState<any>(null);
   const mounted = useRef(true);
-  useEffect(() => {
-    
-  }, []);
-
-  const [firstchat, setFirstChat] = useState(true);
-
-
-  // Initialize state with the default persona
-  const [chosenPersona, setChosenPersona] = useState<Persona>(personas['law']);
 
   /**
    * Represents the loading state of the component.
@@ -428,31 +206,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   }, [model]); 
 
 
-
-  /**
-   * Represents the URL of the uploaded file.
-   * The uploadUrl is used to display the uploaded image or file.
-   */
-  const [uploadUrl, setUploadUrl] = useState("");
-  
-  
-
-  /**
-   * Represents the array of attachments.
-   * The attachments array contains the uploaded images.
-   */
-
-
-  /**
-   * Handles the change event when an image is selected.
-   */
-  const handleImageChange = (e: { target: { files: any[]; }; }) => {
-    const file = e.target.files[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setUploadUrl(url);
-    }
-  };
   /**
    * Represents a useChat hook from ai-sdk
    * - the main backbone for streaming text like ChatGPT
@@ -464,7 +217,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
    * @handleInputChange - handles the change event of the input field
    * @handleSubmit      - handles submission event of the chat component (GPT-4o only)
    */
-  const { messages, setMessages, input, stop, isLoading, handleInputChange, handleSubmit } = useChat();
+  const { messages, setMessages, input, isLoading, handleInputChange, handleSubmit } = useChat();
 
   /**
    * Handles the submission event of both chat components (GPT or DALL-E)
@@ -505,7 +258,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
         }
       ]);
 
-        fetchDALLE(model, input, quality, imgSize, imgStyle, quantity).then((res) => {
+        generateDALLE(model, input, quality, imgSize, imgStyle, quantity).then((res) => {
           setIsLoading2(false);
           console.log("FILE NAMES TO BE SET:");
           console.log(res.filenames);
@@ -525,9 +278,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
           ]);
         });
     }
-    if (input != '') {
-      setFirstChat(false);
-    }
   }
 
   /**
@@ -536,8 +286,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const isFirstRender = useRef(true);
   const isSecondRender = useRef(true);
   const isPromptRendered = useRef(true);
-
-  // TO BE CHANGED IF THE HISTORY CONVERSATION  IS CLICKED INSTEAD,  
 
   useEffect(() => {
     // Skip the first and second render
@@ -575,9 +323,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
         }
       };
 
-      
       saveData()
-      
     }
   }, [isLoading, isLoading2]);
 
@@ -659,24 +405,12 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     //console.log(model);
   }
 
-  const handlePersonaChange = (personacode: PersonaCode) => {
-    // Add any additional logic to handle persona changes
-    console.log("PERSONA: "+ personacode);
-    
-    setChosenPersona(personas[personacode]);
-    setMessages([]);
-  };
-
-
   /*
    *
    */
   const [hoveredMessageIndex, setHoveredMessageIndex] = React.useState<
     number | null
   >(null);
-
-  console.log("MESSAGESS: ");
-  console.log(messages)
 
   return (
     <div className="flex h-screen w-full">
@@ -694,7 +428,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
         </header>
 
         <main className="relative flex-1 overflow-auto pt-5 bg-slate-100 pb-0">
-          <PersonaCard persona={chosenPersona.persona} />
+          <PersonaCard persona={"AI"} />
 
           <div className="pt-4 px-2 ps-4 pb-8 grid gap-6 max-w-5xl m-auto">
             {messages.map((m, i) => {
@@ -739,7 +473,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                     </div>
 
                     <div className="relative grid gap-1.5 p-3 px-4 text-base">
-                      <h1 className="font-semibold">{ chosenPersona.persona }</h1>
+                      <h1 className="font-semibold">{ "AI" }</h1>
                       {
                         Array.isArray(m.content) ? (
                           m.content.map((url, index) => (
@@ -901,7 +635,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       </div>
 
       {/* Sidebar */}
-      <SideBar onPersonaChange={handlePersonaChange} chatHistory={chatHistory} />
+      <SideBar chatHistory={chatHistory} />
     </div>
   );
 }

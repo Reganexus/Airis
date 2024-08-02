@@ -1,8 +1,5 @@
 
   export function formatTextToHTML(text: string): string {
-    
-
-
 
     // Convert code blocks (e.g., ```code``` to <pre><code>code</code></pre>)
     text = text.replace(/```([^```]+)```/g, "---<br><pre><code>$1</code></pre><br>---");

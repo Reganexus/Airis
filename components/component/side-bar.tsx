@@ -11,22 +11,12 @@ import { useRouter } from "next/navigation";
 
 
 interface SideBarProps {
-    onPersonaChange: (personacode: PersonaCode) => void;
     chatHistory: any[] | undefined
     // Adjust the type according to your data structure
     // will be passed back to parent component
 }
 
-const SideBar: React.FC<SideBarProps> = ({ onPersonaChange, chatHistory }) => {
-
-
-
-
-    const handlePersonaChange = (personacode: PersonaCode) => {
-        // Add any additional logic to handle persona changes
-        onPersonaChange(personacode);
-    };
-
+const SideBar: React.FC<SideBarProps> = ({ chatHistory }) => {
 
   return (
     <div className="flex flex-col gap-y-2 bg-slate-200 h-screen w-[80px] p-2 border-l-2 border-slate-300">
@@ -56,7 +46,7 @@ const SideBar: React.FC<SideBarProps> = ({ onPersonaChange, chatHistory }) => {
       </div>
 
       {/* Persona Selection Card */}
-      <PersonaSelectionCard onPersonaChange={handlePersonaChange} />
+      <PersonaSelectionCard/>
 
       {/* Chat History Card */}
       <div className="grow flex flex-col items-center rounded-lg border border-slate-300 bg-white overflow-auto">
@@ -78,12 +68,11 @@ const SideBar: React.FC<SideBarProps> = ({ onPersonaChange, chatHistory }) => {
 export default SideBar;
 
 interface PersonaSelectionCardProps {
-    onPersonaChange: (personacode: PersonaCode) => void; 
     // Adjust the type according to your data structure
     // will be passed back to parent component
 }
 
-const PersonaSelectionCard: React.FC<PersonaSelectionCardProps> = ({ onPersonaChange }) => {
+const PersonaSelectionCard: React.FC<PersonaSelectionCardProps> = ({  }) => {
     const [activePersona, setActivePersona] = React.useState(0);
     const personas = [
         { picture: "/persona_icons/icon_law.png", aiTooltipName: "Law AI", personacode: "law" },
@@ -96,8 +85,6 @@ const PersonaSelectionCard: React.FC<PersonaSelectionCardProps> = ({ onPersonaCh
 
     const handlePersonaChange = (index: number) => {
         setActivePersona(index);
-        const personaCode = personas[index].personacode as keyof Personas; // Ensure personaCode is a valid key of Personas
-        onPersonaChange(personaCode); // Call the callback function with the selected persona
     };
 
     return (
