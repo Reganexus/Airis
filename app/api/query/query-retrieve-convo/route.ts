@@ -24,7 +24,7 @@ export async function POST(req: Request) {
 
           if (targetBlob) {
             console.log('Found Blob:', targetBlob);
-            // conversation[i].content[j] = targetBlob.url;
+            conversation[i].content[j] = targetBlob.url;
           } else {
             console.log('Blob not found.');
           }
