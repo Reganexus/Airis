@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ToggleButton from "@/components/ui/toggle-button";
@@ -15,67 +15,17 @@ import { useChat } from "ai/react";
 import PersonaCard from "./persona-card";
 import { formatTextToHTML } from "@/lib/textToHTML";
 import Image from "next/image";
+//import SideBar from "./side-bar";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
-async function fetchDALLE(prompt: string) {
-  /**
-   * Fetches an image using the DALL-E model based on the provided prompt.
-   * @param prompt - The prompt for generating the image.
-   * @returns A Promise that resolves to the generated image response or an error message.
-   */
+import { generatePreviousChat, generateTitle } from "@/lib/api/gpt-operations";
+import { generateDALLE } from "@/lib/api/dall-e-operations";
 
-  const res = await fetch("/api/image", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "dall-e-3",
-      user_prompt: prompt,
-    }),
-  });
+import { fetchChatbot, fetchSaveConvo, fetchChatHistory, fetchOldChat, fetchChatUID } from "@/lib/db/fetch-queries";
 
-  if (!res.ok) {
-    // return an error message when the image cannot be generated.
-    return {
-      response:
-        "I apologize for the inconvenience, but I am unable to generate the image you are requesting. Can you try again later?",
-    };
-  }
-
-  return res.json();
-}
-
-async function generatePreviousChat(
-  convo: any[],
-  messageindex: number,
-  gptcontent: string
-) {
-  /**
-   * Generates previous chat based on the given conversation, message index, and GPT content.
-   * @param convo - The conversation array of the whole message prompts
-   * @param messageindex - The index of the message to be re-generated.
-   * @param gptcontent - The message content to be re-generated.
-   * @returns A Promise that resolves to the re-generated response from the server or the same previous message if the API call is not successful.
-   */
-
-  const res = await fetch("/api/regenerate", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      // slice the convo array from the top message to the chosen message
-      messages: convo.slice(0, messageindex),
-    }),
-  });
-
-  if (!res.ok) {
-    // return the previous chat message if the API response is not
-    return {
-      response: gptcontent,
-    };
-  }
-  return res.json();
+interface ByteChatBotProps {
+  historyConversationId?: string;
 }
 
 /**
@@ -83,48 +33,127 @@ async function generatePreviousChat(
  * @param {Object} params - The id object, telling which persona will be utilized.
  * @returns {JSX.Element} The Chat component.
  */
-export function ByteChatBot() {
-  /**
-   * Represents an array of persona descriptions.
-   * Each persona description includes the name, role, and expertise of Airis, a fictional character from StartUpLab.
-   * Airis is an expert in various fields and provides consultations and assistance to clients.
-   * The persona descriptions provide information about Airis's background, skills, and the topics she can help with.
-   */
-  const personas = {
-    law: {
-      persona: "Law AI",
-      prompt:
-        "You are Airis, StartUpLab's Philippine legal consultant with 30 years of experience. You are an expert on Philippine laws, and you specialize in creating various legal documents necessary to the clients' needs. Your task is to offer deep-dive consultations tailored to the client's issues. They rely on your expertise to ensure compliance with Philippine laws. Ask questions for further information on legal documents when necessary. Speak in professional tone and ALWAYS TELL the user IF the topic goes out of your expertise. you may access images or files the user uploaded.",
-    },
-    marketing: {
-      persona: "Marketing AI",
-      prompt:
-        "You are Airis, StartUpLab's marketing analyst with 30 years of experience. You help clients such as business owners understand market trends and consumer behavior. Your task is to offer deep-dive consultations tailored to the client's issues, including various analysis documents and progress reports. ALWAYS TELL the user IF the topic goes out of your expertise.",
-    },
-    hr: {
-      persona: "Human Resources AI",
-      prompt:
-        "You are Airis, StartUpLab's Human Resource Manager with 30 years of experience. You specialize in HR policies, employee relations, performance management, talent acquisition, and employee development. Your task is to offer deep-dive consultations and help clients manage their HR needs effectively. Your clients can be business owners, HR managers and employers. Speak in professional tone and ALWAYS TELL the user IF the topic goes out of your expertise. you may access images or files the user uploaded.",
-    },
-    intern: {
-      persona: "Intern Advisor AI",
-      prompt:
-        "You are Airis, StartUpLab's internship advisor with 30 years of experience. You help Filipino students looking for interns prepare for internship applications. You are adept at creating resumes based on the information provided by clients, consulting with clients about their careers, and recommending career paths according to the clients' skills and interests. Offer detailed answers to questions related to internships, including but not limited to application processes, interview tips, selecting suitable opportunities and preparing necessary documents. Speak in professional but comforting tone and ALWAYS TELL the user IF the topic goes out of your expertise.",
-    },
-    teacher: {
-      persona: "Teacher AI",
-      prompt:
-        "You are Airis, StartUpLab's mentor for teachers with 30 years of experience in all academic subjects and managing online courses. You help clients, including teachers, authors, and online instructors, with classroom management, curriculum development, student engagement, instructional strategies, and technology integration. You provide comprehensive answers and, if requested, create lesson plans, teaching materials, assessment tools, and progress reports. Speak in a formal and professional tone, and ALWAYS TELL the user IF the topic goes out of your expertise. you may access images or files the user uploaded.",
-    },
-    admin: {
-      persona: "Admin AI",
-      prompt:
-        "You are Airis, StartUpLab's Admin Assistant with 30 years of experience, specializing in administrative management, operations coordination, and support services within the company ONLY. Your task is to offer assistance to StartUpLab's managers, admins, and owners on efficient operation and administrative processes. ALWAYS INFORM the user if the topic goes beyond your expertise. you may access images or files the user uploaded.",
-    },
-  };
+export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
+  // Router
+  const router = useRouter();
+  // Access user information from session
+  const { data: session, status } = useSession();
+  const user = session?.user;
+  
+  //  consists of the chatbot conversation id
+  const [conversationId, setConversationId] =  useState(0);
+  // if a chathistory is clicked, this will be saved
+  useEffect(() => {
+     if (historyConversationId) {
+
+        const numberHistoryConversationId = Number(historyConversationId);
+       
+        // VALIDATE -  historyConversationId type should be number
+        if (isNaN(numberHistoryConversationId)) {
+          
+          // Redirect to base chat route if invalid ID
+            // TO BE REVISED, GO TO CHAT SELECTION INSTEEEEEEED
+          router.push('/chat'); 
+          return;
+        }
+
+
+        // VALIDATE - User should be logged in, with right account
+        if (status === 'unauthenticated') {
+          router.push('/chat');
+          return;
+        }
+        
+        console.log(status)
+
+        if (status === 'authenticated' && user != undefined) { 
+          const validateUser = async () => {
+              const data = await fetchChatUID(numberHistoryConversationId, user?.email);
+            
+              if (data == 'wrong uid') {
+                router.push('/chat');
+                return;
+              }  else {
+                setConversationId(numberHistoryConversationId);
+
+                const getOldChat = async () => {
+                  try {
+                    const data = await fetchOldChat(numberHistoryConversationId);
+                    if (data.error != '') {
+                      console.log("Cannot find old conversation", data.error);
+                      router.push('/chat'); 
+                      return
+                    }
+      
+                    // Fetch the Chatbot as well
+                    const chatdata = await fetchChatbot();
+                    setChosenChatbot(chatdata.chatbot);
+      
+      
+                    console.log("Messages Set")
+                    setMessages(data.messages);
+                    
+                  } catch (error) {
+                    console.error("Failed to fetch chatbot data", error);
+                  }
+                }
+                getOldChat()
+      
+                // Allow the system to save the conversation after the user has  sent a message
+                isPromptRendered.current = false; 
+              }
+          }
+          validateUser()
+        }
+    } else {
+      if (!mounted.current) return;
+
+      console.log("useEffect called");
+      // fetch the chatbot data
+      const fetchData = async () => {
+        
+        console.log("fetchData called");
+        try {
+          const data = await fetchChatbot();
+          setChosenChatbot(data.chatbot);
+          const stringify = JSON.stringify(data.chatbot?.sysprompt)
+          setMessages([
+          {
+            id: "firstprompt",
+            role: 'user',
+            content: stringify
+          },
+          ]);
+          promptSubmit({ preventDefault: () => {} });
+        } catch (error) {
+          console.error("Failed to fetch chatbot data", error);
+        }
+      };
+      
+      fetchData();
+      return () => {
+        mounted.current = false;
+      };
+    }
+  }, [historyConversationId, status]);
   // Default
-  const [chosenPersona, setChosenPersona] = useState(personas["law"]);
+  // chosenChatbot contains:
+
+  /**
+   * chatbot_id:
+   * created_at:
+   * persona_id:
+   * role:
+   * subpersona:
+   * task:
+   * sysprompt:
+   * 
+   * Only sysprompt will be used in the chatbot page, others will be used on selection page 
+   */
+  // Define a state variable to store the chosen chatbot
+  const [chosenChatbot, setChosenChatbot] = useState<any>(null);
+  const mounted = useRef(true);
 
   /**
    * Represents the loading state of the component.
@@ -142,29 +171,41 @@ export function ByteChatBot() {
    * Represents the selected model for generating responses.
    * The model can be either 'gpt-4o-mini' (default) or 'dall-e-2'.
    */
-  const [model, setModel] = useState("gpt-4o-mini");
 
-  /**
-   * Represents the URL of the uploaded file.
-   * The uploadUrl is used to display the uploaded image or file.
-   */
-  const [uploadUrl, setUploadUrl] = useState("");
+  const [quality, setQuality] = useState('standard');
+  useEffect(() => {
+    console.log("QUALITY has been updated to: " + quality);
+  }, [quality]); 
 
-  /**
-   * Represents the array of attachments.
-   * The attachments array contains the uploaded images.
-   */
 
-  /**
-   * Handles the change event when an image is selected.
-   */
-  // const handleImageChange = (e: any) => {
-  //   const file = e.target.files[0];
-  //   if (file) {
-  //     const url = URL.createObjectURL(file);
-  //     setUploadUrl(url);
-  //   }
-  // };
+  const [imgSize, setImgSize] = useState('256x256');
+  useEffect(() => {
+    console.log("IMAGE SIZE has been updated to: " + imgSize);
+  }, [imgSize]); 
+
+  const [imgStyle, setImgStyle] = useState('natural');
+  useEffect(() => {
+    console.log("IMAGE STYLE has been updated to: " + imgStyle);
+  }, [imgStyle]); 
+
+  const [quantity, setQuantity] = useState(1);
+  useEffect(() => {
+    console.log("IMAGE QUANTITY has been updated to: " + quantity);
+  }, [quantity]); 
+
+  const [model, setModel] = useState('gpt-4o-mini');
+  useEffect(() => {
+    if (model == 'dall-e-2'){
+      setImgSize('256x256');
+      setQuality('standard');
+      setImgStyle('natural');
+    }
+    else if (model == 'dall-e-3'){
+      setImgSize('1024x1024');
+    }
+    console.log("MODEL has been updated to: " + model);
+  }, [model]); 
+
 
   /**
    * Represents a useChat hook from ai-sdk
@@ -177,15 +218,8 @@ export function ByteChatBot() {
    * @handleInputChange - handles the change event of the input field
    * @handleSubmit      - handles submission event of the chat component (GPT-4o only)
    */
-  const {
-    messages,
-    setMessages,
-    input,
-    stop,
-    isLoading,
-    handleInputChange,
-    handleSubmit,
-  } = useChat();
+
+  const { messages, setMessages, input, isLoading, handleInputChange, handleSubmit } = useChat();
 
   /**
    * Handles the submission event of both chat components (GPT or DALL-E)
@@ -193,14 +227,14 @@ export function ByteChatBot() {
    */
   async function promptSubmit(e: { preventDefault: () => void }) {
     e.preventDefault();
-    if (model == "gpt-4o-mini") {
+
+    if (model == 'gpt-4o-mini') {
       /**
        * GPT-4o MODEL
        * Calls the app/api/chat/route.ts to stream text output
        */
-      handleSubmit(e, {
-        data: { imageUrl: uploadUrl, persona: chosenPersona.prompt },
-      });
+
+      handleSubmit(e);
     } else {
       /**
        * DALL-E MODEL
@@ -224,25 +258,96 @@ export function ByteChatBot() {
         },
       ]);
 
-      fetchDALLE(input).then((res) => {
-        setIsLoading2(false);
-        setMessages([
-          ...messages,
-          {
-            id: "",
-            role: "user",
-            content: input,
-          },
-          {
-            id: "",
-            role: "assistant",
-            content: res.response,
-          },
-        ]);
-      });
+        generateDALLE(model, input, quality, imgSize, imgStyle, quantity).then((res) => {
+          setIsLoading2(false);
+          console.log("FILE NAMES TO BE SET:");
+          console.log(res.filenames);
+          setMessages([
+            ...messages, 
+            {
+              id: "",
+              role: 'user',
+              content: input
+            },
+            {
+              id: "",
+              role: 'assistant',
+              content: res.response,
+              annotations: res.filenames,
+            }
+          ]);
+        });
     }
   }
 
+  /**
+   * Should only be triggered when isLoading is changed
+   */
+  const isFirstRender = useRef(true);
+  const isSecondRender = useRef(true);
+  const isPromptRendered = useRef(true);
+
+  useEffect(() => {
+    // Skip the first and second render
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    } else if (isSecondRender.current) {
+      isSecondRender.current = false;
+      return;
+    }
+    
+    if (!isLoading && !isLoading2 && status == 'authenticated' && user) {
+      // do not save if when first prompt is being shown 
+      
+      if (isPromptRendered.current) {
+        isPromptRendered.current = false;
+        return;
+      }
+      // a generation has stopped
+      const saveData = async () => {
+        try {
+          const data = await fetchSaveConvo(messages, user?.email, chosenChatbot.chatbot_id, conversationId);
+          console.log("Conversation Saved");
+          console.log(data)
+          // we need to run GPT to generate title on the new convo only
+          if (data.new_convo) {
+            console.log("setting")
+            setConversationId(data.convo_id);
+            const data2 = await generateTitle(data.convo_id);
+            console.log(data2)
+          }
+          
+        } catch (error) {
+          console.error("Failed to fetch chatbot data", error);
+        }
+      };
+
+      saveData()
+    }
+  }, [isLoading, isLoading2]);
+
+
+  // Getting chat history
+  const [chatHistory, setChatHistory] = useState<Array<any>>();
+
+  useEffect(() => {
+    if (status === 'authenticated' && user) {
+      // a generation has stopped
+      const getChatHistory = async () => {
+        
+          const data = await fetchChatHistory(user?.email);
+          console.log("chat history fetched", data);
+          setChatHistory(data)
+      };
+
+      
+      getChatHistory()
+
+    }
+      
+  }, [status, user]);
+ 
   /**
    * Handles the generation of chat messages based on the provided conversation, message ID, and GPT content.
    *
@@ -278,13 +383,22 @@ export function ByteChatBot() {
   /**
    * Handles the change of the model and updates the placeholder text when toggle button is clicked.
    */
-  function handleModelChange() {
-    if (model == "gpt-4o-mini") {
-      setModel("dall-e-2");
-      setPlaceholder("Generate an image...");
-    } else {
-      setModel("gpt-4o-mini");
-      setPlaceholder("Type your message...");
+
+  function handleModelChange(){
+    setQuality('standard');
+    setImgSize('256x256');
+    setImgStyle('natural');
+    setQuantity(1);
+
+    if(model == 'gpt-4o-mini'){
+      setModel('dall-e-2');
+      
+      setPlaceholder('Generate an image...');
+    }
+    else{
+      setModel('gpt-4o-mini');
+      console.log('MODEL SET TO: ' + model);
+      setPlaceholder('Type your message...');
     }
 
     setIsImageModel((i) => !i);
@@ -310,15 +424,17 @@ export function ByteChatBot() {
       <div className="flex flex-1 flex-col h-screen">
         <main className="relative overflow-auto pt-5 bg-slate-100 pb-0 h-full">
           <PersonaCard
-            persona={chosenPersona.persona}
+            persona={"ai"}
             setIsOpenHistory={setIsHistoryOpen}
           />
 
           <div className="pt-4 px-2 ps-4 pb-8 grid gap-6 max-w-5xl m-auto">
             {messages.map((m, i) => {
+              console.log(m.content);
+
               const isLastMessage: boolean = i === messages.length - 1;
 
-              if (m.role === "user") {
+              if (m.role === "user" && m.id != 'firstprompt') {
                 {
                   /* User message */
                 }
@@ -329,7 +445,7 @@ export function ByteChatBot() {
                     </div>
                   </div>
                 );
-              } else {
+              } else if (m.role == 'assistant') {
                 {
                   /* Chatbot message */
                 }
@@ -355,16 +471,16 @@ export function ByteChatBot() {
                     </div>
 
                     <div className="relative grid gap-1.5 p-3 px-4 text-base">
-                      <h1 className="font-semibold">{chosenPersona.persona}</h1>
-                      {m.content.startsWith("http") ? (
-                        <img src={m.content} alt="Generated" />
-                      ) : (
-                        <div
-                          dangerouslySetInnerHTML={{
-                            __html: formatTextToHTML(m.content),
-                          }}
-                        />
-                      )}
+                      <h1 className="font-semibold">{ "AI" }</h1>
+                      {
+                        Array.isArray(m.content) ? (
+                          m.content.map((url, index) => (
+                            <img key={index} src={url} alt="Generated" />
+                          ))
+                        ) : (
+                          <div dangerouslySetInnerHTML={{ __html: formatTextToHTML(m.content) }} />
+                        )
+                      }
                       {(isLastMessage || isHovered) && (
                         <div className="absolute z-10 bottom-[-15px] left-4 mt-1 flex gap-2">
                           <Button
@@ -552,6 +668,71 @@ export function ByteChatBot() {
                 </button>
               </div>
             )}
+            {/*<select
+              value={model}
+              onChange={(e) => {
+                setModel(e.target.value); 
+                setQuantity(1);             
+              }}
+              className="flex-1 bg-transparent p-2 placeholder:text-base"
+              disabled={model !== 'dall-e-2' && model !== 'dall-e-3' || isLoading || isLoading2}
+            >
+              <option value="dall-e-2">DALL-E 2</option>
+              <option value="dall-e-3">DALL-E 3</option>
+            </select>
+            <select
+              value={quality}
+              onChange={(e) => {
+                setQuality(e.target.value)
+              }}
+              className="flex-1 bg-transparent p-2 placeholder:text-base"
+              disabled={model !== 'dall-e-3' || isLoading || isLoading2}
+            >
+              <option value="standard">Standard</option>
+              <option value="hd">HD</option>
+            </select>
+
+            <select
+              value={imgSize}
+              onChange={(e) => setImgSize(e.target.value)}
+              className="flex-1 bg-transparent p-2 placeholder:text-base"
+              disabled={model !== 'dall-e-2' && model !== 'dall-e-3' || isLoading || isLoading2}
+            >
+              
+
+
+                  <option value="256x256"  disabled={model!== 'dall-e-2'}>256x256</option>
+                  <option value="512x512"  disabled={model!== 'dall-e-2'}>512x512</option>
+                  <option value="1024x1024">1024x1024</option>
+                  <option value="1792x1024" disabled={model!== 'dall-e-3'}>1792x1024</option>
+                  <option value="1024x1792" disabled={model!== 'dall-e-3'}>1024x1792</option>
+   
+
+            </select>
+
+            <select
+              value={imgStyle}
+              onChange={(e) => setImgStyle(e.target.value)}
+              className="flex-1 bg-transparent p-2 placeholder:text-base"
+              disabled={model !== 'dall-e-3' || isLoading || isLoading2}
+              
+            >
+              <option value="natural">Natural</option>
+              <option value="vivid">Vivid</option>
+            </select>
+
+            <select
+              value={quantity}
+              onChange={(e) => setQuantity(Number(e.target.value))}
+              className="flex-1 bg-transparent p-2 placeholder:text-base"
+              disabled={model !== 'dall-e-2' || isLoading || isLoading2}
+            >
+              {[...Array(10)].map((_, i) => (
+                <option key={i + 1} value={i + 1}>
+                  {i + 1}
+                </option>
+              ))}
+            </select>*/}
           </div>
 
           <p className="text-sm text-center pt-3 text-slate-500">
@@ -563,6 +744,7 @@ export function ByteChatBot() {
 
       {/* Previus Sidebar commented out by ken */}
       {/* <SideBar onPersonaChange={handlePersonaChange} /> */}
+        {/* <SideBar chatHistory={chatHistory} /> */}
     </div>
   );
 }
