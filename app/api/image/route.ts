@@ -66,7 +66,11 @@ export async function POST(request: Request) {
     let imgURLS= [];
 
     // Process each generated image
+
+    let fileNames =  [];
+
     for(let i = 0; i < image.data.length; i++){
+
         const imageUrl = image.data[i]['url'];
         imgURLS.push(imageUrl);
 
@@ -76,9 +80,9 @@ export async function POST(request: Request) {
             const pathname = url.pathname;
             console.log("PATHNAME: " + pathname);
             const filename = pathname.substring(pathname.lastIndexOf('/') + 1);
-            
-            console.log('Filename:', filename);
 
+            console.log('FILENAME:', filename);
+            fileNames.push(filename);
             // Get the image file
             const imgFile = await getImageAsFile(imageUrl, filename);
 
@@ -104,11 +108,16 @@ export async function POST(request: Request) {
         }
     }
 
-    // Return the response with the generated image URLs
+    console.log("FILE NAMES: ");
+    console.log(fileNames);
+
+    // const imgList = await list();
+    // console.log(imgList);
     return new Response(JSON.stringify(
         {
             prompt: user_prompt,
             response: imgURLS,
+            filenames: fileNames,
         }
     ));
 }

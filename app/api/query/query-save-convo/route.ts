@@ -9,7 +9,8 @@ export async function POST(req: Request) {
 
     if (information.conversation_id == 0) {
         // this means the convo is new
-
+        console.log("SAVE CONVERSATION:");
+        console.log(information.messages);
         const messageStringify = JSON.stringify(information.messages);
         const result2 = await sql`INSERT INTO conversation (user_id, chatbot_id, messages) VALUES (${user_id}, ${information.chatbot_id}, ${messageStringify}::jsonb) RETURNING conversation_id`;
         const conversation_id = result2.rows[0].conversation_id;

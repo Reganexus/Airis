@@ -97,6 +97,8 @@ async function fetchDALLE(model: string, prompt: string, quality: string, size: 
   )
 
   const data = await res.json();
+  console.log("FETCH DALL-E RESPONSE: ");
+  console.log(data.filenames);
   console.log(data.response);
 
   if (!res.ok) {
@@ -469,14 +471,16 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
    */
   async function promptSubmit(e: { preventDefault: () => void; }) {
     e.preventDefault();
+    console.log("MESSAGES: ");
+    console.log(messages);
+    console.log("INPUT: ");
+    console.log(input);
     if (model == 'gpt-4o-mini') {
       /**
        * GPT-4o MODEL
        * Calls the app/api/chat/route.ts to stream text output
        */
-      handleSubmit(e, {
-        data: { imageUrl: uploadUrl },
-      });
+      handleSubmit(e);
     } else {
       /**
        * DALL-E MODEL
@@ -502,6 +506,8 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
         fetchDALLE(model, input, quality, imgSize, imgStyle, quantity).then((res) => {
           setIsLoading2(false);
+          console.log("FILE NAMES TO BE SET:");
+          console.log(res.filenames);
           setMessages([
             ...messages, 
             {
@@ -512,7 +518,8 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
             {
               id: "",
               role: 'assistant',
-              content: res.response
+              content: res.response,
+              annotations: res.filenames,
             }
           ]);
         });
@@ -640,10 +647,12 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
     if(model == 'gpt-4o-mini'){
       setModel('dall-e-2');
+      
       setPlaceholder('Generate an image...');
     }
     else{
       setModel('gpt-4o-mini');
+      console.log('MODEL SET TO: ' + model);
       setPlaceholder('Type your message...');
     }
     //console.log(model);
@@ -665,6 +674,9 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     number | null
   >(null);
 
+  console.log("MESSAGESS: ");
+  console.log(messages)
+
   return (
     <div className="flex h-screen w-full">
       {/* Main Content */}
@@ -685,7 +697,8 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
           <div className="pt-4 px-2 ps-4 pb-8 grid gap-6 max-w-5xl m-auto">
             {messages.map((m, i) => {
-              console.log(m);
+              console.log("THIS IS THE SHIT: ");
+              console.log(m.content);
               const isLastMessage: boolean = i === messages.length - 1;
 
               if (m.role === "user" && m.id != 'firstprompt') {

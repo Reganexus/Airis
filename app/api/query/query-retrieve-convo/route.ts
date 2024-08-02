@@ -5,7 +5,7 @@ export async function POST(req: Request) {
     const information = await req.json()
     const result = await sql`SELECT messages FROM conversation WHERE conversation_id = ${information.conversation_id}`;
     const conversation = result.rows[0].messages;
-    console.log("Retrive Convo", conversation);
+    console.log("Retrieve Convo", conversation);
     if (result.rows.length > 0) {
       return new Response(JSON.stringify({ error: '', messages: conversation }));
     } else {
