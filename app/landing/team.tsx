@@ -98,7 +98,7 @@ const Carousel: FC = () => {
           slidesToShow: 3,
           slidesToScroll: 1,
           centerPadding: "40px",
-        }
+        },
       },
       {
         breakpoint: 768,
@@ -107,8 +107,8 @@ const Carousel: FC = () => {
           slidesToScroll: 1,
           centerPadding: "20px",
           centerMode: false,
-        }
-      }
+        },
+      },
     ],
   };
 
@@ -183,7 +183,7 @@ const CTA: FC = () => {
 
       <div className="flex justify-center mt-8 mb-4">
         <Link
-          href="#"
+          href={{ pathname: "/entry", query: { type: "register" } }}
           className="text-xl bg-primary hover:bg-sky-700 text-white px-8 py-2 rounded-lg"
         >
           Sign up

@@ -17,7 +17,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClick }) => {
   return (
     <div className="bg-white w-full p-8 h-[40rem] rounded-lg flex flex-col">
       <div className="mb-8">
-        <Logo logoSize={90} textSize="6xl" />
+        <Logo logoSize={90} textSize="text-6xl" />
         <h2 className="text-center text-3xl my-3 text-slate-700">
           Sign in to Airis
         </h2>

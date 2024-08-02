@@ -19,13 +19,16 @@ const Hero: FC<MyComponentProps> = () => {
 
       <div className="z-10 flex flex-wrap justify-center gap-4 py-3 px-4">
         <Link
-          href="#"
+          href="/"
           className="text-2xl px-4 py-2 text-white border-2 border-white rounded-lg flex items-center hover:bg-white hover:text-slate-700"
         >
           Chat Now
         </Link>
         <Link
-          href="#"
+          href={{
+            pathname: "/entry",
+            query: { type: "register" },
+          }}
           className="text-2xl px-4 py-2 text-white border-2 border-white rounded-lg flex items-center hover:bg-white hover:text-slate-700"
         >
           Sign Up
@@ -34,6 +37,5 @@ const Hero: FC<MyComponentProps> = () => {
     </section>
   );
 };
-
 
 export default Hero;
