@@ -1,29 +1,27 @@
+'use client';
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter,notFound } from 'next/navigation';
+import { sql } from '@vercel/postgres';
+import { useEffect, useState } from "react";
 
-interface Prompt {
-  prompt: string;
-  isNested: boolean;
+
+
+
+
+interface PersonaPromptsProps {
+  id?: string;
 }
 
-const prompts: Prompt[] = [
-  { prompt: "Product Design", isNested: true },
-  { prompt: "Social media and Public Relations", isNested: true },
-  { prompt: "Company Branding and Identity", isNested: true },
-  { prompt: "Create a Monthly SEO Report", isNested: false },
-  { prompt: "Create a Website Performance Analysis Document", isNested: false },
-  { prompt: "Create a Pricing Analysis Document", isNested: false },
-  { prompt: "Create Customer Personas", isNested: false },
-  { prompt: "Create a Customer Journey", isNested: false },
-];
+const PersonaPrompts: React.FC<PersonaPromptsProps> = ({ id })=> {
 
-const PersonaPrompts = () => {
+  // TEMPORARY SOLUTION, TRY TO USE DB TO MAKE IT MORE DYNAMIC.
   return (
     <div className="h-full w-full p-8">
       {/* The big card */}
       <div className="h-full w-full bg-white rounded-lg border border-slate-300 shadow flex flex-col p-4 gap-2">
-        <PersonaProfile />
-        <Prompts />
+        <PersonaProfile id ={id} />
+        <Prompts id ={id} />
       </div>
     </div>
   );
@@ -31,7 +29,38 @@ const PersonaPrompts = () => {
 
 export default PersonaPrompts;
 
-const PersonaProfile = () => {
+
+interface PersonaProfileProps {
+  id?: string;
+}
+
+const PersonaProfile: React.FC<PersonaProfileProps> = ({ id })  => {
+  const router = useRouter();
+
+  // make this dynamic as well using db
+  const profileRoutes = [
+    'intern-profile',
+    'marketing-profile',
+    'hr-profile',
+    'law-profile',
+    'admin-profile',
+    'teacher-profile'
+  ];
+
+  if (typeof id === 'undefined' || !profileRoutes.includes(id)) {
+
+    // TEMPORARY SOLUTION, ADD AN INVALID PAGE AND REDIRECT THE USER TO IT
+    notFound();
+  }
+
+  const aiName = (id == 'intern-profile') ? "Intern AI" : 
+                  (id == 'marketing-profile') ? "Marketing AI" : 
+                  (id == 'hr-profile') ? "Human Resources AI" : 
+                  (id == 'law-profile') ? "Law AI" : 
+                  (id == 'admin-profile') ? "Admin AI" : 
+                  (id == 'teacher-profile') ? "Teacher AI" : 
+                  "Intern AI";
+
   return (
     <div className="basis-[35%] border rounded-md bg-ai-marketing relative overflow-clip">
       <div className="absolute w-full h-[45%] bottom-0 bg-white">
@@ -47,7 +76,7 @@ const PersonaProfile = () => {
         </div>
 
         <div className="flex gap-4 items-center pl-36 pt-3 mb-2">
-          <h2 className="text-3xl text-slate-800 font-bold">Marketing AI</h2>
+          <h2 className="text-3xl text-slate-800 font-bold">{aiName}</h2>
           <PersonaSettingsButton />
           <button className="text-slate-500 p-2 px-4 hover:bg-slate-100 border border-slate-500 rounded-full">
             Add or Modify Prompt
@@ -64,7 +93,45 @@ const PersonaProfile = () => {
   );
 };
 
-const Prompts = () => {
+
+interface PromptsProps {
+  id?: string;
+}
+
+const Prompts: React.FC<PromptsProps> = ({ id })=> {
+  const persona_id_list = {
+    'intern-profile' : 1, 
+    'marketing-profile': 2,
+    'hr-profile': 3, 
+    'law-profile': 4,
+    'admin-profile': 5,
+    'teacher-profile': 6
+  };
+  const [prompts, setPrompts] = useState([]);
+    // make this dynamic as well using the database
+  useEffect(() => {
+    async function fetchPrompts() {
+      if (id) {
+        const response = await fetch('/api/query/query-tasks', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ persona_id: persona_id_list[id] }), // Send persona_id in the request body
+        });
+
+        const data = await response.json();
+        setPrompts(data);
+      }
+    }
+
+    fetchPrompts();
+  }, [id]);
+
+  console.log("PROMPTS 1: ");
+  console.log(prompts);
+
+  
   return (
     <div className="basis-[65%] border rounded-md flex flex-col">
       {/* Header of Prompts */}
@@ -72,7 +139,7 @@ const Prompts = () => {
         {/* text */}
         <div>
           <h2 className="text-2xl font-semibold text-slate-800">
-            Select a Prompt
+            {id}
           </h2>
           <p className="text-slate-600">
             Select the prompt the best matches your needs.
@@ -101,8 +168,8 @@ const Prompts = () => {
 
         {/* Prompt List */}
         <div className="w-full basis-[65%] h-full max-h-full flex flex-col gap-2 pl-4 overflow-auto">
-          {prompts.map((p) => (
-            <PromptCard key={p.prompt} promptObj={p} />
+          {prompts.map((p, idx) => (
+            <PromptCard key={idx} promptObj={p} />
           ))}
         </div>
       </div>
@@ -111,17 +178,17 @@ const Prompts = () => {
 };
 
 interface PromptCardProps {
-  promptObj: Prompt;
+  promptObj: object;
 }
 
 const PromptCard: React.FC<PromptCardProps> = ({ promptObj }) => {
-  const { prompt, isNested } = promptObj;
-
+  console.log("PROMPT OBJECT: ");
+  console.log(promptObj);
   return (
     <Link href="/chat">
       <div className="w-full flex justify-between items-center p-2 px-4 border rounded-md border-slate-300 text-slate-600 hover:bg-slate-200 hover:text-slate-800 hover:cursor-pointer">
-        <p>{prompt}</p>
-        {isNested && <ArrowIcon />}
+        <p>{promptObj.task}</p>
+        {promptObj.subpersona && <ArrowIcon />}
       </div>
     </Link>
   );

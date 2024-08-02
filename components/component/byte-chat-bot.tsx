@@ -42,7 +42,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   // Access user information from session
   const { data: session, status } = useSession();
   const user = session?.user;
-  
   /**
    * Represents a useChat hook from ai-sdk
    * - the main backbone for streaming text like ChatGPT
@@ -58,7 +57,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
   //  consists of the chatbot conversation id
   const [conversationId, setConversationId] =  useState(0);
-  
+
   /**
    * chatbot_id:
    * created_at:
@@ -97,18 +96,19 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const [imgSize, setImgSize] = useState('256x256');
   const [imgStyle, setImgStyle] = useState('natural');
   const [quantity, setQuantity] = useState(1);
+
   const [model, setModel] = useState('gpt-4o-mini');
 
 
 
 
   useEffect(() => {
-    if (model == 'dall-e-2'){
+    if (model == 'dall-e-2') {
       setImgSize('256x256');
       setQuality('standard');
       setImgStyle('natural');
     }
-    else if (model == 'dall-e-3'){
+    else if (model == 'dall-e-3') {
       setImgSize('1024x1024');
     }
     console.log("MODEL has been updated to: " + model);
@@ -299,25 +299,25 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
         },
       ]);
 
-        generateDALLE(model, input, quality, imgSize, imgStyle, quantity).then((res) => {
-          setIsLoading2(false);
-          console.log("FILE NAMES TO BE SET:");
-          console.log(res.filenames);
-          setMessages([
-            ...messages, 
-            {
-              id: "",
-              role: 'user',
-              content: input
-            },
-            {
-              id: "",
-              role: 'assistant',
-              content: res.response,
-              annotations: res.filenames,
-            }
-          ]);
-        });
+      generateDALLE(model, input, quality, imgSize, imgStyle, quantity).then((res) => {
+        setIsLoading2(false);
+        console.log("FILE NAMES TO BE SET:");
+        console.log(res.filenames);
+        setMessages([
+          ...messages,
+          {
+            id: "",
+            role: 'user',
+            content: input
+          },
+          {
+            id: "",
+            role: 'assistant',
+            content: res.response,
+            annotations: res.filenames,
+          }
+        ]);
+      });
     }
   }
 
@@ -330,12 +330,12 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     setImgStyle('natural');
     setQuantity(1);
 
-    if(model == 'gpt-4o-mini'){
+    if (model == 'gpt-4o-mini') {
       setModel('dall-e-2');
-      
+
       setPlaceholder('Generate an image...');
     }
-    else{
+    else {
       setModel('gpt-4o-mini');
       console.log('MODEL SET TO: ' + model);
       setPlaceholder('Type your message...');
@@ -409,7 +409,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                     </div>
 
                     <div className="relative grid gap-1.5 p-3 px-4 text-base">
-                      <h1 className="font-semibold">{ "AI" }</h1>
+                      <h1 className="font-semibold">{"AI"}</h1>
                       {
                         Array.isArray(m.content) ? (
                           m.content.map((url, index) => (
@@ -533,44 +533,61 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                     Model
                   </label>
 
+                  {/* Dropdown for model selection */}
                   <select
-                    name=""
-                    id=""
+                    value={model}
+                    onChange={(e) => {
+                      setModel(e.target.value);
+                      setQuantity(1);
+                    }}
                     className="text-sm text-slate-600 py-1 px-2 border rounded-md bg-slate-50"
+                    disabled={model !== 'dall-e-2' && model !== 'dall-e-3' || isLoading || isLoading2}
                   >
-                    <option value="">DALL-E 3</option>
+                    <option value="dall-e-2">DALL-E 2</option>
+                    <option value="dall-e-3">DALL-E 3</option>
                   </select>
                 </div>
 
+                {/* Dropdown for image quality selection */}
                 <div className="flex justify-between items-center">
                   <label className="font-semibold text-slate-700" htmlFor="">
                     Quality{" "}
                     <sup className="font-normal text-slate-600">DALL-E3</sup>
                   </label>
-
                   <select
-                    name=""
-                    id=""
+                    value={quality}
+                    onChange={(e) => {
+                      setQuality(e.target.value)
+                    }}
                     className="text-sm text-slate-600 py-1 px-2 border rounded-md bg-slate-50"
+                    disabled={model !== 'dall-e-3' || isLoading || isLoading2}
                   >
-                    <option value="">Standard</option>
+                    <option value="standard">Standard</option>
+                    <option value="hd">HD</option>
                   </select>
                 </div>
 
+                {/* Dropdown for image size selection */}
                 <div className="flex justify-between items-center">
                   <label className="font-semibold text-slate-700" htmlFor="">
                     Size
                   </label>
 
                   <select
-                    name=""
-                    id=""
+                    value={imgSize}
+                    onChange={(e) => setImgSize(e.target.value)}
                     className="text-sm text-slate-600 py-1 px-2 border rounded-md bg-slate-50"
+                    disabled={model !== 'dall-e-2' && model !== 'dall-e-3' || isLoading || isLoading2}
                   >
-                    <option value="">1024x1024</option>
+                    <option value="256x256" disabled={model !== 'dall-e-2'}>256x256</option>
+                    <option value="512x512" disabled={model !== 'dall-e-2'}>512x512</option>
+                    <option value="1024x1024">1024x1024</option>
+                    <option value="1792x1024" disabled={model !== 'dall-e-3'}>1792x1024</option>
+                    <option value="1024x1792" disabled={model !== 'dall-e-3'}>1024x1792</option>
                   </select>
                 </div>
 
+                {/* Dropdown for image style selection */}
                 <div className="flex justify-between items-center">
                   <label className="font-semibold text-slate-700" htmlFor="">
                     Style{" "}
@@ -578,14 +595,17 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                   </label>
 
                   <select
-                    name=""
-                    id=""
+                    value={imgStyle}
+                    onChange={(e) => setImgStyle(e.target.value)}
                     className="text-sm text-slate-600 py-1 px-2 border rounded-md bg-slate-50"
+                    disabled={model !== 'dall-e-3' || isLoading || isLoading2}
                   >
-                    <option value="">Natural</option>
+                    <option value="natural">Natural</option>
+                    <option value="vivid">Vivid</option>
                   </select>
                 </div>
 
+                {/* Dropdown for image quantity selection */}
                 <div className="flex justify-between items-center">
                   <label className="font-semibold text-slate-700" htmlFor="">
                     Quantity{" "}
@@ -593,11 +613,16 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                   </label>
 
                   <select
-                    name=""
-                    id=""
+                    value={quantity}
+                    onChange={(e) => setQuantity(Number(e.target.value))}
                     className="text-sm text-slate-600 py-1 px-2 border rounded-md bg-slate-50"
+                    disabled={model !== 'dall-e-2' || isLoading || isLoading2}
                   >
-                    <option value="">1</option>
+                    {[...Array(10)].map((_, i) => (
+                      <option key={i + 1} value={i + 1}>
+                        {i + 1}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -606,71 +631,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                 </button>
               </div>
             )}
-            {/*<select
-              value={model}
-              onChange={(e) => {
-                setModel(e.target.value); 
-                setQuantity(1);             
-              }}
-              className="flex-1 bg-transparent p-2 placeholder:text-base"
-              disabled={model !== 'dall-e-2' && model !== 'dall-e-3' || isLoading || isLoading2}
-            >
-              <option value="dall-e-2">DALL-E 2</option>
-              <option value="dall-e-3">DALL-E 3</option>
-            </select>
-            <select
-              value={quality}
-              onChange={(e) => {
-                setQuality(e.target.value)
-              }}
-              className="flex-1 bg-transparent p-2 placeholder:text-base"
-              disabled={model !== 'dall-e-3' || isLoading || isLoading2}
-            >
-              <option value="standard">Standard</option>
-              <option value="hd">HD</option>
-            </select>
-
-            <select
-              value={imgSize}
-              onChange={(e) => setImgSize(e.target.value)}
-              className="flex-1 bg-transparent p-2 placeholder:text-base"
-              disabled={model !== 'dall-e-2' && model !== 'dall-e-3' || isLoading || isLoading2}
-            >
-              
-
-
-                  <option value="256x256"  disabled={model!== 'dall-e-2'}>256x256</option>
-                  <option value="512x512"  disabled={model!== 'dall-e-2'}>512x512</option>
-                  <option value="1024x1024">1024x1024</option>
-                  <option value="1792x1024" disabled={model!== 'dall-e-3'}>1792x1024</option>
-                  <option value="1024x1792" disabled={model!== 'dall-e-3'}>1024x1792</option>
-   
-
-            </select>
-
-            <select
-              value={imgStyle}
-              onChange={(e) => setImgStyle(e.target.value)}
-              className="flex-1 bg-transparent p-2 placeholder:text-base"
-              disabled={model !== 'dall-e-3' || isLoading || isLoading2}
-              
-            >
-              <option value="natural">Natural</option>
-              <option value="vivid">Vivid</option>
-            </select>
-
-            <select
-              value={quantity}
-              onChange={(e) => setQuantity(Number(e.target.value))}
-              className="flex-1 bg-transparent p-2 placeholder:text-base"
-              disabled={model !== 'dall-e-2' || isLoading || isLoading2}
-            >
-              {[...Array(10)].map((_, i) => (
-                <option key={i + 1} value={i + 1}>
-                  {i + 1}
-                </option>
-              ))}
-            </select>*/}
+            {/**/}
           </div>
 
           <p className="text-sm text-center pt-3 text-slate-500">
@@ -682,7 +643,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
       {/* Previus Sidebar commented out by ken */}
       {/* <SideBar onPersonaChange={handlePersonaChange} /> */}
-        {/* <SideBar chatHistory={chatHistory} /> */}
+      {/* <SideBar chatHistory={chatHistory} /> */}
     </div>
   );
 }
