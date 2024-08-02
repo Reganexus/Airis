@@ -30,8 +30,6 @@ export async function POST(request: Request) {
     }
 
     const { user_prompt, model, quality, size, style, quantity } = await request.json();
-    const imgList = await list();
-    console.log(imgList);
     console.log("PROMPT:" + user_prompt);
     console.log("MODEL:" + model);
     console.log("QUALITY:" + quality);
@@ -59,7 +57,10 @@ export async function POST(request: Request) {
 
     
     let imgURLS= [];
+    let fileNames =  [];
+
     for(let i = 0; i < image.data.length; i++){
+
         const imageUrl = image.data[i]['url'];
         imgURLS.push(imageUrl);
         if (typeof imageUrl === 'string') {
@@ -68,8 +69,8 @@ export async function POST(request: Request) {
             console.log("PATHNAME: " + pathname);
             const filename = pathname.substring(pathname.lastIndexOf('/') + 1);
             
-            console.log('Filename:', filename);
-    
+            console.log('FILENAME:', filename);
+            fileNames.push(filename);
             // Get the image file
             const imgFile = await getImageAsFile(imageUrl, filename);
     
@@ -92,10 +93,16 @@ export async function POST(request: Request) {
         }
     }
 
+    console.log("FILE NAMES: ");
+    console.log(fileNames);
+
+    // const imgList = await list();
+    // console.log(imgList);
     return new Response(JSON.stringify(
         {
             prompt: user_prompt,
             response: imgURLS,
+            filenames: fileNames,
         }
     ));
 
