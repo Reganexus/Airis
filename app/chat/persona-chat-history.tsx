@@ -1,8 +1,85 @@
 import Image from "next/image";
 import "/app/main/persona-selection-scrollbar.css";
 import Link from "next/link";
+import { SetStateAction, useEffect, useState } from "react";
+import { fetchAndSetChatHistory } from "@/lib/chat/handle-chat-history";
+import { useSession } from "next-auth/react";
+import moment from 'moment';
+import { useRouter } from "next/navigation";
+
+interface Conversation {
+  conversation_id: number;
+  user_id: number;
+  chatbot_id: number;
+  title: string;
+  created_at: string; // ISO 8601 date-time string
+}
+
+interface GroupedConversation  {
+  today: Conversation[];
+  yesterday: Conversation[]; 
+  last7Days: Conversation[]; 
+  last30Days: Conversation[]; 
+  older: Conversation[];
+}
+
+const groupByDates = (data: Array<Conversation>): GroupedConversation => {
+  const today: Array<Conversation> = [];
+  const yesterday: Array<Conversation> = [];
+  const last7Days: Array<Conversation> = [];
+  const last30Days: Array<Conversation> = [];
+  const older: Array<Conversation> = [];
+
+  if (data) {
+    data.forEach((conversation) => {
+      const date = moment(conversation.created_at);
+      const now = moment();
+  
+      if (date.isSame(now, 'day')) {
+        today.push(conversation);
+      } else if (date.isSame(now.subtract(1, 'days'), 'day')) {
+        yesterday.push(conversation);
+      } else if (date.isBetween(now.subtract(7, 'days').startOf('day'), now.startOf('day'))) {
+        last7Days.push(conversation);
+      } else if (date.isBetween(now.subtract(30, 'days').startOf('day'), now.subtract(7, 'days').endOf('day'))) {
+        last30Days.push(conversation);
+      } else {
+        older.push(conversation);
+      }
+    });
+  }
+
+  return { today, yesterday, last7Days, last30Days, older };
+}
+
 
 const PersonaChatHistory = () => {
+
+  const [chatHistory, setChatHistory] = useState<Array<any>>();
+  const [groupedHistory, setGroupedHistory] = useState<GroupedConversation>({
+    today: [],
+    yesterday: [],
+    last7Days: [],
+    last30Days: [],
+    older: [],
+  });
+  // Access user information from session
+  const { data: session, status } = useSession();
+  const user = session?.user;
+  useEffect(() => {
+    // Check if the User is logged in
+    // Fetch the Chat History
+    fetchAndSetChatHistory(status, user)
+    .then(
+      (result) => {
+        setChatHistory(result?.history)
+        setGroupedHistory(groupByDates(result?.history))
+      }
+    );
+  }, [status, user]);
+  
+
+  
   return (
     <div className="bg-slate-100 min-w-80 max-w-80 flex flex-col border-r border-slate-300">
       {/* Persona Card */}
@@ -37,11 +114,16 @@ const PersonaChatHistory = () => {
 
       {/* Chat History Selection List */}
       <div className="flex flex-col max-h-full max-w-full overflow-y-auto gap-3 p-3 px-4 py-4 h-full relative persona-selection-scrollbar">
-        <ChatHistoryBatch topics={dummyHistory} />
-        <ChatHistoryBatch topics={dummyHistory} />
-        <ChatHistoryBatch topics={dummyHistory} />
-        <ChatHistoryBatch topics={dummyHistory} />
-        <ChatHistoryBatch topics={dummyHistory} />
+        
+        {groupedHistory && (
+          <>
+            {groupedHistory.today.length > 0 && <ChatHistoryBatch date="Today" topics={groupedHistory.today} />}
+            {groupedHistory.yesterday.length > 0 && <ChatHistoryBatch date="Yesterday" topics={groupedHistory.yesterday} />}
+            {groupedHistory.last7Days.length > 0 && <ChatHistoryBatch date="Previous 7 days" topics={groupedHistory.last7Days} />}
+            {groupedHistory.last30Days.length > 0 && <ChatHistoryBatch date="Previous 30 days" topics={groupedHistory.last30Days} />}
+            {groupedHistory.older.length > 0 && <ChatHistoryBatch date="Older" topics={groupedHistory.older} />}
+          </>
+        )}
       </div>
     </div>
   );
@@ -49,43 +131,39 @@ const PersonaChatHistory = () => {
 
 export default PersonaChatHistory;
 
-interface Topic {
-  title: string;
-  id: string;
-}
 
 interface ChatHistoryBatchProps {
   date?: string;
-  topics: Topic[];
+  topics: Array<Conversation>;
 }
 
 const dummyHistory = [
   {
-    id: "sadfasdf",
-    title: "Lorem ipsum dolorem skibidi tolient gyatterist asdfasdf",
-  },
-  {
-    id: "sadfasdf",
-    title: "Lorem ipsum dolorem skibidi tolient gyatterist asdfasdf",
-  },
-  {
-    id: "sadfasdf",
-    title: "Lorem ipsum dolorem skibidi tolient gyatterist asdfasdf",
-  },
+    conversation_id: "",
+    title: "Sign up Now",
+  }
 ];
 
 const ChatHistoryBatch: React.FC<ChatHistoryBatchProps> = ({
   date = "Yesterday",
   topics = dummyHistory,
 }) => {
+  
+  
+  const router = useRouter();
+
   return (
     <div className="w-full flex flex-col">
       <h5 className="font-semibold text-slate-600 mb-2">{date}</h5>
       {topics.map((t) => (
         <Link
-          key={t.id}
+          key={t.conversation_id}
           href="#"
           className="text-slate-600 rounded-lg hover:bg-slate-200 max-w-full overflow-hidden px-4 py-2 text-sm whitespace-nowrap text-nowrap text-ellipsis"
+          onClick={(e) => {
+            e.preventDefault(); // Prevent the default anchor behavior
+            router.push(`/chat/${t.conversation_id}`);
+          }}
         >
           {t.title}
         </Link>

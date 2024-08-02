@@ -7,13 +7,7 @@ export async function POST(req: Request) {
     const retrieveMessages = await sql`SELECT messages FROM conversation WHERE conversation_id = ${information.conversation_id}`;
     const { rows: chatbot } = retrieveMessages;
     chatbot[0].messages.shift();
-    console.log('waaaaaaaaaaaaaaaaaaaa', chatbot[0].messages);
-    
-    // chatbot[0].map((m: any) => {
-        //     if (m.id == )
-        // })
-        // Next time, let's remove the firstPrompt
-        
+
     // Generate on GPT
     const result = await generateText({
         model: openai('gpt-4o-mini'),
