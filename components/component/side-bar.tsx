@@ -75,12 +75,12 @@ interface PersonaSelectionCardProps {
 const PersonaSelectionCard: React.FC<PersonaSelectionCardProps> = ({ onPersonaChange }) => {
     const [activePersona, setActivePersona] = React.useState(0);
     const personas = [
-        { picture: "/default_blue.png", aiTooltipName: "Law AI", personacode: "law" },
-        { picture: "/3_var.png", aiTooltipName: "Marketing AI", personacode: "marketing" },
-        { picture: "/6_var.png", aiTooltipName: "Human Resources AI", personacode: "hr" },
-        { picture: "/2_var.png", aiTooltipName: "Intern Advisor AI", personacode: "intern" },
-        { picture: "/4_var.png", aiTooltipName: "Teacher AI", personacode: "teacher" },
-        { picture: "/5_var.png", aiTooltipName: "Admin AI", personacode: "admin" },
+        { picture: "/persona_icons/icon_law.png", aiTooltipName: "Law AI", personacode: "law" },
+        { picture: "/persona_icons/icon_marketing.png", aiTooltipName: "Marketing AI", personacode: "marketing" },
+        { picture: "/persona_icons/icon_hr.png", aiTooltipName: "Human Resources AI", personacode: "hr" },
+        { picture: "/persona_icons/icon_intern.png", aiTooltipName: "Intern Advisor AI", personacode: "intern" },
+        { picture: "/persona_icons/icon_teacher.png", aiTooltipName: "Teacher AI", personacode: "teacher" },
+        { picture: "/persona_icons/icon_admin.png", aiTooltipName: "Admin AI", personacode: "admin" },
     ];
 
     const handlePersonaChange = (index: number) => {
