@@ -1,17 +1,26 @@
+"use client";
+
 import React from "react";
 import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 interface PersonaCardProps {
   persona: string;
+  setIsOpenHistory: Function;
 }
 
-
-const PersonaCard: React.FC<PersonaCardProps> = ({ persona }) => {
+const PersonaCard: React.FC<PersonaCardProps> = ({
+  persona,
+  setIsOpenHistory,
+}) => {
   return (
     <div className="sticky top-0 z-10 flex justify-between items-center gap-4 max-w-5xl m-auto bg-white p-2 px-3 rounded-lg border shadow-md shadow-slate-600/20">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 z-10">
+        <BackToPersonaSelectionButton />
+        <PersonaChatHistoryButton setIsOpenHistory={setIsOpenHistory} />
+
         <div className="w-[40px] h-[40px] rounded-full overflow-clip">
           <Image
             src="/persona_icons/icon_law.png"
@@ -20,16 +29,14 @@ const PersonaCard: React.FC<PersonaCardProps> = ({ persona }) => {
             height={100}
           />
         </div>
-
-        <div>
-          <h2 className="text-md font-semibold text-slate-800">{persona}</h2>
-          <p className="text-sm text-slate-500">
-            A reliable chatbot  
-          </p>
-        </div>
       </div>
 
-      <div className="flex item-center">
+      {/* TOPIC NAME INSERT HERE */}
+      <p className="absolute inset-0 w-full flex justify-center items-center font-semibold text-slate-700">
+        Topic of AI Chatbot
+      </p>
+
+      <div className="flex item-center z-10">
         <Button variant="ghost" size="icon" className="bg-none">
           <SettingsIcon />
           <span className="sr-only">More</span>
@@ -86,5 +93,69 @@ function SettingsIcon() {
     </svg>
   );
 }
+
+const BackToPersonaSelectionButton = () => {
+  return (
+    <Link
+      href={`/`}
+      className="text-slate-500 p-2 hover:bg-slate-200 hover:text-primary rounded-lg"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+        className="size-6"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="m11.25 9-3 3m0 0 3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+        />
+      </svg>
+    </Link>
+  );
+};
+
+interface PersonaChatHistoryButtonProps {
+  setIsOpenHistory: Function;
+}
+
+const PersonaChatHistoryButton: React.FC<PersonaChatHistoryButtonProps> = ({
+  setIsOpenHistory,
+}) => {
+  const [isToggled, setIsToggled] = React.useState(false);
+
+  const handleToggle = () => {
+    setIsToggled((t) => !t);
+    setIsOpenHistory((h: any) => !h);
+  };
+
+  return (
+    <button
+      onClick={handleToggle}
+      className={`text-slate-500 p-2 hover:bg-slate-200 hover:text-primary rounded-lg border border-slate-400 mr-2 ${
+        isToggled &&
+        "bg-slate-500 text-white hover:bg-slate-600 hover:text-white"
+      }`}
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+        className="size-6"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+        />
+      </svg>
+    </button>
+  );
+};
 
 export default PersonaCard;
