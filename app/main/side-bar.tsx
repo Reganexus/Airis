@@ -2,6 +2,9 @@
 
 import Image from "next/image";
 import React from "react";
+import { signOut } from 'next-auth/react';
+import { useRouter } from "next/navigation";
+import { getServerSession } from 'next-auth';
 
 const SideBar = () => {
   const [isDarkMode, setIsDarkMode] = React.useState<boolean>(false);
@@ -147,7 +150,14 @@ const ToggleDarkModeIconButton: React.FC<DarkModeToggleProps> = ({
 
 const LogoutIconButton = () => {
   return (
-    <button className="text-slate-500 p-4 hover:bg-red-100 hover:text-red-500 rounded-lg">
+    <button 
+    onClick={
+      ()=>{
+        signOut({ callbackUrl: "/" });
+      }
+    }
+    title="Sign Out"
+    className="text-slate-500 p-4 hover:bg-red-100 hover:text-red-500 rounded-lg">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
@@ -165,3 +175,4 @@ const LogoutIconButton = () => {
     </button>
   );
 };
+
