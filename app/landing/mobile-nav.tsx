@@ -40,7 +40,7 @@ const MobileNav = () => {
       >
         <div className="p-4 flex flex-col h-full">
           <div className="flex justify-between items-center mb-4">
-            <Logo logoSize={70} textSize="6xl" />
+            <Logo logoSize={70} textSize="text-6xl" />
 
             <button
               onClick={toggleNav}
