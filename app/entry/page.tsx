@@ -1,9 +1,10 @@
 "use client";
 
-import React, { FC } from "react";
+import React, { FC, useEffect } from "react";
 import Marquee from "./marquee";
 import LoginForm from "./login-form";
 import RegisterForm from "./register-form";
+import { useSearchParams } from "next/navigation";
 
 // Define Props Interface
 interface MyComponentProps {}
@@ -11,6 +12,13 @@ interface MyComponentProps {}
 // Functional Component
 const EntryPage: FC<MyComponentProps> = () => {
   const [isRegisterForm, setIsRegisterForm] = React.useState<boolean>(false);
+
+  //check if user clicks sign up then the isRegisterForm will default to true
+  const entryType = useSearchParams().get("type");
+
+  useEffect(() => {
+    entryType === "register" && setIsRegisterForm(true);
+  }, [setIsRegisterForm, entryType]);
 
   const toggleForm = () => setIsRegisterForm((f) => !f);
 
