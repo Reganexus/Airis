@@ -18,7 +18,7 @@ export async function POST(req: Request) {
       // Perform some operation on each message
       if (Array.isArray(message.content)) {
         message.content = message.content.join(' '); // Convert message.content into a string
-        console.log("This is the previous array convertedd into string", message.content)
+        console.log("This is the previous array converted into string", message.content)
       }
     }
 

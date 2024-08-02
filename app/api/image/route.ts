@@ -111,8 +111,7 @@ export async function POST(request: Request) {
     console.log("FILE NAMES: ");
     console.log(fileNames);
 
-    // const imgList = await list();
-    // console.log(imgList);
+
     return new Response(JSON.stringify(
         {
             prompt: user_prompt,
