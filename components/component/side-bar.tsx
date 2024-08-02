@@ -4,17 +4,19 @@ import React, { MouseEventHandler } from "react";
 import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
-
+import { Persona } from '@/lib/types';
+import { Personas } from '@/lib/types';
+import { PersonaCode } from '@/lib/types';
 
 interface SideBarProps {
-    onPersonaChange: (personacode: any) => void; 
+    onPersonaChange: (personacode: PersonaCode) => void; 
     // Adjust the type according to your data structure
     // will be passed back to parent component
 }
 
 const SideBar: React.FC<SideBarProps> = ({ onPersonaChange }) => {
 
-    const handlePersonaChange = (personacode: any) => {
+    const handlePersonaChange = (personacode: PersonaCode) => {
         // Add any additional logic to handle persona changes
         onPersonaChange(personacode);
     };
@@ -65,7 +67,7 @@ const SideBar: React.FC<SideBarProps> = ({ onPersonaChange }) => {
 export default SideBar;
 
 interface PersonaSelectionCardProps {
-    onPersonaChange: (personacode: any) => void; 
+    onPersonaChange: (personacode: PersonaCode) => void; 
     // Adjust the type according to your data structure
     // will be passed back to parent component
 }
@@ -73,17 +75,18 @@ interface PersonaSelectionCardProps {
 const PersonaSelectionCard: React.FC<PersonaSelectionCardProps> = ({ onPersonaChange }) => {
     const [activePersona, setActivePersona] = React.useState(0);
     const personas = [
-        { picture: "/default_blue.png", aiTooltipName: "Law AI", personacode: "law" },
-        { picture: "/3_var.png", aiTooltipName: "Marketing AI", personacode: "marketing" },
-        { picture: "/6_var.png", aiTooltipName: "Human Resources AI", personacode: "hr" },
-        { picture: "/2_var.png", aiTooltipName: "Intern Advisor AI", personacode: "intern" },
-        { picture: "/4_var.png", aiTooltipName: "Teacher AI", personacode: "teacher" },
-        { picture: "/5_var.png", aiTooltipName: "Admin AI", personacode: "admin" },
+        { picture: "/persona_icons/icon_law.png", aiTooltipName: "Law AI", personacode: "law" },
+        { picture: "/persona_icons/icon_marketing.png", aiTooltipName: "Marketing AI", personacode: "marketing" },
+        { picture: "/persona_icons/icon_hr.png", aiTooltipName: "Human Resources AI", personacode: "hr" },
+        { picture: "/persona_icons/icon_intern.png", aiTooltipName: "Intern Advisor AI", personacode: "intern" },
+        { picture: "/persona_icons/icon_teacher.png", aiTooltipName: "Teacher AI", personacode: "teacher" },
+        { picture: "/persona_icons/icon_admin.png", aiTooltipName: "Admin AI", personacode: "admin" },
     ];
 
     const handlePersonaChange = (index: number) => {
         setActivePersona(index);
-        onPersonaChange(personas[index].personacode); // Call the callback function with the selected persona
+        const personaCode = personas[index].personacode as keyof Personas; // Ensure personaCode is a valid key of Personas
+        onPersonaChange(personaCode); // Call the callback function with the selected persona
     };
 
     return (

@@ -14,7 +14,7 @@ const PersonaCard: React.FC<PersonaCardProps> = ({ persona }) => {
       <div className="flex items-center gap-2">
         <div className="w-[40px] h-[40px] rounded-full overflow-clip">
           <Image
-            src="/default_blue.png"
+            src="/persona_icons/icon_law.png"
             alt="default chabot icon"
             width={100}
             height={100}
