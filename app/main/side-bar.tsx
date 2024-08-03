@@ -6,7 +6,6 @@ import { signOut } from 'next-auth/react';
 import { useRouter } from "next/navigation";
 import { getServerSession } from 'next-auth';
 
-
 interface SideBarProps {
   id?: string;
 }

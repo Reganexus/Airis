@@ -61,6 +61,14 @@ const PersonaProfile: React.FC<PersonaProfileProps> = ({ id })  => {
                   (id == 'teacher-profile') ? "Teacher AI" : 
                   "Intern AI";
 
+  const aiDescription = (id == 'intern-profile') ? "A dedicated persona to support intership-related tasks." : 
+  (id == 'marketing-profile') ? "An intelligent persona that enhances your marketing efforts." : 
+  (id == 'hr-profile') ? "A versatile persona that streamlines human resources operations" : 
+  (id == 'law-profile') ? "A reliable persona for all your legal needs." : 
+  (id == 'admin-profile') ? "A dynamic persona that boosts administrative efficiency." : 
+  (id == 'teacher-profile') ? "An educational persona for delivering online courses." : 
+  "Intern AI";
+
   return (
     <div className="basis-[35%] border rounded-md bg-ai-marketing relative overflow-clip">
       <div className="absolute w-full h-[45%] bottom-0 bg-white">
@@ -84,9 +92,7 @@ const PersonaProfile: React.FC<PersonaProfileProps> = ({ id })  => {
         </div>
 
         <p className="pl-36 pr-8">
-          An intelligent persona that enhances your marketing efforts by
-          managing campaigns, engaging with customers, and delivering
-          data-driven insights to optimize strategies.
+          {aiDescription}
         </p>
       </div>
     </div>
