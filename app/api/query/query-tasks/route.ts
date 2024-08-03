@@ -13,9 +13,9 @@ export async function POST(request: Request) {
 
     // Execute the SQL query using the provided persona_id
     const result = await sql`
-      SELECT chatbot_id, persona_id, task, subpersona, default_prompt FROM chatbot WHERE persona_id = ${persona_id};
+      SELECT chatbot_id, persona_id, task, subpersona, default_prompt FROM chatbot WHERE persona_id = ${persona_id} order by subpersona;
     `;
-
+    console.log('PERSONA_ID: ', persona_id)
     console.log("RESULT: ");
     console.log(result);
     // Return the result as JSON

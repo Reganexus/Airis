@@ -122,7 +122,8 @@ const Prompts: React.FC<PromptsProps> = ({ id })=> {
 
         const data = await response.json();
         setPrompts(data);
-        console.log("aaaaa", data)
+        
+        console.log(`PROMPTS FOR ${id}`, data)
       }
     }
 
@@ -150,7 +151,7 @@ const Prompts: React.FC<PromptsProps> = ({ id })=> {
         {/* text */}
         <div>
           <h2 className="text-2xl font-semibold text-slate-800">
-            {id}
+            Select a prompt
           </h2>
           <p className="text-slate-600">
             Select the prompt the best matches your needs.
@@ -169,7 +170,7 @@ const Prompts: React.FC<PromptsProps> = ({ id })=> {
       <div className="flex p-4 h-full pt-0">
         {/* Default Prompt */}
         {prompts.map((p, idx) => (
-          (p.subpersona == false && p.default_prompt == true) && (
+          (p.default_prompt == true) && (
             <div onClick={() => handleClick(p)} className="basis-[35%]">
               <div className="bg-ai-teacher  h-full relative flex flex-col justify-end rounded-lg p-6 hover:cursor-pointer hover:bg-orange-800">
                 <h4 className="text-4xl text-white">
@@ -183,7 +184,7 @@ const Prompts: React.FC<PromptsProps> = ({ id })=> {
         {/* Prompt List */}
         <div className="w-full basis-[65%] h-full max-h-full flex flex-col gap-2 pl-4 overflow-auto">
           {prompts.map((p, idx) => (
-            ((p.subpersona == false && p.default_prompt == false) || (p.subpersona == true)) && (
+            (p.default_prompt == false) && (
               <PromptCard key={idx} promptObj={p} />
             )
           ))}
@@ -217,7 +218,7 @@ const PromptCard: React.FC<PromptCardProps> = ({ promptObj }) => {
     <div onClick={handleClick}>
       <div className="w-full flex justify-between items-center p-2 px-4 border rounded-md border-slate-300 text-slate-600 hover:bg-slate-200 hover:text-slate-800 hover:cursor-pointer">
         <p>{promptObj.task}</p>
-        {promptObj.subpersona && <ArrowIcon />}
+        {!promptObj.subpersona && <ArrowIcon />}
       </div>
     </div>
   );
