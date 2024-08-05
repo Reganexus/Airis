@@ -5,6 +5,8 @@ import React from "react";
 import { signOut } from 'next-auth/react';
 import { useRouter } from "next/navigation";
 import { getServerSession } from 'next-auth';
+import router from "next/router";
+import Link from "next/link";
 
 interface SideBarProps {
   id?: string;
@@ -21,6 +23,7 @@ const SideBar: React.FC<SideBarProps> = ({ id })=> {
   return (
     <div className="bg-slate-50 w-20 flex flex-col justify-between border-r border-slate-300">
       {/* LOGO */}
+      <Link href="/landing">
       <div className="flex justify-center items-center p-2">
         <Image
           src="/logo/airis_logo_sq_trans.png"
@@ -29,6 +32,7 @@ const SideBar: React.FC<SideBarProps> = ({ id })=> {
           height={70}
         />
       </div>
+      </Link>
 
       {/* Profile Section */}
       <div className="flex flex-col justify-between border-t border-slate-300 items-center py-2 px-2 pb-4 pt-3">
