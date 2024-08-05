@@ -7,19 +7,17 @@ import { Button } from "@/components/ui/button";
 import { Persona } from '@/lib/types';
 import { Personas } from '@/lib/types';
 import { PersonaCode } from '@/lib/types';
+import { useRouter } from "next/navigation";
+
 
 interface SideBarProps {
-    onPersonaChange: (personacode: PersonaCode) => void; 
+    chatHistory: any[] | undefined
+
     // Adjust the type according to your data structure
     // will be passed back to parent component
 }
 
-const SideBar: React.FC<SideBarProps> = ({ onPersonaChange }) => {
-
-    const handlePersonaChange = (personacode: PersonaCode) => {
-        // Add any additional logic to handle persona changes
-        onPersonaChange(personacode);
-    };
+const SideBar: React.FC<SideBarProps> = ({ chatHistory }) => {
 
 
   return (
@@ -50,15 +48,20 @@ const SideBar: React.FC<SideBarProps> = ({ onPersonaChange }) => {
       </div>
 
       {/* Persona Selection Card */}
-      <PersonaSelectionCard onPersonaChange={handlePersonaChange} />
+      <PersonaSelectionCard/>
 
       {/* Chat History Card */}
       <div className="grow flex flex-col items-center rounded-lg border border-slate-300 bg-white overflow-auto">
-        <ChatHistory emoji="😂" />
+        {chatHistory && chatHistory.map((chat, i) => (
+            <div key={i}>
+                <ChatHistory emoji={chat.title} chatId={chat.conversation_id} />
+            </div>
+        ))}
+        {/* <ChatHistory emoji="😂" />
         <ChatHistory emoji="🍃" />
         <ChatHistory emoji="👌" />
         <ChatHistory emoji="❤️" />
-        <ChatHistory emoji="😁" />
+        <ChatHistory emoji="😁" /> */}
       </div>
     </div>
   );
@@ -67,12 +70,12 @@ const SideBar: React.FC<SideBarProps> = ({ onPersonaChange }) => {
 export default SideBar;
 
 interface PersonaSelectionCardProps {
-    onPersonaChange: (personacode: PersonaCode) => void; 
+
     // Adjust the type according to your data structure
     // will be passed back to parent component
 }
 
-const PersonaSelectionCard: React.FC<PersonaSelectionCardProps> = ({ onPersonaChange }) => {
+const PersonaSelectionCard: React.FC<PersonaSelectionCardProps> = ({  }) => {
     const [activePersona, setActivePersona] = React.useState(0);
     const personas = [
         { picture: "/persona_icons/icon_law.png", aiTooltipName: "Law AI", personacode: "law" },
@@ -85,8 +88,7 @@ const PersonaSelectionCard: React.FC<PersonaSelectionCardProps> = ({ onPersonaCh
 
     const handlePersonaChange = (index: number) => {
         setActivePersona(index);
-        const personaCode = personas[index].personacode as keyof Personas; // Ensure personaCode is a valid key of Personas
-        onPersonaChange(personaCode); // Call the callback function with the selected persona
+
     };
 
     return (
@@ -152,12 +154,14 @@ const PersonaAvatar: React.FC<PersonaAvatarProps> = ({
 interface ChatHistoryProps {
   onClick?: MouseEventHandler<HTMLButtonElement>;
   emoji: string;
+  chatId: number;
 }
 
-const ChatHistory: React.FC<ChatHistoryProps> = ({ onClick, emoji }) => {
+const ChatHistory: React.FC<ChatHistoryProps> = ({ onClick, emoji, chatId }) => {
+  const router = useRouter();
   return (
-    <button className="pt-4 hover:cursor-pointer" onClick={onClick}>
-      <div className="h-[40px] w-[40px] rounded-lg bg-slate-100 hover:bg-slate-200 overflow-clip border border-slate-300 flex items-center justify-center text-[20px]">
+    <button className="pt-4 hover:cursor-pointer" onClick={() => router.push(`/chat/${chatId}`)}>
+      <div className="h-[40px] rounded-lg bg-slate-100 hover:bg-slate-200 overflow-clip border border-slate-300 flex items-center justify-center text-[20px]">
         {emoji}
       </div>
     </button>

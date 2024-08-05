@@ -5,15 +5,15 @@ export type Persona = {
     prompt: string;
   };
   
-  export type Personas = {
-    law: Persona;
-    marketing: Persona;
-    hr: Persona;
-    intern: Persona;
-    teacher: Persona;
-    admin: Persona;
-  };
-  
-  // Define the personacode type
-  export type PersonaCode = keyof Personas;
-  
+export type Personas = {
+  law: Persona;
+  marketing: Persona;
+  hr: Persona;
+  intern: Persona;
+  teacher: Persona;
+  admin: Persona;
+};
+
+// Define the personacode type
+export type PersonaCode = keyof Personas;
+

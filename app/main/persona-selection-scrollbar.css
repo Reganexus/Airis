@@ -1,0 +1,24 @@
+/* global.css */
+.persona-selection-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #acaeb8 #edf2f7;
+}
+
+/* For Webkit browsers */
+.persona-selection-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.persona-selection-scrollbar::-webkit-scrollbar-track {
+  background: #edf2f7;
+}
+
+.persona-selection-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #72757c;
+  border-radius: 10px;
+  border: 2px solid #edf2f7;
+}
+
+.persona-selection-scrollbar::-webkit-scrollbar-button {
+  display: none;
+}

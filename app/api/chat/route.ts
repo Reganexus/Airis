@@ -8,10 +8,20 @@ export async function POST(req: Request) {
   try {
     const { messages, data } = await req.json();
 
-    console.log(messages);
+    // console.log(messages);
 
     // Ensure messages are correctly structured
     const coreMessages = convertToCoreMessages(messages);
+   
+    // Loop through the coreMessages
+    for (const message of coreMessages) {
+      // Perform some operation on each message
+      if (Array.isArray(message.content)) {
+        message.content = message.content.join(' '); // Convert message.content into a string
+        console.log("This is the previous array converted into string", message.content)
+      }
+    }
+
 
     // If the data contains an image URL, include it in the messages
     if (data && data.imageUrl) {
@@ -21,12 +31,12 @@ export async function POST(req: Request) {
       });
     }
 
-    console.log(data.imageUrl);
+    // console.log(data.imageUrl);
 
     // Call the language model with the transformed messages
     const result = await streamText({
-      model: openai('gpt-4o'),
-      system: data.persona,
+      model: openai('gpt-4o-mini'),
+      //system: data.persona,
       messages: coreMessages,
     });
 
