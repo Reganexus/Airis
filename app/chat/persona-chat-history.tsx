@@ -55,7 +55,8 @@ const groupByDates = (data: Array<Conversation>): GroupedConversation => {
 
 
 const PersonaChatHistory = () => {
-
+  const aiName = sessionStorage.getItem('aiName');
+  const aiDescription = sessionStorage.getItem('aiDescription');
   const [chatHistory, setChatHistory] = useState<Array<any>>();
   const [groupedHistory, setGroupedHistory] = useState<GroupedConversation>({
     today: [],
@@ -97,10 +98,10 @@ const PersonaChatHistory = () => {
               />
             </div>
 
-            <h4 className="font-bold text-slate-700">Legal AI</h4>
+            <h4 className="font-bold text-slate-700">{aiName}</h4>
 
             <p className="text-sm text-slate-500">
-              A reliable persona for all your legal needs.
+              {aiDescription}
             </p>
           </div>
         </div>

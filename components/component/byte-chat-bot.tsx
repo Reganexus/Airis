@@ -75,6 +75,8 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const isFirstRender = useRef(true);
   const isSecondRender = useRef(true);
   const isPromptRendered = useRef(true);
+  const aiName = sessionStorage.getItem('aiName');
+  const aiDescription = sessionStorage.getItem('aiDescription');
 
 
   /**
@@ -126,6 +128,8 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     setChatbotId(chatbot_id);
     setPersonaId(persona_id);
   }, []);
+
+
 
   useEffect(() => {
     if (historyConversationId) {
@@ -429,7 +433,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                     </div>
 
                     <div className="relative grid gap-1.5 p-3 px-4 text-base">
-                      <h1 className="font-semibold">{"AI"}</h1>
+                      <h1 className="font-semibold">{aiName}</h1>
                       {
                         Array.isArray(m.content) ? (
                           m.content.map((url, index) => (

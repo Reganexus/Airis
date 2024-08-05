@@ -191,7 +191,7 @@ const Prompts: React.FC<PromptsProps> = ({ id })=> {
         <div className="w-full basis-[65%] h-full max-h-full flex flex-col gap-2 pl-4 overflow-auto">
           {prompts.map((p, idx) => (
             (p.default_prompt == false) && (
-              <PromptCard key={idx} promptObj={p} />
+              <PromptCard key={idx} promptObj={p} id={id} />
             )
           ))}
         </div>
@@ -202,17 +202,36 @@ const Prompts: React.FC<PromptsProps> = ({ id })=> {
 
 interface PromptCardProps {
   promptObj: object;
+  id?: string;
 }
 
 
-const PromptCard: React.FC<PromptCardProps> = ({ promptObj }) => {
+const PromptCard: React.FC<PromptCardProps> = ({ promptObj, id }) => {
   console.log("PROMPT OBJECT: ");
   console.log(promptObj);
+  const aiName = (id == 'intern-profile') ? "Intern AI" : 
+                  (id == 'marketing-profile') ? "Marketing AI" : 
+                  (id == 'hr-profile') ? "Human Resources AI" : 
+                  (id == 'law-profile') ? "Law AI" : 
+                  (id == 'admin-profile') ? "Admin AI" : 
+                  (id == 'teacher-profile') ? "Teacher AI" : 
+                  "Intern AI";
+
+  const aiDescription = (id == 'intern-profile') ? "A dedicated persona to support intership-related tasks." : 
+  (id == 'marketing-profile') ? "An intelligent persona that enhances your marketing efforts." : 
+  (id == 'hr-profile') ? "A versatile persona that streamlines human resources operations" : 
+  (id == 'law-profile') ? "A reliable persona for all your legal needs." : 
+  (id == 'admin-profile') ? "A dynamic persona that boosts administrative efficiency." : 
+  (id == 'teacher-profile') ? "An educational persona for delivering online courses." : 
+  "Intern AI";
+
 
   const router = useRouter();
 
   const handleClick = () => {
     // Store values in sessionStorage
+    sessionStorage.setItem('aiName', aiName);
+    sessionStorage.setItem('aiDescription', aiDescription);
     sessionStorage.setItem('chatbot_id', promptObj.chatbot_id);
     sessionStorage.setItem('persona_id', promptObj.persona_id);
     // Navigate to the desired page
