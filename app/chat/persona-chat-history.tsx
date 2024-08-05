@@ -6,6 +6,7 @@ import { fetchAndSetChatHistory } from "@/lib/chat/handle-chat-history";
 import { useSession } from "next-auth/react";
 import moment from 'moment';
 import { useRouter } from "next/navigation";
+import { getServerSession } from "next-auth/next";
 
 interface Conversation {
   conversation_id: number;
@@ -172,9 +173,38 @@ const ChatHistoryBatch: React.FC<ChatHistoryBatchProps> = ({
   );
 };
 
-const ClearHistoryButton = () => {
+
+async function clearHistory() {
+  try {
+    // Specify the method if it's a POST operation
+    const response = await fetch('/api/query/query-delete-history', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',  // Ensure the content type is set to JSON
+      },
+    });
+
+    if (response.ok) {
+      console.log('Success: ', await response.text());
+      window.location.reload(); 
+    } else {
+      console.log('Failed: ', await response.text());
+      window.location.reload(); 
+    }
+  } catch (error) {
+    console.error('Error deleting history:', error);
+    window.location.reload(); // Optionally reload the page even if there's an error
+  }
+}
+
+
+
+const ClearHistoryButton: React.FC = () => {
   return (
-    <button className="text-slate-500 py-1 px-2 hover:bg-red-200 hover:text-red-700 rounded-lg border bg-slate-200 flex gap-1 items-center">
+    <button 
+      onClick={clearHistory} 
+      className="text-slate-500 py-1 px-2 hover:bg-red-200 hover:text-red-700 rounded-lg border bg-slate-200 flex gap-1 items-center"
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
