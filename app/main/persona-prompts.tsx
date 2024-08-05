@@ -3,6 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter,notFound } from 'next/navigation';
 import { sql } from '@vercel/postgres';
+
+import { list } from '@vercel/blob';
 import { Key, useEffect, useState } from "react";
 import personaData from "@/lib/persona-url";
 import { fetchPersonas } from "@/lib/db/fetch-queries";
@@ -33,6 +35,37 @@ interface PersonaProfileProps {
 }
 
 const PersonaProfile: React.FC<PersonaProfileProps> = ({ id })  => {
+
+  //   const [imageIcons, setImageIcons] = useState([]);
+
+  // useEffect(() => {
+  //   if (!id) return;
+
+  //   async function fetchIcons() {
+  //     try {
+  //       const response = await fetch('/api/icons', {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //         body: JSON.stringify({ id }) // Assuming your API expects an 'id' in the request body
+  //       });
+
+  //       if (!response.ok) {
+  //         throw new Error('Network response was not ok');
+  //       }
+
+  //       const data = await response.json();
+  //       setImageIcons(data.icons);
+  //       console.log('ICONS:', data.icons);
+  //     } catch (error) {
+  //       console.error('Fetch error:', error);
+  //     }
+  //   }
+
+  //   fetchIcons();
+  // }, [id]);
+  // make this dynamic as well using db
 
   const [personaRoutes, setPersonaRoutes] = useState<string[]>(); // id will be compared here
   const [personaInfo, setPersonaInfo] = useState<any[]>();
@@ -255,6 +288,7 @@ const Prompts: React.FC<PromptsProps> = ({ id })=> {
           ))}
           {/* Prompt List */}
           {prompts.map((p, idx) => (
+
             (p.default_prompt == false && p.role == currentRole && p.subpersona == true) && (
               <PromptCard key={idx} promptObj={p} currentRole={currentRole} />
             )
@@ -271,6 +305,7 @@ const Prompts: React.FC<PromptsProps> = ({ id })=> {
 };
 
 interface PromptCardProps {
+
   promptObj: {
     role: string;
     task: string;
@@ -288,6 +323,8 @@ const PromptCard: React.FC<PromptCardProps> = ({ promptObj, currentRole }) => {
   const router = useRouter();
   const handleClick = () => {
     // Store values in sessionStorage
+    sessionStorage.setItem('aiName', aiName);
+    sessionStorage.setItem('aiDescription', aiDescription);
     sessionStorage.setItem('chatbot_id', promptObj.chatbot_id);
     sessionStorage.setItem('persona_id', promptObj.persona_id);
     // Navigate to the desired page
