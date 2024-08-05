@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter,notFound } from 'next/navigation';
 import { sql } from '@vercel/postgres';
 import { useEffect, useState } from "react";
-
+import { list } from '@vercel/blob';
 
 
 
@@ -37,6 +37,35 @@ interface PersonaProfileProps {
 const PersonaProfile: React.FC<PersonaProfileProps> = ({ id })  => {
   const router = useRouter();
 
+  //   const [imageIcons, setImageIcons] = useState([]);
+
+  // useEffect(() => {
+  //   if (!id) return;
+
+  //   async function fetchIcons() {
+  //     try {
+  //       const response = await fetch('/api/icons', {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //         body: JSON.stringify({ id }) // Assuming your API expects an 'id' in the request body
+  //       });
+
+  //       if (!response.ok) {
+  //         throw new Error('Network response was not ok');
+  //       }
+
+  //       const data = await response.json();
+  //       setImageIcons(data.icons);
+  //       console.log('ICONS:', data.icons);
+  //     } catch (error) {
+  //       console.error('Fetch error:', error);
+  //     }
+  //   }
+
+  //   fetchIcons();
+  // }, [id]);
   // make this dynamic as well using db
   const profileRoutes = [
     'intern-profile',
@@ -209,6 +238,29 @@ interface PromptCardProps {
 const PromptCard: React.FC<PromptCardProps> = ({ promptObj, id }) => {
   console.log("PROMPT OBJECT: ");
   console.log(promptObj);
+
+  const [icons, setIcons] = useState([]);
+  // make this dynamic as well using the database
+  useEffect(() => {
+    async function fetchIcons() {
+      if (id) {
+        const response = await fetch('/api/icons', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const data = await response.json();
+        setIcons(data);
+        
+        console.log(`PROMPTS FOR ${id}`, data)
+      }
+    }
+
+    fetchIcons();
+  }, [id]);
+
   const aiName = (id == 'intern-profile') ? "Intern AI" : 
                   (id == 'marketing-profile') ? "Marketing AI" : 
                   (id == 'hr-profile') ? "Human Resources AI" : 
