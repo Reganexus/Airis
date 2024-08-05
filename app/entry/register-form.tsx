@@ -1,16 +1,14 @@
 "use client";
 
 import React, { ChangeEvent } from "react";
-import { FormEvent } from 'react';
+import { FormEvent } from "react";
 import Logo from "@/components/component/logo";
 import { useState } from "react";
 interface RegisterFormProps {
   onClick: Function;
 }
 
-
 const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
-
   const [errors, setErrors] = useState([]);
   const [strnth, setStrnth] = useState("");
 
@@ -19,36 +17,34 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
     onClick();
   };
 
-  
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const response = await fetch(`/api/auth/register`, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({
-        fname: formData.get('fname'),
-        lname: formData.get('lname'),
-        username: formData.get('username'),
-        email: formData.get('email'),
-        password: formData.get('password'),
-        password2: formData.get('password2'),
+        fname: formData.get("fname"),
+        lname: formData.get("lname"),
+        username: formData.get("username"),
+        email: formData.get("email"),
+        password: formData.get("password"),
+        password2: formData.get("password2"),
       }),
     });
 
-    if(response.status == 200){
-        console.log("REGISTRATION SUCCESS")
-        setErrors([]);
-        console.log({ response });
-        onClick();
-        // router.push('/login');
-        // router.refresh();
-    }
-    else{
-      const errorData = await response.json(); 
-      
-      console.log("REGISTRATION FAILED")
-      setErrors(errorData['errors']);
-      console.log(errorData['errors']);
+    if (response.status == 200) {
+      console.log("REGISTRATION SUCCESS");
+      setErrors([]);
+      console.log({ response });
+      onClick();
+      // router.push('/login');
+      // router.refresh();
+    } else {
+      const errorData = await response.json();
+
+      console.log("REGISTRATION FAILED");
+      setErrors(errorData["errors"]);
+      console.log(errorData["errors"]);
     }
   };
 
@@ -59,7 +55,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
     if (newPassword.length === 0) {
       setStrnth("");
       return;
-  }
+    }
     // Initialize variables to count the different characteristics
     let hasUpperCase = /[A-Z]/.test(newPassword);
     let hasLowerCase = /[a-z]/.test(newPassword);
@@ -67,28 +63,27 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
     let hasSpecialChar = /[^A-Za-z0-9]/.test(newPassword);
     let lengthValid = newPassword.length >= 8;
 
-
     let strength = 0;
-    if(hasUpperCase) strength++;
-    if(hasLowerCase) strength++;
-    if(hasNumber) strength++;
-    if(hasSpecialChar) strength++;
-    if(lengthValid) strength++;
+    if (hasUpperCase) strength++;
+    if (hasLowerCase) strength++;
+    if (hasNumber) strength++;
+    if (hasSpecialChar) strength++;
+    if (lengthValid) strength++;
 
     // Determine strength label based on the criteria met
-      if (strength === 5) {
-        setStrnth("very strong");
+    if (strength === 5) {
+      setStrnth("very strong");
     } else if (strength === 4) {
-        setStrnth("strong");
+      setStrnth("strong");
     } else if (strength === 3) {
-        setStrnth("weak");
+      setStrnth("weak");
     } else {
-        setStrnth("very weak");
+      setStrnth("very weak");
     }
   }
 
   return (
-    <div className="bg-white w-full p-8 h-[40rem] rounded-lg flex flex-col relative">
+    <div className="bg-white w-full p-8 sm:h-[40rem] rounded-lg flex flex-col relative">
       <button
         className="absolute top-2 left-2 text-slate-600 p-2 hover:bg-slate-200 rounded-lg"
         onClick={handleToggleForm}
@@ -105,8 +100,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
       {/* FORM HERE */}
       <form onSubmit={handleSubmit}>
         {/* First and Last Name */}
-        <div className="relative flex mb-3 gap-2">
-          <div>
+        <div className="relative flex flex-col sm:flex-row mb-3 gap-2">
+          <div className="flex flex-col w-full">
             <label htmlFor="fname">First Name</label>
             <input
               type="text"
@@ -114,10 +109,11 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
               id="fname"
               placeholder="First Name"
               className="border py-2 px-3 rounded-lg"
-              required />
+              required
+            />
           </div>
 
-          <div>
+          <div className="flex flex-col w-full">
             <label htmlFor="lname">Last Name</label>
             <input
               type="text"
@@ -125,7 +121,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
               id="lname"
               placeholder="Last Name"
               className="border py-2 px-3 rounded-lg"
-              required />
+              required
+            />
           </div>
         </div>
 
@@ -138,7 +135,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
             id="uname"
             placeholder="Username"
             className="border py-2 px-3 rounded-lg"
-            required/>
+            required
+          />
         </div>
 
         {/* Email */}
@@ -150,7 +148,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
             id="email"
             placeholder="Email"
             className="border py-2 px-3 rounded-lg"
-            required/>
+            required
+          />
         </div>
 
         {/* Password */}
@@ -186,15 +185,15 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
           className="bg-primary w-full my-2 text-white py-3 rounded-lg"
         />
 
-      <div>
-        {errors != null && (
-          <ul>
-            {errors.map((error, index) => (
-              <li key={index}>{error}</li>
-            ))}
-          </ul>
-        )}
-      </div>
+        <div>
+          {errors != null && (
+            <ul>
+              {errors.map((error, index) => (
+                <li key={index}>{error}</li>
+              ))}
+            </ul>
+          )}
+        </div>
       </form>
 
       <p className="mt-auto text-center text-slate-600">
