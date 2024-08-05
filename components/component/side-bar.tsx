@@ -12,11 +12,13 @@ import { useRouter } from "next/navigation";
 
 interface SideBarProps {
     chatHistory: any[] | undefined
+
     // Adjust the type according to your data structure
     // will be passed back to parent component
 }
 
 const SideBar: React.FC<SideBarProps> = ({ chatHistory }) => {
+
 
   return (
     <div className="flex flex-col gap-y-2 bg-slate-200 h-screen w-[80px] p-2 border-l-2 border-slate-300">
@@ -68,6 +70,7 @@ const SideBar: React.FC<SideBarProps> = ({ chatHistory }) => {
 export default SideBar;
 
 interface PersonaSelectionCardProps {
+
     // Adjust the type according to your data structure
     // will be passed back to parent component
 }
@@ -85,6 +88,7 @@ const PersonaSelectionCard: React.FC<PersonaSelectionCardProps> = ({  }) => {
 
     const handlePersonaChange = (index: number) => {
         setActivePersona(index);
+
     };
 
     return (

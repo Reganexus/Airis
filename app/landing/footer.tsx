@@ -4,12 +4,12 @@ import Link from "next/link";
 
 const Footer: FC = () => {
   return (
-    <footer className="relative flex justify-between items-align h-[4rem] border-b border-slate-300 px-4 bg-white">
-      <p className="text-slate-700 flex justify-center items-center gap-10">
+    <footer className="flex-col md:flex-row py-5 relative flex justify-between items-align h-fit md:h-[4rem] border-b border-slate-300 px-4 bg-white">
+      <p className="text-slate-700 flex justify-center items-center gap-10 text-sm md:text-md mb-3 md:mb-0">
         © 2023 Smart Prodigy. All rights reserved.
       </p>
 
-      <div className="flex items-align gap-4 py-3 z-20">
+      <div className="flex items-align justify-center gap-4 py-3 z-20">
         <Link
           href="#"
           className="bg-none px-1 flex items-center text-slate-500 hover:text-slate-700"

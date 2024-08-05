@@ -5,6 +5,7 @@ import Features from "./features";
 import Team from "./team";
 import Pricing from "./pricing";
 import Footer from "./footer";
+import MobileNav from "./mobile-nav";
 
 // Define Props Interface
 interface MyComponentProps {}
@@ -19,6 +20,9 @@ const LandingMainContent: FC<MyComponentProps> = () => {
       <Pricing />
       <Team />
       <Footer />
+
+      {/* Mobile Nav Component */}
+      <MobileNav />
     </>
   );
 };

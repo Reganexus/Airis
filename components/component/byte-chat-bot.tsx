@@ -17,7 +17,6 @@ import { formatTextToHTML } from "@/lib/textToHTML";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-
 import { generatePreviousChat, generateTitle } from "@/lib/api/gpt-operations";
 import { generateDALLE } from "@/lib/api/dall-e-operations";
 
@@ -76,6 +75,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const isFirstRender = useRef(true);
   const isSecondRender = useRef(true);
   const isPromptRendered = useRef(true);
+
 
   /**
    * Represents the loading state of the component.
@@ -273,6 +273,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
         }
       };
 
+
       saveData()
     }
   }, [isLoading, isLoading2]);
@@ -354,6 +355,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       console.log('MODEL SET TO: ' + model);
       setPlaceholder('Type your message...');
     }
+
 
     setIsImageModel((i) => !i);
   }

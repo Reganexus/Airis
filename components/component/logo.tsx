@@ -6,7 +6,10 @@ interface LogoProps {
   textSize?: string;
 }
 
-const Logo: React.FC<LogoProps> = ({ logoSize = 50, textSize = "4xl" }) => {
+const Logo: React.FC<LogoProps> = ({
+  logoSize = 50,
+  textSize = "text-4xl",
+}) => {
   return (
     <div className="z-20 flex items-center justify-center gap-1">
       <div>
@@ -18,7 +21,7 @@ const Logo: React.FC<LogoProps> = ({ logoSize = 50, textSize = "4xl" }) => {
         />
       </div>
       <div className="flex items-center justify-center pt-1">
-        <h1 className={`font-zain text-${textSize} text-primary font-medium`}>
+        <h1 className={`font-zain ${textSize} text-primary font-medium`}>
           airis
         </h1>
       </div>

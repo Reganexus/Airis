@@ -19,20 +19,20 @@ export default Personas;
 
 const TopPart: FC<MyComponentProps> = () => {
   return (
-    <div className="bg-white h-[15rem] flex flex-col justify-center items-center">
-      <h3 className="text-center pb-8 text-xl font-bold text-slate-800">
+    <div className="bg-white sm:h-[15rem] max-h-max sm:px-16 p-8 flex flex-col justify-center items-center">
+      <h3 className="text-center pb-8 sm:text-2xl text-xl max-w-[40ch] font-bold text-slate-800">
         Experience peak workplace efficiency with the power of{" "}
         <span className="text-primary">OpenAI GPT-4o</span> and{" "}
         <span className="text-primary">DALL-E 3</span>
       </h3>
 
-      <div className="flex justify-center items-center gap-8">
-        <AvatarPicName picture="/persona_icons/icon_law.png" name="Legal" />
-        <AvatarPicName picture="/persona_icons/icon_hr.png" name="Human Resources" />
-        <AvatarPicName picture="/persona_icons/icon_marketing.png" name="Marketing" />
-        <AvatarPicName picture="/persona_icons/icon_intern.png" name="Internship" />
-        <AvatarPicName picture="/persona_icons/icon_admin.png" name="Admin" />
-        <AvatarPicName picture="/persona_icons/icon_teacher.png" name="Mentorship" />
+      <div className="flex flex-wrap gap-x-8 gap-y-4 justify-center items-center">
+        <AvatarPicName picture="/default_blue.png" name="Legal" />
+        <AvatarPicName picture="/6_var.png" name="Human Resources" />
+        <AvatarPicName picture="/3_var.png" name="Marketing" />
+        <AvatarPicName picture="/2_var.png" name="Internship" />
+        <AvatarPicName picture="/5_var.png" name="Admin" />
+        <AvatarPicName picture="/4_var.png" name="Mentorship" />
       </div>
     </div>
   );
@@ -50,60 +50,31 @@ export const AvatarPicName: FC<AvatarPicNameProps> = ({ picture, name }) => {
         <Image src={picture} alt={name + " picture"} width={40} height={40} />
       </div>
 
-      <p className="text-lg ">{name}</p>
+      <p className="text-lg">{name}</p>
     </div>
   );
 };
 
 const BotPart: FC<MyComponentProps> = () => {
   return (
-    <div className="flex p-20 bg-persona-bg bg-cover">
-      <div className="flex max-w-[1200px] m-auto">
-        <div className="flex flex-col gap-4 basis-[30%] p-10 pr-20">
-          <h2 className="text-3xl font-medium text-slate-800">
-            Meet our Personas
-          </h2>
-          <p>
-            Our AI chatbot is designed to adapt to your business needs through
-            six distinct personas.
-          </p>
-          <p>
-            Each persona takes on a specific role, whether it{"'"}s supporting
-            internships, enhancing marketing efforts, streamlining HR
-            operations, assisting with legal matters, managing administrative
-            tasks, or providing mentorship and courses.{" "}
-          </p>
-          <p>
-            By leveraging these tailored personas, your business can achieve
-            greater efficiency, personalization, and effectiveness in addressing
-            diverse challenges and requirements.
-          </p>
-          <div className="mt-4">
-            <Link
-              href="#"
-              className="text-xl py-2 border-2 text-primary border-primary rounded-lg px-8 hover:bg-primary hover:text-white"
-            >
-              Sign up
-            </Link>
-          </div>
-        </div>
-
+    <div className="flex lg:p-18 md:p-16 sm:p-14 p-10 bg-persona-bg bg-cover">
+      <div className="lg:flex-col max-w-[1200px] m-auto">
         {/* The grid one */}
         <div
-          className="basis-[70%]
-        grid grid-cols-[1fr_1fr_1.5fr] grid-rows-[0.5fr_0.5fr_1fr] gap-3 p-2"
+          className="basis-[70%] grid grid-cols-[1fr] grid-rows-[1fr]
+          lg:grid-cols-[1fr_1fr_1.5fr] lg:grid-rows-[0.5fr_0.5fr_1fr] gap-3 mb-10"
         >
-          <div className="col-span-2 row-span-2 bg-white rounded-lg shadow border border-slate-500 overflow-clip relative bg-main-gradient bg-cover">
-            <div className="absolute inset-0 w-full h-full bg-black bg-opacity-30"></div>
+          <div className="lg:col-span-2 lg:row-span-2 lg:h-full col-span-1 h-[20rem] bg-white rounded-lg shadow border border-slate-500 overflow-clip relative bg-main-gradient bg-cover">
+            <div className="absolute inset-0 w-full bg-black bg-opacity-30"></div>
             <PersonaIcons className="absolute m-4 bg-white z-10">
               <InternIcon />
             </PersonaIcons>
-            <h2 className="z-10 absolute bottom-28 w-full text-center text-white text-3xl">
+            <h2 className="z-10 absolute md:bottom-26 sm:bottom-18 bottom-10 w-full text-center text-white sm:text-3xl text-2xl">
               How do I make a Resume?
             </h2>
             <div className="z-10 absolute top-12 w-full p-4">
               <h3 className="text-white text-lg font-semibold">Intern AI</h3>
-              <p className="text-white pr-8">
+              <p className="text-white sm:pr-8">
                 Perfect for managing internship-related tasks, providing
                 support, and offering valuable insights to interns.
               </p>
@@ -165,6 +136,35 @@ const BotPart: FC<MyComponentProps> = () => {
               schedules, organizes tasks, and handles routine administrative
               functions.
             </p>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-4 basis-[30%]">
+          <h2 className="text-3xl font-medium text-slate-800">
+            Meet our Personas
+          </h2>
+          <p className="sm:text-lg">
+            Our AI chatbot is designed to adapt to your business needs through
+            six distinct personas.
+          </p>
+          <p className="sm:text-lg">
+            Each persona takes on a specific role, whether it{"'"}s supporting
+            internships, enhancing marketing efforts, streamlining HR
+            operations, assisting with legal matters, managing administrative
+            tasks, or providing mentorship and courses.{" "}
+          </p>
+          <p className="sm:text-lg">
+            By leveraging these tailored personas, your business can achieve
+            greater efficiency, personalization, and effectiveness in addressing
+            diverse challenges and requirements.
+          </p>
+          <div className="mt-4">
+            <Link
+              href={{ pathname: "/entry", query: { type: "register" } }}
+              className="text-xl py-2 border-2 text-primary border-primary rounded-lg px-8 hover:bg-primary hover:text-white"
+            >
+              Sign up
+            </Link>
           </div>
         </div>
       </div>

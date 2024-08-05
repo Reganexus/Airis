@@ -38,14 +38,14 @@ const team: TeamMember[] = [
       "Charles leads tech development with expertise and innovation, helping us stay competitive in the market.",
   },
   {
-    pic: "/img/team_4.png",
+    pic: "/img/team_5.png",
     name: "Linda Davis",
     title: "Chief Marketing Officer",
     description:
       "Linda crafts strategies that boost our brand and engage customers, thanks to her understanding of market trends.",
   },
   {
-    pic: "/img/team_5.png",
+    pic: "/img/team_4.png",
     name: "Robert Brown",
     title: "Chief Financial Officer",
     description:
@@ -63,11 +63,11 @@ const team: TeamMember[] = [
 const Team: FC = () => {
   return (
     <section className="bg-plus bg-cover min-h-[50rem] flex flex-col items-center pb-28">
-      <div className="bg-white w-full text-center py-16 shadow-lg">
+      <div className="bg-white w-full text-center py-12 md:py-16 px-12 xl:px-16 shadow-lg">
         <h2 className="text-4xl font-bold mb-8 text-slate-800">
           Meet the Team
         </h2>
-        <p className="text-xl max-w-[1000px] m-auto text-slate-600">
+        <p className="text-md sm:text-xl max-w-[1000px] m-auto text-slate-600">
           At Airis, we believe that our people are our greatest asset. Our
           diverse and dynamic team is dedicated to driving innovation and
           delivering exceptional results. Get to know the faces behind our
@@ -91,10 +91,29 @@ const Carousel: FC = () => {
     autoplay: true,
     autoplaySpeed: 3000,
     pauseOnHover: true,
+    responsive: [
+      {
+        breakpoint: 960,
+        settings: {
+          slidesToShow: 3,
+          slidesToScroll: 1,
+          centerPadding: "40px",
+        },
+      },
+      {
+        breakpoint: 768,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+          centerPadding: "20px",
+          centerMode: false,
+        },
+      },
+    ],
   };
 
   return (
-    <div className="slider-container w-full max-w-7xl my-16 p-8">
+    <div className="slider-container w-full max-w-7xl my-4 md:my-16 p-8">
       <Slider {...settings}>
         {team.map((member: any) => (
           <div className="slide-wrapper" key={member.name}>
@@ -121,24 +140,24 @@ interface TeamCardProps {
 
 const TeamCard: FC<TeamCardProps> = ({ pic, name, title, description }) => {
   return (
-    <div className="team-card bg-white rounded-lg border border-slate-400 shadow-md p-4 h-[28rem] m-2 flex flex-col">
+    <div className="team-card bg-white rounded-lg border border-slate-400 shadow-md p-4 h-[28rem] m-8 md:m-4 w-fill md:w-fit flex flex-col justify-center">
       {/* Picture */}
-      <div className="relative w-full basis-1/2">
+      <div className="relative w-full basis-2/3">
         <Image
           src={pic}
           alt={`picture of ${name}`}
           layout="fill"
           objectFit="cover"
-          objectPosition="30% 20%"
+          objectPosition="50% 20%"
           className="rounded-lg"
         />
       </div>
 
       {/* Text */}
-      <div className="basis-1/2">
+      <div className="basis-1/3">
         <h3 className="text-2xl text-primary font-semibold pt-4">{name}</h3>
         <h6 className="font-medium text-slate-700 mb-3">{title}</h6>
-        <p className="text-slate-600">{description}</p>
+        <p className="text-sm md:text-md text-slate-600">{description}</p>
       </div>
     </div>
   );
@@ -146,25 +165,25 @@ const TeamCard: FC<TeamCardProps> = ({ pic, name, title, description }) => {
 
 const CTA: FC = () => {
   return (
-    <div className="bg-white rounded-lg border border-slate-500 shadow-lg max-w-[1000px] m-auto px-4 py-8">
+    <div className="bg-white rounded-lg border border-slate-500 shadow-lg max-w-[1000px] mx-4 md:mx-12 my-6 xl:mx-auto px-4 py-8">
       <h2 className="text-4xl text-center text-slate-800 font-bold mb-4 mt-4">
         Elevate your Business with Airis!
       </h2>
 
-      <p className="text-xl text-center text-slate-600 px-8">
+      <p className="text-md sm:text-xl text-center text-slate-600 px-8">
         Unlock the full potential of your business with our state-of-the-art AI
         chatbot. Imagine a world where customer queries are handled instantly,
         leads are generated effortlessly, and your team is free to focus on what
         they do best.
       </p>
 
-      <p className="text-xl text-center text-slate-600 mt-4 px-8">
+      <p className="text-md sm:text-xl text-center text-slate-600 mt-4 px-8">
         Join the revolution and watch your business thrive!
       </p>
 
       <div className="flex justify-center mt-8 mb-4">
         <Link
-          href="#"
+          href={{ pathname: "/entry", query: { type: "register" } }}
           className="text-xl bg-primary hover:bg-sky-700 text-white px-8 py-2 rounded-lg"
         >
           Sign up
