@@ -9,8 +9,15 @@ interface RegisterFormProps {
 }
 
 const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
-  const [errors, setErrors] = useState([]);
+  const [errors, setErrors] = useState(null);
   const [strnth, setStrnth] = useState("");
+  const [errorMessageState, setErrorMessageState] = useState<String>("");
+
+  const testErrors = [
+    "Username is required.",
+    "Password must be at least 8 characters.",
+    "Email address is invalid.",
+  ];
 
   const handleToggleForm = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -44,6 +51,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
 
       console.log("REGISTRATION FAILED");
       setErrors(errorData["errors"]);
+      setErrorMessageState("");
       console.log(errorData["errors"]);
     }
   };
@@ -182,10 +190,11 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
         <input
           type="submit"
           value="Sign Up"
-          className="bg-primary w-full my-2 text-white py-3 rounded-lg"
+          className="bg-primary w-full my-2 text-white py-3 rounded-lg hover:bg-blue-900 hover:cursor-pointer"
         />
 
-        <div>
+        {/* Delete if test is successful */}
+        {/* <div>
           {errors != null && (
             <ul>
               {errors.map((error, index) => (
@@ -193,8 +202,32 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
               ))}
             </ul>
           )}
-        </div>
+        </div> */}
       </form>
+
+      {errors != null && (
+        <div
+          className={`${
+            errorMessageState === "close" && "hidden"
+          } absolute top-4 right-4 bg-red-100 rounded-lg z-20 text-red-900 border border-red-800 shadow-lg p-3`}
+        >
+          <button
+            className="absolute top-2 right-2 text-red-400 hover:text-red-800"
+            onClick={() => {
+              setErrorMessageState("close");
+              setErrors(null);
+            }}
+          >
+            <ErrorCloseIcon />
+          </button>
+          <h4 className="font-bold">Errors:</h4>
+          <ul>
+            {errors.map((error, index) => (
+              <li key={index}>{error}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <p className="mt-auto text-center text-slate-600">
         © 2023 Smart Prodigy. All rights reserved.
@@ -272,6 +305,23 @@ const BackButtonIcon = () => {
         strokeLinecap="round"
         strokeLinejoin="round"
         d="M15.75 19.5 8.25 12l7.5-7.5"
+      />
+    </svg>
+  );
+};
+
+const ErrorCloseIcon = () => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className="size-6"
+    >
+      <path
+        fillRule="evenodd"
+        d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm-1.72 6.97a.75.75 0 1 0-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 1 0 1.06 1.06L12 13.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L13.06 12l1.72-1.72a.75.75 0 1 0-1.06-1.06L12 10.94l-1.72-1.72Z"
+        clipRule="evenodd"
       />
     </svg>
   );

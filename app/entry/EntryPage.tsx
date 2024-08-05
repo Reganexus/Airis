@@ -30,8 +30,8 @@ const EntryPage: FC<MyComponentProps> = () => {
         <div
           className={
             !isRegisterForm
-              ? "p-4 basis-[100%] md:basis-[35%] flex justify-center items-center"
-              : `hidden md:block md:basis-[65%] md:h-full md:pl-16`
+              ? "p-4 basis-[100%] md:basis-[40%] flex justify-center items-center"
+              : `hidden md:block md:basis-[60%] md:h-full md:pl-16`
           }
         >
           {!isRegisterForm ? <LoginForm onClick={toggleForm} /> : <Marquee />}
