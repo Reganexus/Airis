@@ -3,10 +3,9 @@
 import React from "react";
 import Logo from "@/components/component/logo";
 import Link from "next/link";
-import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { FormEvent } from 'react';
-
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { FormEvent } from "react";
 
 interface LoginFormProps {
   onClick: Function;
@@ -22,9 +21,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClick }) => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const response = await signIn('credentials', {
-      user_or_email: formData.get('user_or_email'),
-      password: formData.get('password'),
+    const response = await signIn("credentials", {
+      user_or_email: formData.get("user_or_email"),
+      password: formData.get("password"),
       redirect: false,
     });
 
@@ -32,7 +31,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClick }) => {
 
     // Redirect user to the main page if the credentials are valid
     if (!response?.error) {
-      router.push('/');
+      router.push("/");
       router.refresh();
     }
   };

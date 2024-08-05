@@ -1,54 +1,58 @@
 "use client";
 
 import React, { ChangeEvent } from "react";
-import { FormEvent } from 'react';
+import { FormEvent } from "react";
 import Logo from "@/components/component/logo";
 import { useState } from "react";
 interface RegisterFormProps {
   onClick: Function;
 }
 
-
 const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
-
-  const [errors, setErrors] = useState([]);
+  const [errors, setErrors] = useState(null);
   const [strnth, setStrnth] = useState("");
+  const [errorMessageState, setErrorMessageState] = useState<String>("");
+
+  const testErrors = [
+    "Username is required.",
+    "Password must be at least 8 characters.",
+    "Email address is invalid.",
+  ];
 
   const handleToggleForm = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     onClick();
   };
 
-  
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const response = await fetch(`/api/auth/register`, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({
-        fname: formData.get('fname'),
-        lname: formData.get('lname'),
-        username: formData.get('username'),
-        email: formData.get('email'),
-        password: formData.get('password'),
-        password2: formData.get('password2'),
+        fname: formData.get("fname"),
+        lname: formData.get("lname"),
+        username: formData.get("username"),
+        email: formData.get("email"),
+        password: formData.get("password"),
+        password2: formData.get("password2"),
       }),
     });
 
-    if(response.status == 200){
-        console.log("REGISTRATION SUCCESS")
-        setErrors([]);
-        console.log({ response });
-        onClick();
-        // router.push('/login');
-        // router.refresh();
-    }
-    else{
-      const errorData = await response.json(); 
-      
-      console.log("REGISTRATION FAILED")
-      setErrors(errorData['errors']);
-      console.log(errorData['errors']);
+    if (response.status == 200) {
+      console.log("REGISTRATION SUCCESS");
+      setErrors([]);
+      console.log({ response });
+      onClick();
+      // router.push('/login');
+      // router.refresh();
+    } else {
+      const errorData = await response.json();
+
+      console.log("REGISTRATION FAILED");
+      setErrors(errorData["errors"]);
+      setErrorMessageState("");
+      console.log(errorData["errors"]);
     }
   };
 
@@ -59,7 +63,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
     if (newPassword.length === 0) {
       setStrnth("");
       return;
-  }
+    }
     // Initialize variables to count the different characteristics
     let hasUpperCase = /[A-Z]/.test(newPassword);
     let hasLowerCase = /[a-z]/.test(newPassword);
@@ -67,28 +71,27 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
     let hasSpecialChar = /[^A-Za-z0-9]/.test(newPassword);
     let lengthValid = newPassword.length >= 8;
 
-
     let strength = 0;
-    if(hasUpperCase) strength++;
-    if(hasLowerCase) strength++;
-    if(hasNumber) strength++;
-    if(hasSpecialChar) strength++;
-    if(lengthValid) strength++;
+    if (hasUpperCase) strength++;
+    if (hasLowerCase) strength++;
+    if (hasNumber) strength++;
+    if (hasSpecialChar) strength++;
+    if (lengthValid) strength++;
 
     // Determine strength label based on the criteria met
-      if (strength === 5) {
-        setStrnth("very strong");
+    if (strength === 5) {
+      setStrnth("very strong");
     } else if (strength === 4) {
-        setStrnth("strong");
+      setStrnth("strong");
     } else if (strength === 3) {
-        setStrnth("weak");
+      setStrnth("weak");
     } else {
-        setStrnth("very weak");
+      setStrnth("very weak");
     }
   }
 
   return (
-    <div className="bg-white w-full p-8 h-[40rem] rounded-lg flex flex-col relative">
+    <div className="bg-white w-full p-8 sm:h-[40rem] rounded-lg flex flex-col relative">
       <button
         className="absolute top-2 left-2 text-slate-600 p-2 hover:bg-slate-200 rounded-lg"
         onClick={handleToggleForm}
@@ -105,8 +108,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
       {/* FORM HERE */}
       <form onSubmit={handleSubmit}>
         {/* First and Last Name */}
-        <div className="relative flex mb-3 gap-2">
-          <div>
+        <div className="relative flex flex-col sm:flex-row mb-3 gap-2">
+          <div className="flex flex-col w-full">
             <label htmlFor="fname">First Name</label>
             <input
               type="text"
@@ -114,10 +117,11 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
               id="fname"
               placeholder="First Name"
               className="border py-2 px-3 rounded-lg"
-              required />
+              required
+            />
           </div>
 
-          <div>
+          <div className="flex flex-col w-full">
             <label htmlFor="lname">Last Name</label>
             <input
               type="text"
@@ -125,7 +129,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
               id="lname"
               placeholder="Last Name"
               className="border py-2 px-3 rounded-lg"
-              required />
+              required
+            />
           </div>
         </div>
 
@@ -138,7 +143,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
             id="uname"
             placeholder="Username"
             className="border py-2 px-3 rounded-lg"
-            required/>
+            required
+          />
         </div>
 
         {/* Email */}
@@ -150,7 +156,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
             id="email"
             placeholder="Email"
             className="border py-2 px-3 rounded-lg"
-            required/>
+            required
+          />
         </div>
 
         {/* Password */}
@@ -183,19 +190,44 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
         <input
           type="submit"
           value="Sign Up"
-          className="bg-primary w-full my-2 text-white py-3 rounded-lg"
+          className="bg-primary w-full my-2 text-white py-3 rounded-lg hover:bg-blue-900 hover:cursor-pointer"
         />
 
-      <div>
-        {errors != null && (
+        {/* Delete if test is successful */}
+        {/* <div>
+          {errors != null && (
+            <ul>
+              {errors.map((error, index) => (
+                <li key={index}>{error}</li>
+              ))}
+            </ul>
+          )}
+        </div> */}
+      </form>
+
+      {errors != null && (
+        <div
+          className={`${
+            errorMessageState === "close" && "hidden"
+          } absolute top-4 right-4 bg-red-100 rounded-lg z-20 text-red-900 border border-red-800 shadow-lg p-3`}
+        >
+          <button
+            className="absolute top-2 right-2 text-red-400 hover:text-red-800"
+            onClick={() => {
+              setErrorMessageState("close");
+              setErrors(null);
+            }}
+          >
+            <ErrorCloseIcon />
+          </button>
+          <h4 className="font-bold">Errors:</h4>
           <ul>
             {errors.map((error, index) => (
               <li key={index}>{error}</li>
             ))}
           </ul>
-        )}
-      </div>
-      </form>
+        </div>
+      )}
 
       <p className="mt-auto text-center text-slate-600">
         © 2023 Smart Prodigy. All rights reserved.
@@ -273,6 +305,23 @@ const BackButtonIcon = () => {
         strokeLinecap="round"
         strokeLinejoin="round"
         d="M15.75 19.5 8.25 12l7.5-7.5"
+      />
+    </svg>
+  );
+};
+
+const ErrorCloseIcon = () => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className="size-6"
+    >
+      <path
+        fillRule="evenodd"
+        d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm-1.72 6.97a.75.75 0 1 0-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 1 0 1.06 1.06L12 13.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L13.06 12l1.72-1.72a.75.75 0 1 0-1.06-1.06L12 10.94l-1.72-1.72Z"
+        clipRule="evenodd"
       />
     </svg>
   );
