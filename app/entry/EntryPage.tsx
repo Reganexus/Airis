@@ -5,12 +5,17 @@ import React, { FC } from "react";
 import Marquee from "./marquee";
 import LoginForm from "./login-form";
 import RegisterForm from "./register-form";
+import { useSearchParams } from "next/navigation";
 
 // Define Props Interface
 interface MyComponentProps {}
 
 const EntryPage: FC<MyComponentProps> = () => {
-  const [isRegisterForm, setIsRegisterForm] = React.useState<boolean>(false);
+  const entryType = useSearchParams().get("type");
+
+  const [isRegisterForm, setIsRegisterForm] = React.useState<boolean>(
+    entryType === "register" ? true : false
+  );
 
   const toggleForm = () => setIsRegisterForm((f) => !f);
 
