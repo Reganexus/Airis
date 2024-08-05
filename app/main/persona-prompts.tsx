@@ -4,9 +4,8 @@ import Link from "next/link";
 import { useRouter,notFound } from 'next/navigation';
 import { sql } from '@vercel/postgres';
 import { Key, useEffect, useState } from "react";
-
-
-
+import personaData from "@/lib/persona-url";
+import { fetchPersonas } from "@/lib/db/fetch-queries";
 
 
 interface PersonaPromptsProps {
@@ -15,7 +14,6 @@ interface PersonaPromptsProps {
 
 const PersonaPrompts: React.FC<PersonaPromptsProps> = ({ id })=> {
 
-  // TEMPORARY SOLUTION, TRY TO USE DB TO MAKE IT MORE DYNAMIC.
   return (
     <div className="h-full w-full p-8">
       {/* The big card */}
@@ -36,37 +34,45 @@ interface PersonaProfileProps {
 
 const PersonaProfile: React.FC<PersonaProfileProps> = ({ id })  => {
 
+  const [personaRoutes, setPersonaRoutes] = useState<string[]>(); // id will be compared here
+  const [personaInfo, setPersonaInfo] = useState<any[]>();
+
+  useEffect(() => {
+
+    /**
+     * Get all the personaData from the database and
+     * it will be converted into urls
+     */
+    const fetchPersonaRoutes = async () => {
+      const names = await personaData();
+      setPersonaRoutes(names);
+    };
+    fetchPersonaRoutes();
+
+    
+    const fetchPersonaName = async () => {
+      const names = await fetchPersonas();
+      
+      setPersonaInfo(names);
+    }
+    fetchPersonaName();
+  }, []);
+  
   // make this dynamic as well using db
-  const profileRoutes = [
-    'intern-profile',
-    'marketing-profile',
-    'hr-profile',
-    'law-profile',
-    'admin-profile',
-    'teacher-profile'
-  ];
-
-  if (typeof id === 'undefined' || !profileRoutes.includes(id)) {
-
+  
+  if (typeof id === 'undefined' || (personaRoutes && !personaRoutes.includes(id))) {
     // TEMPORARY SOLUTION, ADD AN INVALID PAGE AND REDIRECT THE USER TO IT
     notFound();
   }
+  
+  /**
+   * aiName and aiDescription will hold the Persona name and tagline on the Prompt Selection Screen
+   * the persona name (ex. Marketing AI) will be compared to its counterpart url (marketing-ai-chatbots)
+   *  by converting the persona name to url, thus displaying the name and the tagling if it matched 
+   */
+  const aiName = personaInfo?.find(item => item.name.toLowerCase().replace(/\s+/g, '-') + '-chatbots' === id)?.name || "Airis Smartbot";
 
-  const aiName = (id == 'intern-profile') ? "Intern AI" : 
-                  (id == 'marketing-profile') ? "Marketing AI" : 
-                  (id == 'hr-profile') ? "Human Resources AI" : 
-                  (id == 'law-profile') ? "Law AI" : 
-                  (id == 'admin-profile') ? "Admin AI" : 
-                  (id == 'teacher-profile') ? "Teacher AI" : 
-                  "Intern AI";
-
-  const aiDescription = (id == 'intern-profile') ? "A dedicated persona to support intership-related tasks." : 
-  (id == 'marketing-profile') ? "An intelligent persona that enhances your marketing efforts." : 
-  (id == 'hr-profile') ? "A versatile persona that streamlines human resources operations" : 
-  (id == 'law-profile') ? "A reliable persona for all your legal needs." : 
-  (id == 'admin-profile') ? "A dynamic persona that boosts administrative efficiency." : 
-  (id == 'teacher-profile') ? "An educational persona for delivering online courses." : 
-  "Intern AI";
+  const aiDescription = personaInfo?.find(item => item.name.toLowerCase().replace(/\s+/g, '-') + '-chatbots' === id)?.tagline || "Airis Smartbot";
 
   return (
     <div className="basis-[35%] border rounded-md bg-ai-marketing relative overflow-clip">
@@ -109,13 +115,15 @@ const Prompts: React.FC<PromptsProps> = ({ id })=> {
    * - This should be made dynamic using the database
    */
   const persona_id_list: { [key: string]: number } = {
-    'intern-profile' : 1, 
-    'marketing-profile': 2,
-    'hr-profile': 3, 
-    'law-profile': 4,
-    'admin-profile': 5,
-    'teacher-profile': 6
+    'intern-ai-chatbots' : 1, 
+    'marketing-ai-chatbots': 2,
+    'hr-ai-chatbots': 3, 
+    'law-ai-chatbots': 4,
+    'admin-ai-chatbots': 5,
+    'teacher-ai-chatbots': 6
   };
+
+
   /**
    * Will hold all the chatbot prompts on of a specific persona depending on the params
    *  fetchPrompts will be called to get all the prompts of that persona

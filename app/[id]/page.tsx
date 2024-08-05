@@ -9,6 +9,7 @@ interface PageProps {
 }
 
 export default function Home({ params }: PageProps) {
+  // id will consist the
   const { id } = params;
 
   return (
