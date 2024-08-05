@@ -79,4 +79,15 @@ export async function fetchChatUID(convo_id: number, email: any) {
 }
 
 
-  
+export async function fetchPersonas() {
+  const res = await fetch("/api/query/query-persona", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const data = await res.json()
+
+  console.log(data)
+  return data;
+}
