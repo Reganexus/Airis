@@ -6,13 +6,14 @@ export const maxDuration = 30;
 
 export async function POST(req: Request) {
 
-  const { messages, data } = await req.json();	
-
-
+  const { messages, data } = await req.json();
+  
+  console.log('KYA YAMETE');
+  messages[messages.length-1]['image'] = data.imageUrl;
+  console.log(messages[messages.length-1]);
   console.log("MESSAGE KURURING: ");
-  console.log(data.textInput);	
-  // console.log("DATA image64:");
-  // console.log(data.image64);
+  console.log(data.imageUrl);	
+  console.log(messages);
 
   if(data.image64 != ""){
     console.log("DATA IS SUBMITTED");
@@ -48,6 +49,7 @@ export async function POST(req: Request) {
       maxTokens: 4096,
       messages,	
     });	
+    
     return result.toAIStreamResponse();	
 
   }

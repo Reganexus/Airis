@@ -54,7 +54,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
    * @handleInputChange - handles the change event of the input field
    * @handleSubmit      - handles submission event of the chat component (GPT-4o only)
    */
-  const { messages, setMessages, input, isLoading, handleInputChange, handleSubmit } = useChat();
+  const {messages, setMessages, input, isLoading, handleInputChange, handleSubmit } = useChat();
 
   //  consists of the chatbot conversation id
   const [conversationId, setConversationId] = useState(0);
@@ -81,34 +81,35 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const inputFileRef = useRef<HTMLInputElement>(null);
   const [blob, setBlob] = useState<PutBlobResult | null>(null);
   const [image, setImage] = useState<string>("");
-  const [displayImage, setDisplayImage] = useState<string>("");
-  useEffect(() => {
-    // Clean up the URL object when the component unmounts or when the image changes
-    return () => {
-      if (displayImage) {
-        URL.revokeObjectURL(displayImage);
-      }
-    };
-  }, [displayImage]);
+  const [displayImage, setDisplayImage] = useState<{ [key: number]: string }>({});
+  const [file, setFile] = useState<File | null>(null);
+  const [num, setNum] = useState(0);
   
   function handleImageChange(event: ChangeEvent<HTMLInputElement>) {
     if (event.target.files == null || event.target.files.length === 0) {
       // Reset the image state if no file is selected or the dialog is closed
       setImage("");
-      setDisplayImage("");
+      setFile(null);
+      console.log("DISPLAY iMAGE:");
+      console.log(displayImage);
       return;
     }
     const file = event.target.files[0];
-    console.log("FILE: ");
-    console.log(file);
+    setFile(file);
     const url = URL.createObjectURL(file);
-    setDisplayImage(url);
+    console.log("URL: ", url);
+    setDisplayImage(prevState => ({
+      ...prevState,
+      [num]: url,
+    }));
+    
+    console.log("DISPLAY iMAGE:");
+    console.log(url);
     //convert to base64
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = () => {
       if (typeof reader.result == "string") {
-        console.log(reader.result);
         setImage(reader.result);
       }
     }
@@ -333,28 +334,27 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     // let newBlob = {'url': ""};
     if (model == 'gpt-4o-mini') {
 
-
-      // if (!inputFileRef.current?.files) {
-      //   throw new Error('No file selected');
-      // }
-      // else{
-      //   const file = inputFileRef.current.files[0];
-      //   console.log("FILE:");
-      //   console.log(file);
-      //   if(file){
-      //       newBlob = await upload(file.name, file, {
-      //       access: 'public',
-      //       handleUploadUrl: '/api/avatar/upload',
-      //     });
-      //     setBlob(newBlob);
-      //     console.log(newBlob);
-
-      //   }
-      // }
-
+      setNum(num => num+2);
       handleSubmit(e, {
-        data: { image64: image, textInput: input },
+        data: { image64: image, textInput: input, imageUrl : displayImage },
       });
+
+      if (file == null) {
+        console.log('No file selected');
+      }
+      else{
+        console.log("FILE:");
+        console.log(file);
+        if(file){
+            const newBlob = await upload(file.name, file, {
+            access: 'public',
+            handleUploadUrl: '/api/avatar/upload',
+          });
+          setBlob(newBlob);
+          console.log(newBlob);
+
+        }
+      }
     }
     else {
       /**
@@ -432,11 +432,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const [isHistoryOpen, setIsHistoryOpen] = React.useState<boolean>(true);
   const [isImageModel, setIsImageModel] = React.useState<boolean>(false);
 
-
-
-
-
-
   // JSX ELEMENT:
   return (
     <div className="flex h-screen w-full">
@@ -454,31 +449,27 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
           <div className="pt-4 px-2 ps-4 pb-8 grid gap-6 max-w-5xl m-auto">
             {messages.map((m, i) => {
-
+              
               const isLastMessage: boolean = i === messages.length - 1;
 
               if (m.role === "user" && m.id != 'firstprompt') {
                 {
-                  /* User message */
                 }
                 return (
-
-
                   <>
-                    {displayImage != "" && <div key={i} className="flex items-start gap-4 justify-end">
+                    <div className="flex items-start gap-4 justify-end">
                       <div className="grid gap-1.5 rounded-lg bg-primary p-3 px-4">
-                        <img src={displayImage}
+                        <img src={displayImage[i]}
                           alt="Uploaded preview"
-                          style={{ marginTop: '20px', maxWidth: '200px', height: 'auto' }} />
+                          style={{ maxWidth: '200px', height: 'auto' }} />
                       </div>
-                    </div>}
+                    </div>
                     <div key={i} className="flex items-start gap-4 justify-end">
                       <div className="grid gap-1.5 rounded-lg bg-primary p-3 px-4">
-                        <p className="text-white">{m.content}</p>
+                      <p className="text-white">{m.content}</p>
                       </div>
                     </div>
                   </>
-
                 );
               } else if (m.role == 'assistant') {
                 {
