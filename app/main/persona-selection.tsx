@@ -12,6 +12,59 @@ interface PersonaSelectionProps {
 }
 
 
+// FOR REFERENCES ON THE COLOR
+// const personasa: Persona[] = [
+//   {
+//     name: "Intern AI",
+//     description: "A dedicated persona to support intership-related tasks.",
+//     icon: "icon_intern.png",
+//     bg: "bg-ai-intern",
+//     outline: "hover:outline-ai-intern",
+//     linkRedirect: 'intern-profile',
+//   },
+//   {
+//     name: "Marketing AI",
+//     description: "An intelligent persona that enhances your marketing efforts.",
+//     icon: "icon_marketing.png",
+//     bg: "bg-ai-marketing",
+//     outline: "hover:outline-ai-marketing",
+//     linkRedirect: 'marketing-profile',
+//   },
+//   {
+//     name: "Human Resources AI",
+//     description:
+//       "A versatile persona that streamlines human resources operations",
+//     icon: "icon_hr.png",
+//     bg: "bg-ai-hr",
+//     outline: "hover:outline-ai-hr",
+//     linkRedirect: 'hr-profile',
+//   },
+//   {
+//     name: "Law AI",
+//     description: "A reliable persona for all your legal needs.",
+//     icon: "icon_law.png",
+//     bg: "bg-ai-law",
+//     outline: "hover:outline-ai-law",
+//     linkRedirect: 'law-profile',
+//   },
+//   {
+//     name: "Admin AI",
+//     description: "A dynamic persona that boosts administrative efficiency.",
+//     icon: "icon_admin.png",
+//     bg: "bg-ai-admin",
+//     outline: "hover:outline-ai-admin",
+//     linkRedirect: 'admin-profile',
+//   },
+//   {
+//     name: "Teacher AI",
+//     description: "An educational persona for delivering online courses.",
+//     icon: "icon_teacher.png",
+//     bg: "bg-ai-teacher",
+//     outline: "hover:outline-ai-teacher",
+//     linkRedirect: 'teacher-profile',
+//   },
+// ];
+
 const PersonaSelection: React.FC<PersonaSelectionProps> = ({ personas, personaClick }) => {
   
   return (
