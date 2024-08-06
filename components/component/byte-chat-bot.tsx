@@ -29,8 +29,9 @@ import {
 } from "@/lib/db/fetch-queries";
 import { fetchAndSetChatHistory } from "@/lib/chat/handle-chat-history";
 import { handleChatRegenerate } from "@/lib/chat/handle-chat-submit";
-import UploadFilesDropdown from "./upload-files-dropdown";
+import UploadFilesDropdown from "./file-upload-component";
 import UploadedFiles from "./uploaded-files";
+import FileUploadComponent from "./file-upload-component";
 
 interface ByteChatBotProps {
   historyConversationId?: string;
@@ -383,6 +384,21 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const [isFileDropdownOpen, setIsFileDropdownOpen] =
     React.useState<boolean>(false);
 
+  const [files, setFiles] = useState([]);
+
+  // Function to handle file selection
+  const handleFileChange = (e: any) => {
+    const selectedFiles = Array.from(e.target.files);
+    setFiles([...files, ...selectedFiles]);
+  };
+
+  // Function to handle file deletion
+  const handleDeleteFile = (index: any) => {
+    const updatedFiles = [...files];
+    updatedFiles.splice(index, 1);
+    setFiles(updatedFiles);
+  };
+
   // JSX ELEMENT:
   return (
     <div className="flex h-screen w-full">
@@ -495,7 +511,9 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
           className="pb-[20px] bg-slate-100 px-5 max-h-96 flex-1"
         >
           {/* UPLOADED FILES LIST is DISPLAYED HERE */}
-          <UploadedFiles />
+          {files.length !== 0 && (
+            <UploadedFiles files={files} onDelete={handleDeleteFile} />
+          )}
 
           <div
             className={
@@ -538,24 +556,21 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                   </Button>
 
                   {/* THIS IS THE FILE UPLOAD MENU BUTTON */}
-                  <Button
-                    variant="ghost"
-                    size="icon"
+                  {/* <div
                     className="bg-none p-2 mx-2 relative"
                     onClick={(e) => {
                       e.preventDefault();
                       setIsFileDropdownOpen(!isFileDropdownOpen);
                     }}
                   >
-                    <UploadFilesDropdown
-                      isOpen={isFileDropdownOpen}
-                      onClose={() => setIsFileDropdownOpen(false)}
-                    />
+                    <UploadFilesDropdown />
 
                     <PlusIcon />
 
                     <span className="sr-only">Upload file</span>
-                  </Button>
+                  </div> */}
+
+                  <FileUploadComponent onFileChange={handleFileChange} />
                 </>
               )}
 
