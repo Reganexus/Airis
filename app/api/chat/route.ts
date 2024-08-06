@@ -9,11 +9,11 @@ export async function POST(req: Request) {
   const { messages, data } = await req.json();	
 
 
-  console.log("MESSAGE: ");
-  console.log(messages);	
+  console.log("MESSAGE KURURING: ");
+  console.log(data.textInput);	
   // console.log("DATA image64:");
   // console.log(data.image64);
-  
+
   if(data.image64 != ""){
     console.log("DATA IS SUBMITTED");
     const result = await streamText({
@@ -24,11 +24,15 @@ export async function POST(req: Request) {
         {
           role: "user",
           content: [
-            { type: "text", text: "What's in this image?" },
+            { type: "text", text: (data.textInput == "") ? "What's in this image?" : data.textInput },
             {
               type: "image", // Use the correct type as per your API's schema
               image: data.image64 // base64 images
-            }
+            },
+            {
+              type: "image", // Use the correct type as per your API's schema
+              image: data.image64 // base64 images
+            },
           ],
           
         }
