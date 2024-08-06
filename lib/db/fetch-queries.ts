@@ -106,3 +106,16 @@ export async function fetchPersonas() {
   console.log(data)
   return data;
 }
+
+export async function fetchSelectedPersona() {
+  const res = await fetch("/api/query/query-persona", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const data = await res.json()
+
+  console.log(data)
+  return data;
+}

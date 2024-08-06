@@ -32,12 +32,6 @@ export default PersonaPrompts;
 
 const PersonaProfile: React.FC<PersonaChatbotsProps> = ({ selectedPersona })  => {
   
-  /**
-   * aiName and aiDescription will hold the Persona name and tagline on the Prompt Selection Screen
-   * the persona name (ex. Marketing AI) will be compared to its counterpart url (marketing-ai-chatbots)
-   *  by converting the persona name to url, thus displaying the name and the tagling if it matched 
-   */
-  
   return (
     <div className="basis-[35%] border rounded-md bg-ai-marketing relative overflow-clip">
       <div className="absolute w-full h-[45%] bottom-0 bg-white">
@@ -93,7 +87,8 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona })=> {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ persona_id: selectedPersona?.persona_id }), // Send persona_id in the request body
-          cache: 'force-cache'
+          cache: 'force-cache',
+          next: { revalidate: 3600 }
         });
 
         const data = await response.json();
@@ -181,10 +176,10 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona })=> {
       {/* Prompts Section and Cards */}
       <div className="flex p-4 h-full pt-0">
         {/* Default Prompt */}
-        {prompts.map((p) => (
+        {prompts.map((p, index) => (
           (p.subpersona == false && p.role == currentRole) && (
             <div onClick={() => handleClick(p)} className="basis-[35%]">
-              <div className="bg-ai-teacher  h-full relative flex flex-col justify-end rounded-lg p-6 hover:cursor-pointer hover:bg-orange-800">
+              <div key={index} className="bg-ai-teacher  h-full relative flex flex-col justify-end rounded-lg p-6 hover:cursor-pointer hover:bg-orange-800">
                 <h4 className="text-4xl text-white">
                   {p.task}
                 </h4>

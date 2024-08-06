@@ -8,6 +8,7 @@ export interface Persona {
   created_at: string;
   logo_name: string;    // icon
   bgimage_name: string; // bg
+  persona_link: string;
   // i dunno outline
   // link redirect is out na
   // description: string; 
@@ -32,4 +33,5 @@ export interface SelectedPersona {
   persona_id: string;
   persona_name: string;
   persona_tagline: string;
+  persona_link: string;
 }

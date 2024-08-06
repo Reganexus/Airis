@@ -98,13 +98,13 @@ interface PersonaCardProps {
 }
 
 const PersonaCard: React.FC<PersonaCardProps> = ({ persona, personaClick }) => {
-  const { persona_id, name, department, tagline, created_at, logo_name, bgimage_name } = persona;
+  const { persona_id, name, department, tagline, created_at, logo_name, bgimage_name, persona_link } = persona;
   const hoverStyles = `transform transition hover:scale-105 hover:shadow-lg hover:outline hover:outline-3 hover:border-0`;
   //const hoverStyles = `transform transition hover:scale-105 hover:shadow-lg hover:outline hover:outline-3 ${outline} hover:border-0`;
 
-
+  const link = '/persona/' + persona_link;
   return (
-    <div onClick={() => personaClick(persona_id)}>
+    <Link href={link}>
       <div
         className={`${bgimage_name} rounded-2xl min-h-36 border border-slate-300 shadow relative overflow-clip hover:cursor-pointer ${hoverStyles}`}
       >
@@ -120,7 +120,7 @@ const PersonaCard: React.FC<PersonaCardProps> = ({ persona, personaClick }) => {
           <p className="text-sm text-slate-500">{tagline}</p>
         </div>
       </div>
-    </div>
+    </Link>
 
   );
 };
