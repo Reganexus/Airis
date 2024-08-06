@@ -2,18 +2,17 @@
 
 import Image from "next/image";
 import React from "react";
-import { signOut } from 'next-auth/react';
+import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { getServerSession } from 'next-auth';
-import router from "next/router";
+
+import { getServerSession } from "next-auth";
 import Link from "next/link";
 
 interface SideBarProps {
   id?: string;
 }
 
-
-const SideBar: React.FC<SideBarProps> = ({ id })=> {
+const SideBar: React.FC<SideBarProps> = ({ id }) => {
   const [isDarkMode, setIsDarkMode] = React.useState<boolean>(false);
 
   const onDarkModeToggle = () => {
@@ -25,12 +24,14 @@ const SideBar: React.FC<SideBarProps> = ({ id })=> {
       {/* LOGO */}
       <Link href="/landing">
       <div className="flex justify-center items-center p-2">
-        <Image
-          src="/logo/airis_logo_sq_trans.png"
-          alt="airis logo"
-          width={70}
-          height={70}
-        />
+        <Link href={"/landing"}>
+          <Image
+            src="/logo/airis_logo_sq_trans.png"
+            alt="airis logo"
+            width={70}
+            height={70}
+          />
+        </Link>
       </div>
       </Link>
 
@@ -159,14 +160,13 @@ const ToggleDarkModeIconButton: React.FC<DarkModeToggleProps> = ({
 
 const LogoutIconButton = () => {
   return (
-    <button 
-    onClick={
-      ()=>{
+    <button
+      onClick={() => {
         signOut({ callbackUrl: "/" });
-      }
-    }
-    title="Sign Out"
-    className="text-slate-500 p-4 hover:bg-red-100 hover:text-red-500 rounded-lg">
+      }}
+      title="Sign Out"
+      className="text-slate-500 p-4 hover:bg-red-100 hover:text-red-500 rounded-lg"
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
@@ -184,4 +184,3 @@ const LogoutIconButton = () => {
     </button>
   );
 };
-
