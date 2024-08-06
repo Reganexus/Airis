@@ -253,7 +253,10 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                 content: stringify
               },
             ]);
-            promptSubmit({ preventDefault: () => { } });
+            promptSubmit({
+              preventDefault: () => { },
+              target: undefined
+            });
           } catch (error) {
             console.error("Failed to fetch chatbot data", error);
           }
@@ -314,7 +317,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       const saveData = async () => {
         const data = await fetchSaveConvo(messages, user?.email, chosenChatbot.chatbot_id, conversationId);
         // we need to run GPT to generate title on the new convo only
-        console.log("NEW CONVO", data)
         if (data.new_convo) {
           setConversationId(data.convo_id);
           await generateTitle(data.convo_id);
@@ -593,6 +595,13 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                 }
                 onChange={handleInputChange}
                 disabled={isLoading || isLoading2}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && input) {
+                    e.preventDefault(); // Prevents default form submission
+                    promptSubmit(e); // Triggers form submission
+                  }
+                }}
+
               />
 
               <input name="file"
@@ -609,7 +618,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                     variant="default"
                     size="icon"
                     className="bg-primary order-last p-3"
-                    disabled={isLoading || isLoading2}
+                    disabled={isLoading || isLoading2 || !input}
                   >
                     <SendIcon />
                     <span className="sr-only">Send</span>

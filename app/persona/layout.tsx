@@ -1,7 +1,6 @@
 'use client';
 import { fetchPersonas } from "@/lib/db/fetch-queries";
-import { Persona, SelectedPersona } from "@/lib/types";
-import type { Metadata } from "next";
+import { Persona } from "@/lib/types";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import SideBar from "../main/side-bar";
@@ -14,49 +13,72 @@ export default function SelectionLayout({
   children: React.ReactNode;
 }>) {
 
+    // contains the dynamic persona url parameter
+    const { agent } = useParams(); 
+    
+    /**
+     * @personaLists - contains all the information returned by the Database, to be updated when the image url is placed
+     * @personaBlobs - contains all the blobs (images) fetched from the AirisBlobStorage
+     * @temp         - temporary placeholder for all  the information of personas
+     */
     const [personaLists, setPersonaLists] = useState<Persona[]>();
-    const [selectedPersona, setSelectedPersonaId] = useState<SelectedPersona>();
+    const [personaBlobs, setPersonaBlobs] = useState<any[]>([]);
+    const [temp, setTemp] = useState<Persona[]>([]);
 
-    const { agent } = useParams(); // Access the dynamic route parameter
 
     useEffect(() => {
-        /**
-         * Get all the personaData from the database
-         */
-        const fetchPersonaData = async () => {
-        
+      /**
+       * Get all the personaData [1] and the persona blobs(images) [2] from the database
+       * and store [1] on the temporary variable and [2] on personaBlobs
+       */
+     const fetchPersonaData = async () => {
+       
+        // [1]
         const personas = await fetchPersonas();
-        setPersonaLists(personas);
-
-        setSelectedPersonaId({
-            persona_id: personas[0].persona_id,
-            persona_name: personas[0].name,
-            persona_tagline: personas[0].tagline,
-            persona_link: personas[0].persona_link
+        setTemp(personas);
+       
+        const personalogo = await fetch('/api/image/image-persona-logo', {
+          method: "POST",
+          cache: 'no-cache'
         });
+        const response = await personalogo.json();
+        
+        // [2]
+        const blobs = response.blob;
+        setPersonaBlobs(blobs)
 
-        };
-        fetchPersonaData();
+      };
+      fetchPersonaData();
         
     }, []);
     
-    const handlePersonaChange = (persona_id: string) => {
-        if (personaLists) {
-        personaLists.forEach((item: any) => {
-            if (item.persona_id == persona_id) {
-              setSelectedPersonaId({
-                persona_id: item.persona_id,
-                persona_name: item.name,
-                persona_tagline: item.tagline,
-                persona_link: item.persona_link
-            });
-            return;
-            }
-        });
-        }
-    } 
+    useEffect(() => {
+      /**
+       * Will run when persona data are all fetched
+       * Loop through the blobs and remove the directory of the filename, only using the filename w/ extension
+       * And change the value of persona.logo_name into the blob's URL (previously a logo filename) if filenames matched
+       * Finally, put thee temporary Persona data into the official variable personaData   
+       */
+      if (personaBlobs && temp) {
+        personaBlobs.forEach((blob: any) => {
 
-    // Clone children and pass the agent prop
+          const filename = blob.pathname.replace('Assets/persona_icons/', '');
+  
+            temp.forEach((persona) => {
+              if (persona.logo_name === filename) {
+                persona.logo_name = blob.url;
+              }
+            });
+
+            setPersonaLists(temp)
+  
+        });
+
+      }
+
+    }, [personaBlobs, temp])
+
+    // Clone children and pass the agent prop (persona_url)
     const childrenWithProps = React.Children.map(children, (child) => {
         if (React.isValidElement(child)) {
             return React.cloneElement(child, { agent } as { [key: string]: any });
@@ -66,9 +88,8 @@ export default function SelectionLayout({
 
   return (
     <main className="flex h-screen">
-      {/* Side Bar */}
       <SideBar />
-      <PersonaSelection personas={personaLists} personaClick={handlePersonaChange} />
+      <PersonaSelection personas={personaLists} />
       {childrenWithProps}
     </main>
   );

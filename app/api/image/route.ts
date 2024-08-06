@@ -35,15 +35,15 @@ export async function POST(request: Request) {
 
     // List all the images in the storage
     const imgList = await list();
-    console.log(imgList);
+    //console.log(imgList);
 
     // Log the extracted data for debugging purposes
-    console.log("PROMPT:" + user_prompt);
-    console.log("MODEL:" + model);
-    console.log("QUALITY:" + quality);
-    console.log("SIZE:" + size);
-    console.log("STYLE:" + style);
-    console.log("QUANTITY:" + quantity);
+    // console.log("PROMPT:" + user_prompt);
+    // console.log("MODEL:" + model);
+    // console.log("QUALITY:" + quality);
+    // console.log("SIZE:" + size);
+    // console.log("STYLE:" + style);
+    // console.log("QUANTITY:" + quantity);
 
     // Create a new instance of the OpenAI API client
     const openai = new OpenAI({

@@ -17,9 +17,6 @@ export async function POST(request: Request) {
       FROM chatbot c 
       INNER JOIN persona p ON p.persona_id = c.persona_id  WHERE c.persona_id = ${persona_id} order by subpersona;
     `;
-    console.log('PERSONA_ID: ', persona_id)
-    console.log("RESULT: ");
-    console.log(result);
     // Return the result as JSON
     return NextResponse.json(result.rows);
   } catch (error) {

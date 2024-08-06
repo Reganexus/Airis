@@ -119,3 +119,36 @@ export async function fetchSelectedPersona() {
   console.log(data)
   return data;
 }
+
+export async function fetchPrompts(persona_id: string) {
+    const response = await fetch('/api/query/query-tasks', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ persona_id: persona_id }), // Send persona_id in the request body
+      cache: 'force-cache',                             // forced caching
+      next: { revalidate: 3600 }
+    });
+
+    const data = await response.json();
+    return data
+}
+
+export async function fetchPersonaSelected(agent: string | string[] ) {
+  const response = await fetch('/api/query/query-persona-selected', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      persona: agent
+    }),
+    cache: 'force-cache',
+    next: { revalidate: 3600 }
+  });
+
+  const data = await response.json();
+  return data[0]
+
+}
