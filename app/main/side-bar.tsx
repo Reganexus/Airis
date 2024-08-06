@@ -4,6 +4,7 @@ import Image from "next/image";
 import React from "react";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+
 import { getServerSession } from "next-auth";
 import Link from "next/link";
 
@@ -21,6 +22,7 @@ const SideBar: React.FC<SideBarProps> = ({ id }) => {
   return (
     <div className="bg-slate-50 w-20 flex flex-col justify-between border-r border-slate-300">
       {/* LOGO */}
+      <Link href="/landing">
       <div className="flex justify-center items-center p-2">
         <Link href={"/landing"}>
           <Image
@@ -31,6 +33,7 @@ const SideBar: React.FC<SideBarProps> = ({ id }) => {
           />
         </Link>
       </div>
+      </Link>
 
       {/* Profile Section */}
       <div className="flex flex-col justify-between border-t border-slate-300 items-center py-2 px-2 pb-4 pt-3">

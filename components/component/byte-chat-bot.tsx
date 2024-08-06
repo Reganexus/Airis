@@ -77,6 +77,10 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const isFirstRender = useRef(true);
   const isSecondRender = useRef(true);
   const isPromptRendered = useRef(true);
+  
+  const aiName = sessionStorage.getItem('aiName');
+  const aiDescription = sessionStorage.getItem('aiDescription');
+  
   const [uploadUrl, setUploadUrl] = useState("");
   const inputFileRef = useRef<HTMLInputElement>(null);
   const [blob, setBlob] = useState<PutBlobResult | null>(null);
@@ -117,7 +121,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       console.log("error: " + error);
     }
   }
-
 
 
   /**
@@ -169,6 +172,8 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     setChatbotId(chatbot_id);
     setPersonaId(persona_id);
   }, []);
+
+
 
   useEffect(() => {
     if (historyConversationId) {
@@ -506,16 +511,23 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                     </div>
 
                     <div className="relative grid gap-1.5 p-3 px-4 text-base">
-                      <h1 className="font-semibold">{"AI"}</h1>
+                      <h1 className="font-semibold">{aiName}</h1>
                       {
-                        Array.isArray(m.content) ? (
-                          m.content.map((url, index) => (
-                            <img key={index} src={url} alt="Generated" />
-                          ))
-                        ) : (
+                          // If Output is image,
+                          //  output of ai is url but will be converted into array immediately
+                            Array.isArray(m.content) ? (
+                            m.content.map((url, index) => (
+                              <>
+                              <p>Here is your image:</p>
+                              <img key={index} src={url} alt="Generated" />
+                              </>
+                            ))
+                          ) : (
+                          // gpt outputs Text instead
                           <div dangerouslySetInnerHTML={{ __html: formatTextToHTML(m.content) }} />
                         )
                       }
+
                       {(isLastMessage || isHovered) && (
                         <div className="absolute z-10 bottom-[-15px] left-4 mt-1 flex gap-2">
                           <Button
