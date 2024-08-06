@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ToggleButton from "@/components/ui/toggle-button";
@@ -23,6 +23,8 @@ import { generateDALLE } from "@/lib/api/dall-e-operations";
 import { fetchChatbot, fetchSaveConvo, fetchChatHistory, fetchOldChat, fetchChatUID } from "@/lib/db/fetch-queries";
 import { fetchAndSetChatHistory } from "@/lib/chat/handle-chat-history";
 import { handleChatRegenerate } from "@/lib/chat/handle-chat-submit";
+import { PutBlobResult } from "@vercel/blob";
+import { upload } from "@vercel/blob/client";
 
 
 interface ByteChatBotProps {
@@ -55,7 +57,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const { messages, setMessages, input, isLoading, handleInputChange, handleSubmit } = useChat();
 
   //  consists of the chatbot conversation id
-  const [conversationId, setConversationId] =  useState(0);
+  const [conversationId, setConversationId] = useState(0);
 
   /**
    * chatbot_id:
@@ -70,13 +72,55 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
    */
   const [chosenChatbot, setChosenChatbot] = useState<any>(null);
   const [chatHistory, setChatHistory] = useState<Array<any>>();
-  
+
   const mounted = useRef(true);
   const isFirstRender = useRef(true);
   const isSecondRender = useRef(true);
   const isPromptRendered = useRef(true);
+  
   const aiName = sessionStorage.getItem('aiName');
   const aiDescription = sessionStorage.getItem('aiDescription');
+  
+  const [uploadUrl, setUploadUrl] = useState("");
+  const inputFileRef = useRef<HTMLInputElement>(null);
+  const [blob, setBlob] = useState<PutBlobResult | null>(null);
+  const [image, setImage] = useState<string>("");
+  const [displayImage, setDisplayImage] = useState<string>("");
+  useEffect(() => {
+    // Clean up the URL object when the component unmounts or when the image changes
+    return () => {
+      if (displayImage) {
+        URL.revokeObjectURL(displayImage);
+      }
+    };
+  }, [displayImage]);
+  
+  function handleImageChange(event: ChangeEvent<HTMLInputElement>) {
+    if (event.target.files == null || event.target.files.length === 0) {
+      // Reset the image state if no file is selected or the dialog is closed
+      setImage("");
+      setDisplayImage("");
+      return;
+    }
+    const file = event.target.files[0];
+    console.log("FILE: ");
+    console.log(file);
+    const url = URL.createObjectURL(file);
+    setDisplayImage(url);
+    //convert to base64
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      if (typeof reader.result == "string") {
+        console.log(reader.result);
+        setImage(reader.result);
+      }
+    }
+
+    reader.onerror = (error) => {
+      console.log("error: " + error);
+    }
+  }
 
 
   /**
@@ -134,64 +178,64 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   useEffect(() => {
     if (historyConversationId) {
 
-       const numberHistoryConversationId = Number(historyConversationId);
-      
-       // VALIDATE -  historyConversationId type should be number
-       if (isNaN(numberHistoryConversationId)) {
-         
-         // Redirect to base chat route if invalid ID
-           // TO BE REVISED, GO TO CHAT SELECTION INSTEEEEEEED
-         router.push('/'); 
-         return;
-       }
+      const numberHistoryConversationId = Number(historyConversationId);
 
-       // VALIDATE - User should be logged in, with right account
-       if (status === 'unauthenticated') {
-         router.push('/');
-         return;
-       }
-       
-       console.log(status)
+      // VALIDATE -  historyConversationId type should be number
+      if (isNaN(numberHistoryConversationId)) {
 
-       if (status === 'authenticated' && user != undefined) { 
-         const validateUser = async () => {
-             const data = await fetchChatUID(numberHistoryConversationId, user?.email);
-           
-             if (data == 'wrong uid') {
-               router.push('/');
-               return;
-             }  else {
-               setConversationId(numberHistoryConversationId);
+        // Redirect to base chat route if invalid ID
+        // TO BE REVISED, GO TO CHAT SELECTION INSTEEEEEEED
+        router.push('/');
+        return;
+      }
 
-               const getOldChat = async () => {
-                 try {
-                   const data = await fetchOldChat(numberHistoryConversationId);
-                   if (data.error != '') {
-                     console.log("Cannot find old conversation", data.error);
-                     router.push('/'); 
-                     return
-                   }
-                   console.log("Here is the fetched chatbot id of the chosen chat history,", data.chatbot_id)
-                   // Fetch the Chatbot as well
-                    const chatdata = await fetchChatbot(data.chatbot_id);
-                    setChosenChatbot(chatdata.chatbot);
-     
-                   console.log("Messages Set")
-                   setMessages(data.messages);
-                   
-                 } catch (error) {
-                   console.error("Failed to fetch chatbot data", error);
-                 }
-               }
-               getOldChat()
-     
-               // Allow the system to save the conversation after the user has  sent a message
-               isPromptRendered.current = false; 
-             }
-         }
-         validateUser()
-       }
-   } else {
+      // VALIDATE - User should be logged in, with right account
+      if (status === 'unauthenticated') {
+        router.push('/');
+        return;
+      }
+
+      console.log(status)
+
+      if (status === 'authenticated' && user != undefined) {
+        const validateUser = async () => {
+          const data = await fetchChatUID(numberHistoryConversationId, user?.email);
+
+          if (data == 'wrong uid') {
+            router.push('/');
+            return;
+          } else {
+            setConversationId(numberHistoryConversationId);
+
+            const getOldChat = async () => {
+              try {
+                const data = await fetchOldChat(numberHistoryConversationId);
+                if (data.error != '') {
+                  console.log("Cannot find old conversation", data.error);
+                  router.push('/');
+                  return
+                }
+                console.log("Here is the fetched chatbot id of the chosen chat history,", data.chatbot_id)
+                // Fetch the Chatbot as well
+                const chatdata = await fetchChatbot(data.chatbot_id);
+                setChosenChatbot(chatdata.chatbot);
+
+                console.log("Messages Set")
+                setMessages(data.messages);
+
+              } catch (error) {
+                console.error("Failed to fetch chatbot data", error);
+              }
+            }
+            getOldChat()
+
+            // Allow the system to save the conversation after the user has  sent a message
+            isPromptRendered.current = false;
+          }
+        }
+        validateUser()
+      }
+    } else {
       if (!mounted.current) return;
       if (chatbotId) {
         // fetch the chatbot data
@@ -203,13 +247,13 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
             setChosenChatbot(data.chatbot);
             const stringify = JSON.stringify(data.chatbot?.sysprompt)
             setMessages([
-            {
-              id: "firstprompt",
-              role: 'user',
-              content: stringify
-            },
+              {
+                id: "firstprompt",
+                role: 'user',
+                content: stringify
+              },
             ]);
-            promptSubmit({ preventDefault: () => {} });
+            promptSubmit({ preventDefault: () => { } });
           } catch (error) {
             console.error("Failed to fetch chatbot data", error);
           }
@@ -219,8 +263,8 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
           mounted.current = false;
         };
       }
-   }
- }, [chatbotId, historyConversationId, status]);
+    }
+  }, [chatbotId, historyConversationId, status]);
 
   // useEffect(() => {
   //   // if a chathistory is clicked, this will be saved
@@ -236,7 +280,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   //         // New Chat
   //         setChosenChatbot(result?.chatbot);
   //         promptSubmit({ preventDefault: () => {} });
-          
+
   //       } else {  
   //         // Old Chat
   //         setConversationId(result?.convo_id ?? 0);
@@ -258,10 +302,10 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       isSecondRender.current = false;
       return;
     }
-    
+
     if (!isLoading && !isLoading2 && status == 'authenticated' && user) {
       // do not save if when first prompt is being shown 
-      
+
       if (isPromptRendered.current) {
         isPromptRendered.current = false;
         return;
@@ -286,16 +330,38 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
    * Handles the submission event of both chat components (GPT or DALL-E)
    * this is called by the form
    */
-  async function promptSubmit(e: { preventDefault: () => void }) {
-    e.preventDefault();
+  async function promptSubmit(e: {
+    target: any; preventDefault: () => void
+  }) {
 
+    e.preventDefault();
+    // let newBlob = {'url': ""};
     if (model == 'gpt-4o-mini') {
-      /**
-       * GPT-4o MODEL
-       * Calls the app/api/chat/route.ts to stream text output
-       */
-      handleSubmit(e);
-    } else {
+
+
+      // if (!inputFileRef.current?.files) {
+      //   throw new Error('No file selected');
+      // }
+      // else{
+      //   const file = inputFileRef.current.files[0];
+      //   console.log("FILE:");
+      //   console.log(file);
+      //   if(file){
+      //       newBlob = await upload(file.name, file, {
+      //       access: 'public',
+      //       handleUploadUrl: '/api/avatar/upload',
+      //     });
+      //     setBlob(newBlob);
+      //     console.log(newBlob);
+
+      //   }
+      // }
+
+      handleSubmit(e, {
+        data: { image64: image, textInput: input },
+      });
+    }
+    else {
       /**
        * DALL-E MODEL
        * Calls the app/api/image/route.ts to generate image output
@@ -343,7 +409,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   /**
    * Handles the change of the model and updates the placeholder text when toggle button is clicked.
    */
-  function handleModelChange(){
+  function handleModelChange() {
     setQuality('standard');
     setImgSize('256x256');
     setImgStyle('natural');
@@ -371,9 +437,9 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const [isHistoryOpen, setIsHistoryOpen] = React.useState<boolean>(true);
   const [isImageModel, setIsImageModel] = React.useState<boolean>(false);
 
-  
 
-  
+
+
 
 
   // JSX ELEMENT:
@@ -401,11 +467,23 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                   /* User message */
                 }
                 return (
-                  <div key={i} className="flex items-start gap-4 justify-end">
-                    <div className="grid gap-1.5 rounded-lg bg-primary p-3 px-4">
-                      <p className="text-white">{m.content}</p>
+
+
+                  <>
+                    {displayImage != "" && <div key={i} className="flex items-start gap-4 justify-end">
+                      <div className="grid gap-1.5 rounded-lg bg-primary p-3 px-4">
+                        <img src={displayImage}
+                          alt="Uploaded preview"
+                          style={{ marginTop: '20px', maxWidth: '200px', height: 'auto' }} />
+                      </div>
+                    </div>}
+                    <div key={i} className="flex items-start gap-4 justify-end">
+                      <div className="grid gap-1.5 rounded-lg bg-primary p-3 px-4">
+                        <p className="text-white">{m.content}</p>
+                      </div>
                     </div>
-                  </div>
+                  </>
+
                 );
               } else if (m.role == 'assistant') {
                 {
@@ -516,6 +594,13 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                 onChange={handleInputChange}
                 disabled={isLoading || isLoading2}
               />
+
+              <input name="file"
+                type="file"
+                onChange={handleImageChange}
+              />
+
+              {/* <input type="file" id="fileUpload" name="fileUpload" /> */}
 
               {/* Hide these buttons if Image mode */}
               {!isImageModel && (
@@ -656,7 +741,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                     ))}
                   </select>
                 </div>
-
                 <button className="py-2 bg-primary text-white rounded-lg mt-2">
                   Generate
                 </button>
