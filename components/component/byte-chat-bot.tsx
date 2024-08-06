@@ -54,7 +54,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
    * @handleInputChange - handles the change event of the input field
    * @handleSubmit      - handles submission event of the chat component (GPT-4o only)
    */
-  const {messages, setMessages, input, isLoading, handleInputChange, handleSubmit } = useChat();
+  const { messages, setMessages, input, isLoading, handleInputChange, handleSubmit } = useChat();
 
   //  consists of the chatbot conversation id
   const [conversationId, setConversationId] = useState(0);
@@ -84,7 +84,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const [displayImage, setDisplayImage] = useState<{ [key: number]: string }>({});
   const [file, setFile] = useState<File | null>(null);
   const [num, setNum] = useState(0);
-  
+
   function handleImageChange(event: ChangeEvent<HTMLInputElement>) {
     if (event.target.files == null || event.target.files.length === 0) {
       // Reset the image state if no file is selected or the dialog is closed
@@ -102,7 +102,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       ...prevState,
       [num]: url,
     }));
-    
+
     console.log("DISPLAY iMAGE:");
     console.log(url);
     //convert to base64
@@ -334,19 +334,19 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     // let newBlob = {'url': ""};
     if (model == 'gpt-4o-mini') {
 
-      setNum(num => num+2);
+      setNum(num => num + 2);
       handleSubmit(e, {
-        data: { image64: image, textInput: input, imageUrl : displayImage },
+        data: { image64: image, textInput: input, imageUrl: displayImage },
       });
 
       if (file == null) {
         console.log('No file selected');
       }
-      else{
+      else {
         console.log("FILE:");
         console.log(file);
-        if(file){
-            const newBlob = await upload(file.name, file, {
+        if (file) {
+          const newBlob = await upload(file.name, file, {
             access: 'public',
             handleUploadUrl: '/api/avatar/upload',
           });
@@ -449,7 +449,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
           <div className="pt-4 px-2 ps-4 pb-8 grid gap-6 max-w-5xl m-auto">
             {messages.map((m, i) => {
-              
+
               const isLastMessage: boolean = i === messages.length - 1;
 
               if (m.role === "user" && m.id != 'firstprompt') {
@@ -458,15 +458,18 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                 return (
                   <>
                     <div className="flex items-start gap-4 justify-end">
+
+                      {i in displayImage && 
                       <div className="grid gap-1.5 rounded-lg bg-primary p-3 px-4">
                         <img src={displayImage[i]}
                           alt="Uploaded preview"
                           style={{ maxWidth: '200px', height: 'auto' }} />
-                      </div>
+                      </div>}
+
                     </div>
                     <div key={i} className="flex items-start gap-4 justify-end">
                       <div className="grid gap-1.5 rounded-lg bg-primary p-3 px-4">
-                      <p className="text-white">{m.content}</p>
+                        <p className="text-white">{m.content}</p>
                       </div>
                     </div>
                   </>
@@ -565,6 +568,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
               <Input
                 placeholder={placeholder}
                 value={input}
+                id = 'text-input-box'
                 className={
                   !isImageModel
                     ? `bg-transparent placeholder:text-base p-2 px-4 persona-selection-scrollbar h-auto` //text mode
@@ -584,11 +588,13 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
               {/* Hide these buttons if Image mode */}
               {!isImageModel && (
                 <>
+
+                {/* SUBMIT BUTTON */}
                   <Button
                     variant="default"
                     size="icon"
                     className="bg-primary order-last p-3"
-                    disabled={isLoading || isLoading2}
+                    disabled={isLoading || isLoading2 || input.length == 0}
                   >
                     <SendIcon />
                     <span className="sr-only">Send</span>
