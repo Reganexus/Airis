@@ -1,48 +1,97 @@
 import { openai } from '@ai-sdk/openai';
 import { convertToCoreMessages, streamText } from 'ai';
 
-// Allow streaming responses up to 30 seconds
-export const maxDuration = 30;
+
+export const maxDuration = 30;	
 
 export async function POST(req: Request) {
-  try {
-    const { messages, data } = await req.json();
 
-    // console.log(messages);
-
-    // Ensure messages are correctly structured
-    const coreMessages = convertToCoreMessages(messages);
-   
-    // Loop through the coreMessages
-    for (const message of coreMessages) {
-      // Perform some operation on each message
-      if (Array.isArray(message.content)) {
-        message.content = message.content.join(' '); // Convert message.content into a string
-        console.log("This is the previous array converted into string", message.content)
-      }
-    }
+  const { messages, data } = await req.json();	
 
 
-    // If the data contains an image URL, include it in the messages
-    if (data && data.imageUrl) {
-      coreMessages.push({
-        role: 'user',
-        content: `![Uploaded Image](https://th.bing.com/th/id/R.92fbfefc16ed0223802a847a4b2ebe6b?rik=TrjQEpzOvw%2fQpg&riu=http%3a%2f%2f4.bp.blogspot.com%2f-jjOrjq42cwo%2fUzylPWLyfPI%2fAAAAAAAAA_A%2fFPtuRLYigHM%2fs1600%2fanimais-zebra-345552.jpg&ehk=3PaiDPE5H2qjQK46W6n%2bpL6ChsV5vauF3z%2b6mAxrm0w%3d&risl=&pid=ImgRaw&r=0)`, // Including the image URL in the message
-      });
-    }
-
-    // console.log(data.imageUrl);
-
-    // Call the language model with the transformed messages
+  console.log("MESSAGE: ");
+  console.log(messages);	
+  // console.log("DATA image64:");
+  // console.log(data.image64);
+  
+  if(data.image64 != ""){
+    console.log("DATA IS SUBMITTED");
     const result = await streamText({
       model: openai('gpt-4o-mini'),
-      //system: data.persona,
-      messages: coreMessages,
+      maxTokens: 4096,
+      messages: [ // GPT-4 with Vision is JUST GPT-4. So you can still talk with it like GPT-4
+        // There is no "system" message (THIS MAY CHANGE)
+        {
+          role: "user",
+          content: [
+            { type: "text", text: "What's in this image?" },
+            {
+              type: "image", // Use the correct type as per your API's schema
+              image: data.image64 // base64 images
+            }
+          ],
+          
+        }
+      ],
     });
+    return result.toAIStreamResponse();	
 
-    return result.toAIStreamResponse();
-  } catch (error) {
-    console.error('Error processing request:', error);
-    return new Response('Internal Server Error', { status: 500 });
   }
+  else{
+    console.log("IMAGE IS NOT SUBMITTED");
+    const result = await streamText({	
+      model: openai('gpt-4o-mini'),	
+      maxTokens: 4096,
+      messages,	
+    });	
+    return result.toAIStreamResponse();	
+
+  }
+
+
+  // return result.toAIStreamResponse();	
 }
+
+// // Allow streaming responses up to 30 seconds
+// export const maxDuration = 30;
+
+// export async function POST(req: Request) {
+//   try {
+//     const { messages, data } = await req.json();
+//     console.log(data.file);
+//     // Ensure messages are correctly structured
+//     const coreMessages = convertToCoreMessages(messages);
+
+//     // Convert arrays in message.content to strings
+//     coreMessages.forEach((message) => {
+//       if (Array.isArray(message.content)) {
+//         message.content = message.content.join(' ');
+//         console.log("Converted array to string:", message.content);
+//       }
+//     });
+
+//     // Include image URL in messages if provided
+//     if (data?.imageUrl) {
+//       console.log("IMAGE IS UPLOADED!");
+//       coreMessages.push({
+//         role: 'user',
+//         content: `![Uploaded Image](${data.imageUrl})`, // Using the actual image URL from data
+//       });
+//     }
+
+//     // Call the language model with the transformed messages
+//     const result = await streamText({
+//       model: openai('gpt-4o-mini'),
+//       system: "analyze the image sent to you.",
+//       messages: coreMessages,
+//     });
+
+//     return result.toAIStreamResponse();
+//   } catch (error) {
+//     console.error('Error processing request:', error);
+//     return new Response('Internal Server Error', { status: 500 });
+//   }
+// }
+
+
+

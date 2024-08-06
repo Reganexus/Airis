@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ToggleButton from "@/components/ui/toggle-button";
@@ -23,6 +23,8 @@ import { generateDALLE } from "@/lib/api/dall-e-operations";
 import { fetchChatbot, fetchSaveConvo, fetchChatHistory, fetchOldChat, fetchChatUID } from "@/lib/db/fetch-queries";
 import { fetchAndSetChatHistory } from "@/lib/chat/handle-chat-history";
 import { handleChatRegenerate } from "@/lib/chat/handle-chat-submit";
+import { PutBlobResult } from "@vercel/blob";
+import { upload } from "@vercel/blob/client";
 
 
 interface ByteChatBotProps {
@@ -75,6 +77,33 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const isFirstRender = useRef(true);
   const isSecondRender = useRef(true);
   const isPromptRendered = useRef(true);
+  const [uploadUrl, setUploadUrl] = useState("");
+  const inputFileRef = useRef<HTMLInputElement>(null);
+  const [blob, setBlob] = useState<PutBlobResult | null>(null);
+  const [image, setImage] = useState<string>("");
+
+  function handleImageChange(event: ChangeEvent<HTMLInputElement>){
+    if(event.target.files == null){
+      window.alert("please choose a file");
+      return;
+    }
+    const file = event.target.files[0];
+
+    //convert to base64
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      if(typeof reader.result == "string"){
+        console.log(reader.result);
+        setImage(reader.result);
+      }
+    }
+
+    reader.onerror = (error) => {
+      console.log("error: " + error);
+    }
+  }
+
 
 
   /**
@@ -282,16 +311,38 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
    * Handles the submission event of both chat components (GPT or DALL-E)
    * this is called by the form
    */
-  async function promptSubmit(e: { preventDefault: () => void }) {
+  async function promptSubmit(e: {
+    target: any; preventDefault: () => void 
+}) {
+    
     e.preventDefault();
-
+    // let newBlob = {'url': ""};
     if (model == 'gpt-4o-mini') {
-      /**
-       * GPT-4o MODEL
-       * Calls the app/api/chat/route.ts to stream text output
-       */
-      handleSubmit(e);
-    } else {
+      
+
+      // if (!inputFileRef.current?.files) {
+      //   throw new Error('No file selected');
+      // }
+      // else{
+      //   const file = inputFileRef.current.files[0];
+      //   console.log("FILE:");
+      //   console.log(file);
+      //   if(file){
+      //       newBlob = await upload(file.name, file, {
+      //       access: 'public',
+      //       handleUploadUrl: '/api/avatar/upload',
+      //     });
+      //     setBlob(newBlob);
+      //     console.log(newBlob);
+
+      //   }
+      // }
+
+        handleSubmit(e, {
+          data: { image64: image},
+          });      
+      }
+      else {
       /**
        * DALL-E MODEL
        * Calls the app/api/image/route.ts to generate image output
@@ -506,6 +557,13 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                 disabled={isLoading || isLoading2}
               />
 
+            <input name="file" 
+            type="file"
+            onChange={handleImageChange}
+            />
+
+              {/* <input type="file" id="fileUpload" name="fileUpload" /> */}
+
               {/* Hide these buttons if Image mode */}
               {!isImageModel && (
                 <>
@@ -645,7 +703,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                     ))}
                   </select>
                 </div>
-
                 <button className="py-2 bg-primary text-white rounded-lg mt-2">
                   Generate
                 </button>
