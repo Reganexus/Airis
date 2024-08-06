@@ -4,95 +4,16 @@ import "./persona-selection-scrollbar.css";
 import Link from "next/link";
 import { fetchPersonas } from "@/lib/db/fetch-queries";
 import { useEffect, useState } from "react";
-
-interface Persona {
-  name: string;
-  description: string;
-  icon: string;
-  bg: string;
-  outline: string;
-  linkRedirect: string;
-}
-
-// make this dynamic using db
-// const personasa: Persona[] = [
-//   {
-//     name: "Intern AI",
-//     description: "A dedicated persona to support intership-related tasks.",
-//     icon: "icon_intern.png",
-//     bg: "bg-ai-intern",
-//     outline: "hover:outline-ai-intern",
-//     linkRedirect: 'intern-profile',
-//   },
-//   {
-//     name: "Marketing AI",
-//     description: "An intelligent persona that enhances your marketing efforts.",
-//     icon: "icon_marketing.png",
-//     bg: "bg-ai-marketing",
-//     outline: "hover:outline-ai-marketing",
-//     linkRedirect: 'marketing-profile',
-//   },
-//   {
-//     name: "Human Resources AI",
-//     description:
-//       "A versatile persona that streamlines human resources operations",
-//     icon: "icon_hr.png",
-//     bg: "bg-ai-hr",
-//     outline: "hover:outline-ai-hr",
-//     linkRedirect: 'hr-profile',
-//   },
-//   {
-//     name: "Law AI",
-//     description: "A reliable persona for all your legal needs.",
-//     icon: "icon_law.png",
-//     bg: "bg-ai-law",
-//     outline: "hover:outline-ai-law",
-//     linkRedirect: 'law-profile',
-//   },
-//   {
-//     name: "Admin AI",
-//     description: "A dynamic persona that boosts administrative efficiency.",
-//     icon: "icon_admin.png",
-//     bg: "bg-ai-admin",
-//     outline: "hover:outline-ai-admin",
-//     linkRedirect: 'admin-profile',
-//   },
-//   {
-//     name: "Teacher AI",
-//     description: "An educational persona for delivering online courses.",
-//     icon: "icon_teacher.png",
-//     bg: "bg-ai-teacher",
-//     outline: "hover:outline-ai-teacher",
-//     linkRedirect: 'teacher-profile',
-//   },
-// ];
-
+import { Persona } from "@/lib/types";
 
 interface PersonaSelectionProps {
-  id?: string;
+  personas?: Persona[];
+  personaClick: (persona_id: string, personaChatbots?: any[]) => void;
 }
 
 
-const PersonaSelection: React.FC<PersonaSelectionProps> = ({ id }) => {
+const PersonaSelection: React.FC<PersonaSelectionProps> = ({ personas, personaClick }) => {
   
-  const [personas, setPersonas] = useState<Persona[]>([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const dbpersonas = await fetchPersonas();
-      const formattedPersonas = dbpersonas.map((item: any) => ({
-        name: item.name,
-        description: item.tagline,
-        icon: 'icon_intern.png',
-        bg: 'bg-ai-intern',
-        outline: "hover:outline-ai-intern",
-        linkRedirect: item.persona_link || item.name.toLowerCase().replace(/\s+/g, '-') + '-chatbots',
-      }));
-      setPersonas(formattedPersonas);
-    };
-
-    fetchData();
-  }, []); // Empty dependency array to run only once on mount
   return (
     <div className="bg-slate-100 min-w-80 flex flex-col border-r border-slate-300">
       {/* Header */}
@@ -109,7 +30,7 @@ const PersonaSelection: React.FC<PersonaSelectionProps> = ({ id }) => {
       {/* Persona Selection List */}
       <div className="flex flex-col max-h-full overflow-auto gap-3 p-3 px-4 py-6 h-full relative persona-selection-scrollbar">
         {personas && personas.map((p) => (
-          <PersonaCard key={p.name} persona={p} linkRedirect={p.linkRedirect} />
+          <PersonaCard key={p.name} persona={p} personaClick={(persona_id) => personaClick(persona_id)} />
         ))}
       </div>
     </div>
@@ -120,32 +41,33 @@ export default PersonaSelection;
 
 interface PersonaCardProps {
   persona: Persona;
-  linkRedirect: string;
+  personaClick: (role: string) => void;
 }
 
-const PersonaCard: React.FC<PersonaCardProps> = ({ persona, linkRedirect }) => {
-  const { name, description, icon, bg, outline } = persona;
+const PersonaCard: React.FC<PersonaCardProps> = ({ persona, personaClick }) => {
+  const { persona_id, name, department, tagline, created_at, logo_name, bgimage_name } = persona;
+  const hoverStyles = `transform transition hover:scale-105 hover:shadow-lg hover:outline hover:outline-3 hover:border-0`;
+  //const hoverStyles = `transform transition hover:scale-105 hover:shadow-lg hover:outline hover:outline-3 ${outline} hover:border-0`;
 
-  const hoverStyles = `transform transition hover:scale-105 hover:shadow-lg hover:outline hover:outline-3 ${outline} hover:border-0`;
 
   return (
-    <Link href={linkRedirect}>
+    <div onClick={() => personaClick(persona_id)}>
       <div
-        className={`${bg} rounded-2xl min-h-36 border border-slate-300 shadow relative overflow-clip hover:cursor-pointer ${hoverStyles}`}
+        className={`${bgimage_name} rounded-2xl min-h-36 border border-slate-300 shadow relative overflow-clip hover:cursor-pointer ${hoverStyles}`}
       >
         <div className="absolute bg-white w-full rounded-t-2xl bottom-0 left-0 h-[80%] flex flex-col p-4 pt-9 pl-4 ">
           <Image
-            src={"/persona_icons/" + icon}
+            src={"/persona_icons/" + logo_name}
             alt={name + "'s photo"}
             width={50}
             height={50}
             className="rounded-full border-4 border-white absolute top-[-15px] left-3"
           />
           <h3 className="text-slate-700 font-bold">{name}</h3>
-          <p className="text-sm text-slate-500">{description}</p>
+          <p className="text-sm text-slate-500">{tagline}</p>
         </div>
       </div>
-    </Link>
+    </div>
 
   );
 };

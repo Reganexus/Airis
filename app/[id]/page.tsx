@@ -8,8 +8,12 @@ interface PageProps {
   };
 }
 
+/**
+ * NOT USED ANYMORE
+ * @param param0 
+ * @returns 
+ */
 export default function Home({ params }: PageProps) {
-  // id will consist the
   const { id } = params;
 
   return (

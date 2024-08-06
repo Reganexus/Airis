@@ -7,48 +7,90 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import personaData from "@/lib/persona-url";
 import { format } from "path";
-import { fetchPersonas } from "@/lib/db/fetch-queries";
-
+import { fetchChatbotAllSelection, fetchPersonas } from "@/lib/db/fetch-queries";
+import { Persona, PersonaChatbots, SelectedPersona } from "@/lib/types";
 
 
 /**
- * Renders the Home component.
- *
- * @returns {null} Returns null.
+ * Renders the Sidebar, Persona Selection and Prompt Selection Components
  */
 export default function Home() {
   /**
    * variable that wil hold the url of all personas's
    */
-  const [personaFormattedNames, setPersonaFormattedNames] = useState<string[]>();
+  const [personaLists, setPersonaLists] = useState<Persona[]>();
+  const [personaChatbots, setPersonaChatbots] = useState<any[]>([]);
+  const [displayChatbots, setDisplayChatbots] = useState<PersonaChatbots[]>();
+  const [selectedPersona, setSelectedPersonaId] = useState<SelectedPersona>();
 
   useEffect(() => {
-
     /**
-     * Get all the personaData from the database and
-     * it will be converted into urls
+     * Get all the personaData from the database
      */
-    const fetchData = async () => {
+    const fetchPersonaData = async () => {
       
       const personas = await fetchPersonas();
-      const personaLinks: string[] = [];
-      personas.forEach((item: any) => {
-        
-        personaLinks.push(item.persona_link);
+      setPersonaLists(personas);
+
+      setSelectedPersonaId({
+        persona_id: personas[0].persona_id,
+        persona_name: personas[0].name,
+        persona_tagline: personas[0].tagline
       });
-      setPersonaFormattedNames(personas);
+
+      // const fetchChatbotData = async () => {
+      //   const chatbots = await fetchChatbotAllSelection();
+      //   const displaytemp: any[] = [];
+        
+      //   chatbots.forEach((item: any) => {
+      //     // temporary solution: 
+      //     if (item.persona_id == 1) {
+      //       displaytemp.push(item);
+      //     }
+      //   });
+      //   setPersonaChatbots(chatbots);
+      //   setDisplayChatbots(displaytemp);
+      // }
+
+      // fetchChatbotData();
     };
 
-    fetchData();
+    /**
+     * Get all the chatbots from the database
+     */
+    
+
+    fetchPersonaData();
+    
   }, []);
   
-  const router = useRouter();
+  const handlePersonaChange = (persona_id: string) => {
+    // const temp: any[] = [];
+    // personaChatbots.forEach((item: any) => {
+    //   if (item.persona_id == persona_id) {
+    //     temp.push(item);
+    //   }
+    // });
+    if (personaLists) {
+      personaLists.forEach((item: any) => {
+        if (item.persona_id == persona_id) {
+          setSelectedPersonaId({
+            persona_id: item.persona_id,
+            persona_name: item.name,
+            persona_tagline: item.tagline
+          });
+          return;
+        }
+      });
+    }
+  } 
 
-  if (personaFormattedNames) {
-    // push the first persona url
-    router.push(personaFormattedNames[0]);
-    router.refresh();
-  }
-
-  return null;
+  return (
+    <main className="flex h-screen">
+      {/* Side Bar */}
+      <SideBar />
+      <PersonaSelection personas={personaLists} personaClick={handlePersonaChange} />
+      <PromptSelection selectedPersona={selectedPersona} />
+    </main>
+  );
 }

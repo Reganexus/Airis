@@ -1,19 +1,35 @@
 // types.ts
 
-export type Persona = {
-    persona: string;
-    prompt: string;
-  };
-  
-export type Personas = {
-  law: Persona;
-  marketing: Persona;
-  hr: Persona;
-  intern: Persona;
-  teacher: Persona;
-  admin: Persona;
-};
+export interface Persona {
+  persona_id: string;
+  name: string;
+  department: string;
+  tagline: string;
+  created_at: string;
+  logo_name: string;    // icon
+  bgimage_name: string; // bg
+  // i dunno outline
+  // link redirect is out na
+  // description: string; 
+  // icon: string;
+  // bg: string;
+  // outline: string;
+  // linkRedirect: string;
+}
 
-// Define the personacode type
-export type PersonaCode = keyof Personas;
+export interface PersonaChatbots {
+  chatbot_id: string;
+  role: string;
+  task: string;
+  subpersona: boolean;
+  default_prompt: boolean;
+  persona_id: string;
+  persona_name: string;
+  persona_description: string;
+}
 
+export interface SelectedPersona {
+  persona_id: string;
+  persona_name: string;
+  persona_tagline: string;
+}
