@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import Image from "next/image";
 import "./persona-selection-scrollbar.css";
 import Link from "next/link";
@@ -6,10 +6,15 @@ import { Persona } from "@/lib/types";
 
 interface PersonaSelectionProps {
   personas?: Persona[];
+  selectedAgent: any;
 }
 
-const PersonaSelection: React.FC<PersonaSelectionProps> = ({ personas }) => {
-  
+const PersonaSelection: React.FC<PersonaSelectionProps> = ({
+  personas,
+  selectedAgent,
+}) => {
+  const noDashAgentString = selectedAgent.replaceAll("-", " ");
+
   return (
     <div className="bg-slate-100 min-w-80 flex flex-col border-r border-slate-300">
       {/* Header */}
@@ -25,9 +30,16 @@ const PersonaSelection: React.FC<PersonaSelectionProps> = ({ personas }) => {
 
       {/* Persona Selection List */}
       <div className="flex flex-col max-h-full overflow-auto gap-3 p-3 px-4 py-6 h-full relative persona-selection-scrollbar">
-        {personas && personas.map((p) => (
-          <PersonaCard key={p.name} persona={p} />
-        ))}
+        {personas &&
+          personas.map((p) => (
+            <PersonaCard
+              key={p.name}
+              persona={p}
+              isSelected={noDashAgentString.includes(
+                p.name.toLocaleLowerCase()
+              )}
+            />
+          ))}
       </div>
     </div>
   );
@@ -37,22 +49,40 @@ export default PersonaSelection;
 
 interface PersonaCardProps {
   persona: Persona;
+  isSelected?: Boolean;
 }
 
-const PersonaCard: React.FC<PersonaCardProps> = ({ persona }) => {
-  const { persona_id, name, department, tagline, created_at, logo_name, bgimage_name, persona_link } = persona;
-  const hoverStyles = `transform transition hover:scale-105 hover:shadow-lg hover:outline hover:outline-3 hover:border-0`;
+const PersonaCard: React.FC<PersonaCardProps> = ({ persona, isSelected }) => {
+  const {
+    persona_id,
+    name,
+    department,
+    tagline,
+    created_at,
+    logo_name,
+    bgimage_name,
+    persona_link,
+  } = persona;
+  const hoverStyles = `transform transition hover:scale-105 hover:shadow-lg hover:outline hover:outline-3 hover:border-0 hover:outline-airis-primary`;
   //const hoverStyles = `transform transition hover:scale-105 hover:shadow-lg hover:outline hover:outline-3 ${outline} hover:border-0`;
 
-  const link = '/persona/' + persona_link;
+  const link = "/persona/" + persona_link;
+
   return (
     <Link href={link}>
       <div
-        className={`${bgimage_name} rounded-2xl min-h-36 border border-slate-300 shadow relative overflow-clip hover:cursor-pointer ${hoverStyles}`}
+        className={`${
+          isSelected ? "outline outline-2 outline-airis-primary" : ""
+        } bg-airis-primary ${bgimage_name} rounded-2xl min-h-36 border border-slate-300 shadow relative overflow-clip hover:cursor-pointer ${hoverStyles}`}
       >
         <div className="absolute bg-white w-full rounded-t-2xl bottom-0 left-0 h-[80%] flex flex-col p-4 pt-9 pl-4 ">
+          {isSelected && (
+            <span className="absolute top-2 right-2 text-xs py-1 px-2 bg-airis-primary bg-opacity-20 rounded-2xl text-airis-primary font-semibold">
+              Selected
+            </span>
+          )}
           <Image
-            src={logo_name ?? '/persona_icons/' + {logo_name}}
+            src={logo_name ?? "/persona_icons/" + { logo_name }}
             alt={name + "'s photo"}
             width={50}
             height={50}
@@ -63,7 +93,6 @@ const PersonaCard: React.FC<PersonaCardProps> = ({ persona }) => {
         </div>
       </div>
     </Link>
-
   );
 };
 
