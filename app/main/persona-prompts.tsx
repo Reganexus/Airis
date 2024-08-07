@@ -77,10 +77,21 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona })=> {
     default_prompt: boolean;
     subpersona: boolean;
   }[]>([]);
-
+  
+  /**
+   * currentRole      - contains the role that will be shown 
+   * roles            - contain all the roles of that persona
+   * defaultRole      - contains the most 'default' prompt that will show immediately 
+   * handleRoleChange - contains the changing of the current role, default role and persona name
+   * storeSession     - prompt is clicked, chatbot information stored on Session storage before going to /chat
+   */
+  const [currentRole, setCurrentRole] = useState('');
+  const [roles, setRoles] = useState<any>([]);
+  const [defaultRole, setDefaultRole] = useState('');
+  const storeSession = useStoreChatbotSession();
+  
   useEffect(() => {
     const getPrompts = async () => {
-       
       if (selectedPersona?.persona_id) {
         const data = await fetchPrompts(selectedPersona?.persona_id);
         setPrompts(data);
@@ -89,25 +100,13 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona })=> {
     getPrompts();
   }, [selectedPersona?.persona_id]);
 
-  // used when prompt is clicked, chatbot information stored on Session storage before going to /chat
-  const storeSession = useStoreChatbotSession();
-
-  /**
-   * currentRole      - contains the role that will be shown 
-   * roles            - contain all the roles of that persona
-   * defaultRole      - contains the most 'default' prompt that will show immediately 
-   * handleRoleChange - contains the changing of the current role, default role and persona name
-   */
-  const [currentRole, setCurrentRole] = useState('');
-  const [roles, setRoles] = useState<any>([]);
-  const [defaultRole, setDefaultRole] = useState('');
-
   useEffect(() => {
     handleRoleChange('')
   }, [prompts]);
 
   /**
    * Handles the change of a role shown on the Prompt Selection
+   *  Only has one usage here
    */
   const handleRoleChange = (role: string) => {
     if (role == '<--' || role == '')  {

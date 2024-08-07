@@ -27,8 +27,6 @@ export async function fetchChatbotAllSelection() {
     return data.chatbot
 }
 
-
-  
 export async function fetchSaveConvo(message: any[], email: any, chatbot_id: number, convo_id: number) {
     const response = await fetch('/api/query/query-save-convo', {
       method: 'POST',

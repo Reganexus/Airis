@@ -2,6 +2,7 @@
 import { useRouter } from "next/navigation"; // Make sure to import from 'next/router' not 'next/navigation'
 
 export const useStoreChatbotSession = () => {
+    // Function when a Prompt is clicked on Prompt Selectioon
   const router = useRouter();
 
   return (

@@ -61,21 +61,15 @@ export default function SelectionLayout({
        */
       if (personaBlobs && temp) {
         personaBlobs.forEach((blob: any) => {
-
           const filename = blob.pathname.replace('Assets/persona_icons/', '');
-  
             temp.forEach((persona) => {
               if (persona.logo_name === filename) {
                 persona.logo_name = blob.url;
               }
             });
-
             setPersonaLists(temp)
-  
         });
-
       }
-
     }, [personaBlobs, temp])
 
     // Clone children and pass the agent prop (persona_url)
@@ -85,6 +79,7 @@ export default function SelectionLayout({
         }
         return child;
     });
+
 
   return (
     <main className="flex h-screen">
