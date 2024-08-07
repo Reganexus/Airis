@@ -30,10 +30,6 @@ export async function POST(req: Request) {
               type: "image", // Use the correct type as per your API's schema
               image: data.image64 // base64 images
             },
-            {
-              type: "image", // Use the correct type as per your API's schema
-              image: data.image64 // base64 images
-            },
           ],
           
         }

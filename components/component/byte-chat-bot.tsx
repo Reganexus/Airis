@@ -308,9 +308,10 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       }
       // a generation has stopped
       const saveData = async () => {
+        console.log("CONVO TO BE SAVED: ", messages);
         const data = await fetchSaveConvo(messages, user?.email, chosenChatbot.chatbot_id, conversationId);
         // we need to run GPT to generate title on the new convo only
-        console.log("NEW CONVO", data)
+        console.log("NEW CONVO: ", data)
         if (data.new_convo) {
           setConversationId(data.convo_id);
           await generateTitle(data.convo_id);
