@@ -3,7 +3,6 @@ import { sql } from '@vercel/postgres';
 export async function POST(req: Request) {
   try {
     const chosenChatbot = await req.json()
-    console.log(chosenChatbot.id)
     const chatbotquery = await sql`SELECT * FROM chatbot WHERE chatbot_id = ${chosenChatbot.id}`;
     const { rows: chatbot } = chatbotquery;
     if (chatbot.length === 0) {

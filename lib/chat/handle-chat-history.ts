@@ -100,3 +100,31 @@ export async function fetchAndSetChatHistory(
     return { history: data }
   }
 }
+
+
+export async function clearChatHistory() {
+  
+  try {
+    const response = await fetch('/api/query/query-delete-history', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',  // Ensure the content type is set to JSON
+      },
+    });
+
+    if (response.ok) {
+      console.log('Success: ', await response.text());
+    } else {
+      console.log('Failed: ', await response.text());
+    }
+
+    return true;
+  
+  } catch (error) {
+    console.error('Error deleting history:', error);
+  
+    return false;
+  
+  }
+  
+}

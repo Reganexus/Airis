@@ -10,7 +10,6 @@ export async function fetchChatbot(chatbot_id: string | null) {
     }
     
     const data = await response.json();
-    console.log("Data: ", data.chatbot);
     return data
 }
 
@@ -23,7 +22,6 @@ export async function fetchChatbotAllSelection() {
     }
     
     const data = await response.json();
-    console.log("Chatbots Data: ", data.chatbot);
     return data.chatbot
 }
 
@@ -101,7 +99,6 @@ export async function fetchPersonas() {
   });
   const data = await res.json()
 
-  console.log(data)
   return data;
 }
 
@@ -114,7 +111,6 @@ export async function fetchSelectedPersona() {
   });
   const data = await res.json()
 
-  console.log(data)
   return data;
 }
 
