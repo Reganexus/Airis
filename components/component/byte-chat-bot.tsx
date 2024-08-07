@@ -82,20 +82,20 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const [blob, setBlob] = useState<PutBlobResult | null>(null);
   const [image, setImage] = useState<string>("");
   const [displayImage, setDisplayImage] = useState<{ [key: number]: string }>({});
-  const [file, setFile] = useState<File | null>(null);
+  const [imgFile, setImgFile] = useState<File | null>(null);
   const [num, setNum] = useState(0);
 
   function handleImageChange(event: ChangeEvent<HTMLInputElement>) {
     if (event.target.files == null || event.target.files.length === 0) {
       // Reset the image state if no file is selected or the dialog is closed
       setImage("");
-      setFile(null);
+      setImgFile(null);
       console.log("DISPLAY iMAGE:");
       console.log(displayImage);
       return;
     }
     const file = event.target.files[0];
-    setFile(file);
+    setImgFile(file);
     const url = URL.createObjectURL(file);
     console.log("URL: ", url);
     setDisplayImage(prevState => ({
@@ -340,14 +340,14 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
         data: { image64: image, textInput: input, imageUrl: displayImage },
       });
 
-      if (file == null) {
+      if (imgFile == null) {
         console.log('No file selected');
       }
       else {
         console.log("FILE:");
-        console.log(file);
-        if (file) {
-          const newBlob = await upload(file.name, file, {
+        console.log(imgFile);
+        if (imgFile) {
+          const newBlob = await upload(imgFile.name, imgFile, {
             access: 'public',
             handleUploadUrl: '/api/avatar/upload',
           });
