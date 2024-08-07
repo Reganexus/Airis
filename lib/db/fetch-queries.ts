@@ -1,5 +1,5 @@
 export async function fetchChatbot(chatbot_id: string | null) {
-  const response = await fetch('/api/query', {
+  const response = await fetch('/api/query/query-chatbot-one', {
       method: 'POST',
       body: JSON.stringify({
         id: chatbot_id 
@@ -13,6 +13,21 @@ export async function fetchChatbot(chatbot_id: string | null) {
     console.log("Data: ", data.chatbot);
     return data
 }
+
+export async function fetchChatbotAllSelection() {
+  const response = await fetch('/api/query/query-chatbot-all-selection', {
+      method: 'POST'
+    });
+    if (!response.ok) {
+      throw new Error(`Network response was not ok: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    console.log("Chatbots Data: ", data.chatbot);
+    return data.chatbot
+}
+
+
   
 export async function fetchSaveConvo(message: any[], email: any, chatbot_id: number, convo_id: number) {
     const response = await fetch('/api/query/query-save-convo', {
@@ -79,4 +94,28 @@ export async function fetchChatUID(convo_id: number, email: any) {
 }
 
 
-  
+export async function fetchPersonas() {
+  const res = await fetch("/api/query/query-persona", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const data = await res.json()
+
+  console.log(data)
+  return data;
+}
+
+export async function fetchSelectedPersona() {
+  const res = await fetch("/api/query/query-persona", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const data = await res.json()
+
+  console.log(data)
+  return data;
+}

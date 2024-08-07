@@ -3,25 +3,26 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter,notFound } from 'next/navigation';
 import { sql } from '@vercel/postgres';
-import { useEffect, useState } from "react";
+
+import { list } from '@vercel/blob';
+import { Key, useEffect, useState } from "react";
+import personaData from "@/lib/persona-url";
+import { fetchPersonas } from "@/lib/db/fetch-queries";
+import { PersonaChatbots, SelectedPersona } from "@/lib/types";
 
 
-
-
-
-interface PersonaPromptsProps {
-  id?: string;
+interface PersonaChatbotsProps {
+  selectedPersona?: SelectedPersona;
 }
 
-const PersonaPrompts: React.FC<PersonaPromptsProps> = ({ id })=> {
+const PersonaPrompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona })=> {
 
-  // TEMPORARY SOLUTION, TRY TO USE DB TO MAKE IT MORE DYNAMIC.
   return (
     <div className="h-full w-full p-8">
       {/* The big card */}
       <div className="h-full w-full bg-white rounded-lg border border-slate-300 shadow flex flex-col p-4 gap-2">
-        <PersonaProfile id ={id} />
-        <Prompts id ={id} />
+        <PersonaProfile selectedPersona={selectedPersona} />
+        <Prompts selectedPersona={selectedPersona} />
       </div>
     </div>
   );
@@ -29,46 +30,8 @@ const PersonaPrompts: React.FC<PersonaPromptsProps> = ({ id })=> {
 
 export default PersonaPrompts;
 
-
-interface PersonaProfileProps {
-  id?: string;
-}
-
-const PersonaProfile: React.FC<PersonaProfileProps> = ({ id })  => {
-  const router = useRouter();
-
-  // make this dynamic as well using db
-  const profileRoutes = [
-    'intern-profile',
-    'marketing-profile',
-    'hr-profile',
-    'law-profile',
-    'admin-profile',
-    'teacher-profile'
-  ];
-
-  if (typeof id === 'undefined' || !profileRoutes.includes(id)) {
-
-    // TEMPORARY SOLUTION, ADD AN INVALID PAGE AND REDIRECT THE USER TO IT
-    notFound();
-  }
-
-  const aiName = (id == 'intern-profile') ? "Intern AI" : 
-                  (id == 'marketing-profile') ? "Marketing AI" : 
-                  (id == 'hr-profile') ? "Human Resources AI" : 
-                  (id == 'law-profile') ? "Law AI" : 
-                  (id == 'admin-profile') ? "Admin AI" : 
-                  (id == 'teacher-profile') ? "Teacher AI" : 
-                  "Intern AI";
-
-  const aiDescription = (id == 'intern-profile') ? "A dedicated persona to support intership-related tasks." : 
-  (id == 'marketing-profile') ? "An intelligent persona that enhances your marketing efforts." : 
-  (id == 'hr-profile') ? "A versatile persona that streamlines human resources operations" : 
-  (id == 'law-profile') ? "A reliable persona for all your legal needs." : 
-  (id == 'admin-profile') ? "A dynamic persona that boosts administrative efficiency." : 
-  (id == 'teacher-profile') ? "An educational persona for delivering online courses." : 
-  "Intern AI";
-
+const PersonaProfile: React.FC<PersonaChatbotsProps> = ({ selectedPersona })  => {
+  
   return (
     <div className="basis-[35%] border rounded-md bg-ai-marketing relative overflow-clip">
       <div className="absolute w-full h-[45%] bottom-0 bg-white">
@@ -84,7 +47,7 @@ const PersonaProfile: React.FC<PersonaProfileProps> = ({ id })  => {
         </div>
 
         <div className="flex gap-4 items-center pl-36 pt-3 mb-2">
-          <h2 className="text-3xl text-slate-800 font-bold">{aiName}</h2>
+          <h2 className="text-3xl text-slate-800 font-bold">{selectedPersona?.persona_name}</h2>
           <PersonaSettingsButton />
           <button className="text-slate-500 p-2 px-4 hover:bg-slate-100 border border-slate-500 rounded-full">
             Add or Modify Prompt
@@ -92,7 +55,7 @@ const PersonaProfile: React.FC<PersonaProfileProps> = ({ id })  => {
         </div>
 
         <p className="pl-36 pr-8">
-          {aiDescription}
+          {selectedPersona?.persona_tagline}
         </p>
       </div>
     </div>
@@ -100,53 +63,89 @@ const PersonaProfile: React.FC<PersonaProfileProps> = ({ id })  => {
 };
 
 
-interface PromptsProps {
-  id?: string;
-}
+const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona })=> {
 
-const Prompts: React.FC<PromptsProps> = ({ id })=> {
-  const persona_id_list = {
-    'intern-profile' : 1, 
-    'marketing-profile': 2,
-    'hr-profile': 3, 
-    'law-profile': 4,
-    'admin-profile': 5,
-    'teacher-profile': 6
-  };
-  const [prompts, setPrompts] = useState([]);
-    // make this dynamic as well using the database
+  /**
+   * Will hold all the chatbot prompts on of a specific persona depending on the params
+   *  fetchPrompts will be called to get all the prompts of that persona
+   */
+  const [prompts, setPrompts] = useState<{ 
+    role: string;
+    task: string;
+    persona_name: string;
+    chatbot_id: string;
+    persona_id: string;
+    default_prompt: boolean;
+    subpersona: boolean;
+  }[]>([]);
   useEffect(() => {
     async function fetchPrompts() {
-      if (id) {
+      if (selectedPersona?.persona_id) {
         const response = await fetch('/api/query/query-tasks', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ persona_id: persona_id_list[id] }), // Send persona_id in the request body
+          body: JSON.stringify({ persona_id: selectedPersona?.persona_id }), // Send persona_id in the request body
+          cache: 'force-cache',
+          next: { revalidate: 3600 }
         });
 
         const data = await response.json();
         setPrompts(data);
         
-        console.log(`PROMPTS FOR ${id}`, data)
+        console.log(`PROMPTS FOR ${selectedPersona?.persona_id}`, data)
       }
     }
 
     fetchPrompts();
-  }, [id]);
+  }, [selectedPersona?.persona_id]);
 
-  console.log("PROMPTS 1: ");
-  console.log(prompts);
 
+  /**
+   * Router for the default prompt 
+   */
   const router = useRouter();
-
   const handleClick = (prompt: any) => {
-    // Store values in sessionStorage
+    // Store values in sessionStorage, to be used on the /chat page
+
+    sessionStorage.setItem('aiName', selectedPersona?.persona_name ?? "");
+    sessionStorage.setItem('aiDescription', selectedPersona?.persona_tagline ?? "");
     sessionStorage.setItem('chatbot_id', prompt.chatbot_id);
     sessionStorage.setItem('persona_id', prompt.persona_id);
-    // Navigate to the desired page
     router.push('/chat');
+  };
+
+  /**
+   * @currentRole     - contains the role that will be shown 
+   * @roles           - contain all the roles of that persona
+   * @defaultRole     - contains the most 'default' prompt that will show immediately 
+   * handleRoleChange - contains the changing of the current role, default role and persona name
+   */
+  const [currentRole, setCurrentRole] = useState('');
+  const [roles, setRoles] = useState<any>([]);
+  const [defaultRole, setDefaultRole] = useState('');
+  useEffect(() => {
+    handleRoleChange('')
+  }, [prompts]);
+
+  const handleRoleChange = (role: string) => {
+    if (role == '<--' || role == '')  {
+      // will collect the set of roles as strings
+      const uniqueRoles = new Set<string>();
+      prompts.forEach((prompt: any) => {
+        if (prompt.default_prompt === true) {
+          setCurrentRole(prompt.role);
+          setDefaultRole(prompt.role);
+        }
+        
+        uniqueRoles.add(prompt.role);
+      });
+      setRoles(Array.from(uniqueRoles));
+    } else {
+      setCurrentRole(role);
+      setRoles([]);
+    }
   };
 
 
@@ -165,20 +164,22 @@ const Prompts: React.FC<PromptsProps> = ({ id })=> {
         </div>
 
         {/* Breadcrumbs */}
-        {/* <div className="bg-slate-100 rounded-full px-5 text-slate-600 py-1 border">
-          <span>Marketing AI</span>
-          <span> &gt; </span>
-          <span>Prompts</span>
-        </div> */}
+        <div className="bg-slate-100 rounded-full px-5 text-slate-600 py-1 border">
+          <span>{selectedPersona?.persona_name}</span>
+          
+          {defaultRole !== currentRole && (
+              <><span> &gt; </span><span>{currentRole}</span></>
+          )}
+        </div>
       </div>
 
       {/* Prompts Section and Cards */}
       <div className="flex p-4 h-full pt-0">
         {/* Default Prompt */}
-        {prompts.map((p, idx) => (
-          (p.default_prompt == true) && (
+        {prompts.map((p, index) => (
+          (p.subpersona == false && p.role == currentRole) && (
             <div onClick={() => handleClick(p)} className="basis-[35%]">
-              <div className="bg-ai-teacher  h-full relative flex flex-col justify-end rounded-lg p-6 hover:cursor-pointer hover:bg-orange-800">
+              <div key={index} className="bg-ai-teacher  h-full relative flex flex-col justify-end rounded-lg p-6 hover:cursor-pointer hover:bg-orange-800">
                 <h4 className="text-4xl text-white">
                   {p.task}
                 </h4>
@@ -187,48 +188,101 @@ const Prompts: React.FC<PromptsProps> = ({ id })=> {
             </div>
           )
         ))}
-        {/* Prompt List */}
         <div className="w-full basis-[65%] h-full max-h-full flex flex-col gap-2 pl-4 overflow-auto">
-          {prompts.map((p, idx) => (
-            (p.default_prompt == false) && (
-              <PromptCard key={idx} promptObj={p} />
+          {/* Role List */}
+          {roles.map((role: string | undefined, idx: Key | null | undefined) => (
+            (role != currentRole &&
+              <RoleCard key={idx} role={role} onRoleChange={handleRoleChange} />
             )
           ))}
+          {/* Prompt List */}
+          {prompts.map((p, idx) => (
+
+            (p.default_prompt == false && p.role == currentRole && p.subpersona == true) && (
+              <PromptCard key={idx} 
+                          promptObj={p} 
+                          currentRole={currentRole} 
+                          aiName={selectedPersona?.persona_name} 
+                          aiDescription={selectedPersona?.persona_tagline}            
+              />
+            )
+          ))}
+          {/* Return */}
+          {(defaultRole != currentRole && 
+              <RoleCard onRoleChange={handleRoleChange} />
+          )}
         </div>
+
       </div>
     </div>
   );
 };
 
 interface PromptCardProps {
-  promptObj: object;
+
+  promptObj: {
+    role: string;
+    task: string;
+    persona_name: string;
+    chatbot_id: string;
+    persona_id: string;
+    default_prompt: boolean;
+    subpersona: boolean;
+  };
+  currentRole: string;
+  aiName?: string;
+  aiDescription?: string;
 }
 
-
-const PromptCard: React.FC<PromptCardProps> = ({ promptObj }) => {
-  console.log("PROMPT OBJECT: ");
-  console.log(promptObj);
-
+const PromptCard: React.FC<PromptCardProps> = ({ promptObj, currentRole, aiName, aiDescription }) => {
+  
   const router = useRouter();
-
   const handleClick = () => {
     // Store values in sessionStorage
+     sessionStorage.setItem('aiName', aiName ?? "");
+     sessionStorage.setItem('aiDescription', aiDescription ?? "");
     sessionStorage.setItem('chatbot_id', promptObj.chatbot_id);
     sessionStorage.setItem('persona_id', promptObj.persona_id);
     // Navigate to the desired page
     router.push('/chat');
   };
 
-
   return (
     <div onClick={handleClick}>
       <div className="w-full flex justify-between items-center p-2 px-4 border rounded-md border-slate-300 text-slate-600 hover:bg-slate-200 hover:text-slate-800 hover:cursor-pointer">
-        <p>{promptObj.task}</p>
-        {!promptObj.subpersona && <ArrowIcon />}
+        {promptObj.role == currentRole && 
+          <p>{promptObj.task}</p>
+        }
       </div>
     </div>
   );
 };
+
+interface RoleCardProps {
+  role?: string;
+  onRoleChange: (role: string) => void;
+}
+
+const RoleCard: React.FC<RoleCardProps> = ({ 
+  role = '<--', 
+  onRoleChange 
+}) => {
+
+  const handleClick = () => {
+    onRoleChange(role); // Trigger the role change in parent component
+  };
+
+  return (
+    <div onClick={handleClick}>
+      <div className="w-full flex justify-between items-center p-2 px-4 border rounded-md border-slate-300 text-slate-600 hover:bg-slate-200 hover:text-slate-800 hover:cursor-pointer">
+        <p>{role}</p>
+        {role != '<--' && <ArrowIcon />}
+      </div>
+    </div>
+  );
+};
+
+
 
 // ICONS and BUTTONS
 const PersonaSettingsButton = () => {
