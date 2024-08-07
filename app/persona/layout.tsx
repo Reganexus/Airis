@@ -78,7 +78,7 @@ export default function SelectionLayout({
   return (
     <main className="flex h-screen">
       <SideBar />
-      <PersonaSelection personas={personaLists} />
+      <PersonaSelection personas={personaLists} selectedAgent={agent} />
       {childrenWithProps}
     </main>
   );
