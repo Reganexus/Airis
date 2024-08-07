@@ -20,9 +20,19 @@ import { useRouter } from "next/navigation";
 import { generatePreviousChat, generateTitle } from "@/lib/api/gpt-operations";
 import { generateDALLE } from "@/lib/api/dall-e-operations";
 
-import { fetchChatbot, fetchSaveConvo, fetchChatHistory, fetchOldChat, fetchChatUID } from "@/lib/db/fetch-queries";
+import {
+  fetchChatbot,
+  fetchSaveConvo,
+  fetchChatHistory,
+  fetchOldChat,
+  fetchChatUID,
+} from "@/lib/db/fetch-queries";
 import { fetchAndSetChatHistory } from "@/lib/chat/handle-chat-history";
 import { handleChatRegenerate } from "@/lib/chat/handle-chat-submit";
+
+import UploadFilesDropdown from "./file-upload-component";
+import UploadedFiles from "./uploaded-files";
+import FileUploadComponent from "./file-upload-component";
 import { PutBlobResult } from "@vercel/blob";
 import { upload } from "@vercel/blob/client";
 
@@ -37,7 +47,6 @@ interface ByteChatBotProps {
  * @returns {JSX.Element} The Chat component.
  */
 export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
-
   // Router
   const router = useRouter();
   // Access user information from session
@@ -54,7 +63,14 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
    * @handleInputChange - handles the change event of the input field
    * @handleSubmit      - handles submission event of the chat component (GPT-4o only)
    */
-  const { messages, setMessages, input, isLoading, handleInputChange, handleSubmit } = useChat();
+  const {
+    messages,
+    setMessages,
+    input,
+    isLoading,
+    handleInputChange,
+    handleSubmit,
+  } = useChat();
 
   //  consists of the chatbot conversation id
   const [conversationId, setConversationId] = useState(0);
@@ -67,8 +83,8 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
    * subpersona:
    * task:
    * sysprompt:
-   * 
-   * Only sysprompt will be used in the chatbot page, others will be used on selection page 
+   *
+   * Only sysprompt will be used in the chatbot page, others will be used on selection page
    */
   const [chosenChatbot, setChosenChatbot] = useState<any>(null);
   const [chatHistory, setChatHistory] = useState<Array<any>>();
@@ -122,7 +138,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     }
   }
 
-
   /**
    * Represents the loading state of the component.
    * When isLoading2 is true, it indicates that the DALL-E API call or GPT-4o re-generate call is currently loading.
@@ -137,38 +152,34 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   /**
    * Represents the selected model for generating responses.
    * The model can be either 'gpt-4o-mini' (default) or 'dall-e-2'.
-  */
-  const [quality, setQuality] = useState('standard');
-  const [imgSize, setImgSize] = useState('256x256');
-  const [imgStyle, setImgStyle] = useState('natural');
+   */
+  const [quality, setQuality] = useState("standard");
+  const [imgSize, setImgSize] = useState("256x256");
+  const [imgStyle, setImgStyle] = useState("natural");
   const [quantity, setQuantity] = useState(1);
 
-  const [model, setModel] = useState('gpt-4o-mini');
-
-
-
+  const [model, setModel] = useState("gpt-4o-mini");
 
   useEffect(() => {
-    if (model == 'dall-e-2') {
-      setImgSize('256x256');
-      setQuality('standard');
-      setImgStyle('natural');
-    }
-    else if (model == 'dall-e-3') {
-      setImgSize('1024x1024');
+    if (model == "dall-e-2") {
+      setImgSize("256x256");
+      setQuality("standard");
+      setImgStyle("natural");
+    } else if (model == "dall-e-3") {
+      setImgSize("1024x1024");
     }
     console.log("MODEL has been updated to: " + model);
   }, [model]);
 
   // if a chathistory is clicked, this will be saved
 
-  // we will get a chatbot  
+  // we will get a chatbot
   const [chatbotId, setChatbotId] = useState<string | null>(null);
   const [personaId, setPersonaId] = useState<string | null>(null);
   useEffect(() => {
     // Retrieve values from sessionStorage
-    const chatbot_id = sessionStorage.getItem('chatbot_id');
-    const persona_id = sessionStorage.getItem('persona_id');
+    const chatbot_id = sessionStorage.getItem("chatbot_id");
+    const persona_id = sessionStorage.getItem("persona_id");
     setChatbotId(chatbot_id);
     setPersonaId(persona_id);
   }, []);
@@ -177,7 +188,33 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
   useEffect(() => {
     if (historyConversationId) {
+      const numberHistoryConversationId = Number(historyConversationId);
 
+      // VALIDATE -  historyConversationId type should be number
+      if (isNaN(numberHistoryConversationId)) {
+        // Redirect to base chat route if invalid ID
+        // TO BE REVISED, GO TO CHAT SELECTION INSTEEEEEEED
+        router.push("/");
+        return;
+      }
+
+//       // VALIDATE - User should be logged in, with right account
+//       if (status === "unauthenticated") {
+//         router.push("/");
+//         return;
+//       }
+
+//       console.log(status);
+
+//       if (status === "authenticated" && user != undefined) {
+//         const validateUser = async () => {
+//           const data = await fetchChatUID(
+//             numberHistoryConversationId,
+//             user?.email
+//           );
+
+//           if (data == "wrong uid") {
+//             router.push("/");
       const numberHistoryConversationId = Number(historyConversationId);
 
       // VALIDATE -  historyConversationId type should be number
@@ -203,6 +240,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
           if (data == 'wrong uid') {
             router.push('/');
+
             return;
           } else {
             setConversationId(numberHistoryConversationId);
@@ -220,32 +258,33 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                 const chatdata = await fetchChatbot(data.chatbot_id);
                 setChosenChatbot(chatdata.chatbot);
 
-                console.log("Messages Set")
+                console.log("Messages Set");
                 setMessages(data.messages);
-
               } catch (error) {
                 console.error("Failed to fetch chatbot data", error);
               }
-            }
-            getOldChat()
+            };
+            getOldChat();
+
 
             // Allow the system to save the conversation after the user has  sent a message
             isPromptRendered.current = false;
           }
-        }
-        validateUser()
+        };
+        validateUser();
+
       }
     } else {
       if (!mounted.current) return;
       if (chatbotId) {
         // fetch the chatbot data
         const fetchData = async (chatbotId: string | null) => {
-          console.log("Chatbot ID", chatbotId)
+          console.log("Chatbot ID", chatbotId);
           console.log("fetchData called");
           try {
             const data = await fetchChatbot(chatbotId);
             setChosenChatbot(data.chatbot);
-            const stringify = JSON.stringify(data.chatbot?.sysprompt)
+            const stringify = JSON.stringify(data.chatbot?.sysprompt);
             setMessages([
               {
                 id: "firstprompt",
@@ -280,8 +319,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   //         // New Chat
   //         setChosenChatbot(result?.chatbot);
   //         promptSubmit({ preventDefault: () => {} });
-
-  //       } else {  
   //         // Old Chat
   //         setConversationId(result?.convo_id ?? 0);
   //         setChosenChatbot(result?.chatbot);
@@ -291,7 +328,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   //     }
   //   );
   // }, [historyConversationId, status]);
-
 
   useEffect(() => {
     // Skip the first and second render
@@ -312,17 +348,21 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       }
       // a generation has stopped
       const saveData = async () => {
-        const data = await fetchSaveConvo(messages, user?.email, chosenChatbot.chatbot_id, conversationId);
+        const data = await fetchSaveConvo(
+          messages,
+          user?.email,
+          chosenChatbot.chatbot_id,
+          conversationId
+        );
         // we need to run GPT to generate title on the new convo only
-        console.log("NEW CONVO", data)
+        console.log("NEW CONVO", data);
         if (data.new_convo) {
           setConversationId(data.convo_id);
           await generateTitle(data.convo_id);
         }
       };
 
-
-      saveData()
+      saveData();
     }
   }, [isLoading, isLoading2]);
 
@@ -333,7 +373,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   async function promptSubmit(e: {
     target: any; preventDefault: () => void
   }) {
-
     e.preventDefault();
     // let newBlob = {'url': ""};
     if (model == 'gpt-4o-mini') {
@@ -384,25 +423,27 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
         },
       ]);
 
-      generateDALLE(model, input, quality, imgSize, imgStyle, quantity).then((res) => {
-        setIsLoading2(false);
-        console.log("FILE NAMES TO BE SET:");
-        console.log(res.filenames);
-        setMessages([
-          ...messages,
-          {
-            id: "",
-            role: 'user',
-            content: input
-          },
-          {
-            id: "",
-            role: 'assistant',
-            content: res.response,
-            annotations: res.filenames,
-          }
-        ]);
-      });
+      generateDALLE(model, input, quality, imgSize, imgStyle, quantity).then(
+        (res) => {
+          setIsLoading2(false);
+          console.log("FILE NAMES TO BE SET:");
+          console.log(res.filenames);
+          setMessages([
+            ...messages,
+            {
+              id: "",
+              role: "user",
+              content: input,
+            },
+            {
+              id: "",
+              role: "assistant",
+              content: res.response,
+              annotations: res.filenames,
+            },
+          ]);
+        }
+      );
     }
   }
 
@@ -415,17 +456,15 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     setImgStyle('natural');
     setQuantity(1);
 
-    if (model == 'gpt-4o-mini') {
-      setModel('dall-e-2');
+    if (model == "gpt-4o-mini") {
+      setModel("dall-e-2");
 
-      setPlaceholder('Generate an image...');
+      setPlaceholder("Generate an image...");
+    } else {
+      setModel("gpt-4o-mini");
+      console.log("MODEL SET TO: " + model);
+      setPlaceholder("Type your message...");
     }
-    else {
-      setModel('gpt-4o-mini');
-      console.log('MODEL SET TO: ' + model);
-      setPlaceholder('Type your message...');
-    }
-
 
     setIsImageModel((i) => !i);
   }
@@ -436,11 +475,15 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
   const [isHistoryOpen, setIsHistoryOpen] = React.useState<boolean>(true);
   const [isImageModel, setIsImageModel] = React.useState<boolean>(false);
+  const [isFileDropdownOpen, setIsFileDropdownOpen] =
+    React.useState<boolean>(false);
 
-
-
-
-
+  // Function to handle file deletion
+  const handleDeleteFile = (index: any) => {
+    const updatedFiles = [...files];
+    updatedFiles.splice(index, 1);
+    setFiles(updatedFiles);
+  };
 
   // JSX ELEMENT:
   return (
@@ -452,17 +495,13 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       {/* Main Content */}
       <div className="flex flex-1 flex-col h-screen">
         <main className="relative overflow-auto pt-5 bg-slate-100 pb-0 h-full">
-          <PersonaCard
-            persona={"ai"}
-            setIsOpenHistory={setIsHistoryOpen}
-          />
+          <PersonaCard persona={"ai"} setIsOpenHistory={setIsHistoryOpen} />
 
           <div className="pt-4 px-2 ps-4 pb-8 grid gap-6 max-w-5xl m-auto">
             {messages.map((m, i) => {
-
               const isLastMessage: boolean = i === messages.length - 1;
 
-              if (m.role === "user" && m.id != 'firstprompt') {
+              if (m.role === "user" && m.id != "firstprompt") {
                 {
                   /* User message */
                 }
@@ -485,7 +524,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                   </>
 
                 );
-              } else if (m.role == 'assistant') {
+              } else if (m.role == "assistant") {
                 {
                   /* Chatbot message */
                 }
@@ -544,7 +583,13 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                             size="iconSmall"
                             className="bg-none"
                             onClick={() =>
-                              handleChatRegenerate(messages, i, m.content, setIsLoading2, setMessages)
+                              handleChatRegenerate(
+                                messages,
+                                i,
+                                m.content,
+                                setIsLoading2,
+                                setMessages
+                              )
                             }
                           >
                             <RegenerateIcon />
@@ -568,6 +613,11 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
           onSubmit={promptSubmit}
           className="pb-[20px] bg-slate-100 px-5 max-h-96 flex-1"
         >
+          {/* UPLOADED FILES LIST is DISPLAYED HERE */}
+          {files.length !== 0 && (
+            <UploadedFiles files={files} onDelete={handleDeleteFile} />
+          )}
+
           <div
             className={
               !isImageModel
@@ -615,17 +665,22 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                     <span className="sr-only">Send</span>
                   </Button>
 
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="bg-none p-2 mx-2"
+                  {/* THIS IS THE FILE UPLOAD MENU BUTTON */}
+                  {/* <div
+                    className="bg-none p-2 mx-2 relative"
                     onClick={(e) => {
                       e.preventDefault();
+                      setIsFileDropdownOpen(!isFileDropdownOpen);
                     }}
                   >
+                    <UploadFilesDropdown />
+
                     <PlusIcon />
-                    <span className="sr-only">More</span>
-                  </Button>
+
+                    <span className="sr-only">Upload file</span>
+                  </div> */}
+
+                  <FileUploadComponent onFileChange={handleFileChange} />
                 </>
               )}
 
@@ -657,7 +712,11 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                       setQuantity(1);
                     }}
                     className="text-sm text-slate-600 py-1 px-2 border rounded-md bg-slate-50"
-                    disabled={model !== 'dall-e-2' && model !== 'dall-e-3' || isLoading || isLoading2}
+                    disabled={
+                      (model !== "dall-e-2" && model !== "dall-e-3") ||
+                      isLoading ||
+                      isLoading2
+                    }
                   >
                     <option value="dall-e-2">DALL-E 2</option>
                     <option value="dall-e-3">DALL-E 3</option>
@@ -673,10 +732,10 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                   <select
                     value={quality}
                     onChange={(e) => {
-                      setQuality(e.target.value)
+                      setQuality(e.target.value);
                     }}
                     className="text-sm text-slate-600 py-1 px-2 border rounded-md bg-slate-50"
-                    disabled={model !== 'dall-e-3' || isLoading || isLoading2}
+                    disabled={model !== "dall-e-3" || isLoading || isLoading2}
                   >
                     <option value="standard">Standard</option>
                     <option value="hd">HD</option>
@@ -693,13 +752,25 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                     value={imgSize}
                     onChange={(e) => setImgSize(e.target.value)}
                     className="text-sm text-slate-600 py-1 px-2 border rounded-md bg-slate-50"
-                    disabled={model !== 'dall-e-2' && model !== 'dall-e-3' || isLoading || isLoading2}
+                    disabled={
+                      (model !== "dall-e-2" && model !== "dall-e-3") ||
+                      isLoading ||
+                      isLoading2
+                    }
                   >
-                    <option value="256x256" disabled={model !== 'dall-e-2'}>256x256</option>
-                    <option value="512x512" disabled={model !== 'dall-e-2'}>512x512</option>
+                    <option value="256x256" disabled={model !== "dall-e-2"}>
+                      256x256
+                    </option>
+                    <option value="512x512" disabled={model !== "dall-e-2"}>
+                      512x512
+                    </option>
                     <option value="1024x1024">1024x1024</option>
-                    <option value="1792x1024" disabled={model !== 'dall-e-3'}>1792x1024</option>
-                    <option value="1024x1792" disabled={model !== 'dall-e-3'}>1024x1792</option>
+                    <option value="1792x1024" disabled={model !== "dall-e-3"}>
+                      1792x1024
+                    </option>
+                    <option value="1024x1792" disabled={model !== "dall-e-3"}>
+                      1024x1792
+                    </option>
                   </select>
                 </div>
 
@@ -714,7 +785,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                     value={imgStyle}
                     onChange={(e) => setImgStyle(e.target.value)}
                     className="text-sm text-slate-600 py-1 px-2 border rounded-md bg-slate-50"
-                    disabled={model !== 'dall-e-3' || isLoading || isLoading2}
+                    disabled={model !== "dall-e-3" || isLoading || isLoading2}
                   >
                     <option value="natural">Natural</option>
                     <option value="vivid">Vivid</option>
@@ -732,7 +803,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                     value={quantity}
                     onChange={(e) => setQuantity(Number(e.target.value))}
                     className="text-sm text-slate-600 py-1 px-2 border rounded-md bg-slate-50"
-                    disabled={model !== 'dall-e-2' || isLoading || isLoading2}
+                    disabled={model !== "dall-e-2" || isLoading || isLoading2}
                   >
                     {[...Array(10)].map((_, i) => (
                       <option key={i + 1} value={i + 1}>
