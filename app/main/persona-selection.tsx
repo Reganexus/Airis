@@ -13,13 +13,7 @@ const PersonaSelection: React.FC<PersonaSelectionProps> = ({
   personas,
   selectedAgent,
 }) => {
-  console.log(selectedAgent, "selected Agent");
-  // console.log(personas, "personas");
-
   const noDashAgentString = selectedAgent.replaceAll("-", " ");
-
-  console.log(noDashAgentString, "NO DASH");
-  console.log(personas[2].name.toLocaleLowerCase(), "NO DASH");
 
   return (
     <div className="bg-slate-100 min-w-80 flex flex-col border-r border-slate-300">
@@ -73,9 +67,6 @@ const PersonaCard: React.FC<PersonaCardProps> = ({ persona, isSelected }) => {
   //const hoverStyles = `transform transition hover:scale-105 hover:shadow-lg hover:outline hover:outline-3 ${outline} hover:border-0`;
 
   const link = "/persona/" + persona_link;
-
-  // Debugging selected persona
-  console.log(name, isSelected, "is Selected");
 
   return (
     <Link href={link}>
