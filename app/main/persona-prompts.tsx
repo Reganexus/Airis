@@ -1,10 +1,11 @@
 "use client";
 import Image from "next/image";
 
-import { Key, useEffect, useState } from "react";
+import { Key, Suspense, useEffect, useState } from "react";
 import { SelectedPersona } from "@/lib/types";
 import { useStoreChatbotSession } from "@/lib/functions/local-storage/sessionStorage-chabot";
 import { fetchPrompts } from "@/lib/db/fetch-queries";
+import Loading from "../persona/persona-selection-loading";
 
 interface PersonaChatbotsProps {
   selectedPersona?: SelectedPersona;

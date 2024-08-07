@@ -79,6 +79,9 @@ const config: Config = {
     },
 
     keyframes: {
+      shimmer: {
+        "100%": { transform: "translateX(100%)" },
+      },
       "accordion-down": {
         from: {
           height: "0",
@@ -95,6 +98,9 @@ const config: Config = {
           height: "0",
         },
       },
+    },
+    animation: {
+      shimmer: "shimmer 5s infinite",
     },
   },
   plugins: [require("tailwindcss-animate")],
