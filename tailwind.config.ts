@@ -8,6 +8,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      gridTemplateRows: {
+        fixed: "repeat(auto-fill, minmax(9rem, 9rem))",
+      },
       backgroundImage: {
         "main-gradient": "url('/backgrounds/gradient_green_5.jpg')",
         "persona-bg": "url('/backgrounds/backdrop_light.png')",

@@ -53,7 +53,7 @@ const PersonaProfile: React.FC<PersonaChatbotsProps> = ({
             {selectedPersona?.persona_name}
           </h2>
 
-          <p className="">{selectedPersona?.persona_tagline}</p>
+          <p className="text-slate-500">{selectedPersona?.persona_tagline}</p>
         </div>
 
         {/* Persona Action Buttons */}
@@ -145,21 +145,11 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
   };
 
   return (
-    <div className="border rounded-md flex flex-col rounded-t-none">
+    <div className="border rounded-md flex flex-col rounded-t-none grow">
       {/* Header of Prompts */}
-      <div className="flex justify-between items-end p-4 px-5">
-        {/* text */}
-        <div>
-          <h2 className="text-2xl font-semibold text-slate-800">
-            Select a prompt
-          </h2>
-          <p className="text-slate-600">
-            Select the prompt the best matches your needs.
-          </p>
-        </div>
-
+      <div className="flex flex-col p-4 px-5">
         {/* Breadcrumbs */}
-        <div className="bg-slate-100 rounded-full px-5 text-slate-600 py-1 border">
+        <div className="bg-slate-100 rounded-full px-5 text-slate-600 py-1 border mb-4 self-start">
           <span>{selectedPersona?.persona_name}</span>
 
           {defaultRole !== currentRole && (
@@ -169,10 +159,17 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
             </>
           )}
         </div>
+
+        {/* text */}
+        <div>
+          <h2 className="text-2xl font-semibold text-slate-700">
+            Select a Prompt
+          </h2>
+        </div>
       </div>
 
       {/* Prompts Section and Cards */}
-      <div className="flex p-4 h-full pt-0">
+      <div className="flex flex-col p-4 h-full pt-0">
         {/* Default Prompt */}
         {prompts
           .filter((p) => p.subpersona === false && p.role === currentRole)
@@ -187,15 +184,17 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
                   p.persona_id
                 )
               }
-              className="basis-[35%]"
+              className="basis-[30%] mb-4"
             >
-              <div className="bg-ai-teacher h-full relative flex flex-col justify-end rounded-lg p-6 hover:cursor-pointer hover:bg-orange-800">
+              <div className="bg-airis-primary h-full relative flex flex-col justify-end rounded-lg p-6 hover:cursor-pointer hover:bg-slate-700">
                 <h4 className="text-4xl text-white">{p.task}</h4>
                 <DiagonalArrow />
               </div>
             </div>
           ))}
-        <div className="w-full basis-[65%] h-full max-h-full flex flex-col gap-2 pl-4 overflow-auto">
+
+        {/* PROMPS LISTS */}
+        <div className="w-full basis-[70%] h-full max-h-full grid grid-cols-3 overflow-auto gap-4 grid-rows-fixed">
           {/* Role List */}
           {roles.map(
             (role: string | undefined, idx: Key | null | undefined) =>
@@ -269,7 +268,7 @@ const PromptCard: React.FC<PromptCardProps> = ({
         )
       }
     >
-      <div className="w-full flex justify-between items-center p-2 px-4 border rounded-md border-slate-300 text-slate-600 hover:bg-slate-200 hover:text-slate-800 hover:cursor-pointer">
+      <div className="w-full h-full flex text-xl p-3 px-4 border rounded-md border-slate-300 text-slate-600 hover:bg-slate-200 hover:text-slate-800 hover:cursor-pointer">
         {promptObj.role == currentRole && <p>{promptObj.task}</p>}
       </div>
     </div>
@@ -288,9 +287,14 @@ const RoleCard: React.FC<RoleCardProps> = ({ role = "<--", onRoleChange }) => {
 
   return (
     <div onClick={handleClick}>
-      <div className="w-full flex justify-between items-center p-2 px-4 border rounded-md border-slate-300 text-slate-600 hover:bg-slate-200 hover:text-slate-800 hover:cursor-pointer">
-        <p>{role}</p>
-        {role != "<--" && <ArrowIcon />}
+      <div className="relative w-full h-full text-xl p-3 px-4 border rounded-md border-slate-300 text-slate-600 hover:bg-slate-200 hover:text-slate-800 hover:cursor-pointer">
+        <p>
+          {role} {role == "<--" && "Return"}
+        </p>
+
+        <span className="absolute bottom-2 right-2">
+          {role != "<--" && <ArrowIcon />}
+        </span>
       </div>
     </div>
   );
@@ -346,14 +350,14 @@ const DiagonalArrow = () => {
 
 const ArrowIcon = () => {
   return (
-    <span>
+    <span className="text-4xl">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"
         strokeWidth={1.5}
         stroke="currentColor"
-        className="size-6"
+        className="size-8"
       >
         <path
           strokeLinecap="round"

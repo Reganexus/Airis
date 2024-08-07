@@ -16,7 +16,7 @@ const PersonaSelection: React.FC<PersonaSelectionProps> = ({
   const noDashAgentString = selectedAgent?.replaceAll("-", " ");
 
   return (
-    <div className="bg-slate-100 min-w-80 flex flex-col border-r border-slate-300">
+    <div className="bg-slate-100 w-full max-w-[23rem] flex flex-col border-r border-slate-300">
       {/* Header */}
       <div className="shadow flex justify-between items-center p-5 gap-4 px-6 pb-5">
         <div>

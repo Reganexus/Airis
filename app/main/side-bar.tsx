@@ -20,7 +20,7 @@ const SideBar: React.FC<SideBarProps> = ({ id }) => {
   };
 
   return (
-    <div className="bg-slate-50 w-20 flex flex-col justify-between border-r border-slate-300">
+    <div className="bg-slate-50 w-full max-w-20 flex flex-col justify-between border-r border-slate-300">
       {/* LOGO */}
 
       <div className="flex justify-center items-center p-2">
