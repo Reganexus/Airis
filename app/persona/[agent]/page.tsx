@@ -11,6 +11,8 @@ import Loading from "../persona-selection-loading";
  * Renders the Prompt Selection Components
  */
 export default function Home() {
+  const [isLoading, setIsLoading] = useState<Boolean>(false);
+
   /**
    * variable that wil hold the URL of all personas's
    */
@@ -20,6 +22,8 @@ export default function Home() {
   const { agent } = useParams();
 
   useEffect(() => {
+    setIsLoading(true);
+
     // Get the Selected Persona Information
     async function getPersona() {
       const data = await fetchPersonaSelected(agent);
@@ -29,9 +33,12 @@ export default function Home() {
         persona_tagline: data.tagline,
         persona_link: data.persona_link,
       });
+      setIsLoading(false);
     }
     getPersona();
   }, [agent]);
 
-  return <PromptSelection selectedPersona={selectedPersona} />;
+  return (
+    <PromptSelection selectedPersona={selectedPersona} isLoading={isLoading} />
+  );
 }
