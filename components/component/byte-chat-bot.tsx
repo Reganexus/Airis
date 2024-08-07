@@ -188,33 +188,8 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
   useEffect(() => {
     if (historyConversationId) {
-      const numberHistoryConversationId = Number(historyConversationId);
 
-      // VALIDATE -  historyConversationId type should be number
-      if (isNaN(numberHistoryConversationId)) {
-        // Redirect to base chat route if invalid ID
-        // TO BE REVISED, GO TO CHAT SELECTION INSTEEEEEEED
-        router.push("/");
-        return;
-      }
 
-//       // VALIDATE - User should be logged in, with right account
-//       if (status === "unauthenticated") {
-//         router.push("/");
-//         return;
-//       }
-
-//       console.log(status);
-
-//       if (status === "authenticated" && user != undefined) {
-//         const validateUser = async () => {
-//           const data = await fetchChatUID(
-//             numberHistoryConversationId,
-//             user?.email
-//           );
-
-//           if (data == "wrong uid") {
-//             router.push("/");
       const numberHistoryConversationId = Number(historyConversationId);
 
       // VALIDATE -  historyConversationId type should be number
@@ -477,6 +452,14 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const [isImageModel, setIsImageModel] = React.useState<boolean>(false);
   const [isFileDropdownOpen, setIsFileDropdownOpen] =
     React.useState<boolean>(false);
+
+  const [files, setFiles] = useState([]);
+
+  // Function to handle file selection
+  const handleFileChange = (e: any) => {
+    const selectedFiles = Array.from(e.target.files);
+    setFiles([...files, ...selectedFiles]);
+  };
 
   // Function to handle file deletion
   const handleDeleteFile = (index: any) => {
