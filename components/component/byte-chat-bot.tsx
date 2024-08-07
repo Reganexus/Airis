@@ -350,11 +350,32 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     if (model == 'gpt-4o-mini') {
 
       setImgLength(0);
-      setImgFiles([]);
-      setImgIdx(num => num + 2);
+
 
       const submitImages64 = images64.map(image => (typeof image === 'string' ? image : ''));
-      setImages64([]);  
+      setImages64([]);
+
+      console.log("IMAGE FILES LENGTH: ", imgFiles.length);
+      if (imgFiles.length != 0) {
+        setMessages([
+          ...messages,
+          {
+            id: "",
+            role: "user",
+            content: displayImages[imgIdx],
+          },
+        ]);
+      }
+
+      for (const file of imgFiles){
+        
+      }
+
+
+      setImgIdx(num => num + 2);
+
+      setImgFiles([]);
+
       handleSubmit(e, {
         data: { images64: submitImages64, textInput: input },
       });
@@ -410,6 +431,8 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       generateDALLE(model, input, quality, imgSize, imgStyle, quantity).then(
         (res) => {
           setIsLoading2(false);
+          console.log("CONTENT OF IMAGE GENERATION: ");
+          console.log(res.response);
           console.log("FILE NAMES TO BE SET:");
           console.log(res.filenames);
           setMessages([
@@ -465,7 +488,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const [imgFiles, setImgFiles] = useState<File[]>([]);
   useEffect(() => {
     console.log("FILES IN imgFiles: ", imgFiles);
-    
+
   }, [imgFiles]);
 
   const [images64, setImages64] = useState<(string | ArrayBuffer | null)[]>([]);
@@ -475,6 +498,8 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
 
   const [displayImages, setDisplayImages] = useState<{ [key: number]: string[] }>({});
+  const [imgFileNames, setImageFileNames] = useState<(string | ArrayBuffer | null)[]>([]);
+
   const isEmptyObject = (obj: object) => Object.keys(obj).length === 0;
   useEffect(() => {
     console.log("UPDATED DISPLAY IMAGES: ", displayImages);
@@ -498,6 +523,9 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     setImgFiles(prevFiles => [...prevFiles, ...selectedFiles]);
 
     for (const file of selectedFiles) {
+
+      // ADD FILE NAMES AS ANNOTATIONS USING imgFileNames.. DO NOT FORGET AS THIS IS IMPORTANT BRO
+      console.log("FILE NAME OF : ", file.name);
       const url = URL.createObjectURL(file);
       setDisplayImages(prevState => ({
         ...prevState,
@@ -532,14 +560,14 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     const updatedDisplay = displayImages[imgIdx];
     updatedDisplay.splice(index, 1);
     setDisplayImages(prevState => ({
-        ...prevState,
-        [imgIdx]: updatedDisplay,
-      }));
+      ...prevState,
+      [imgIdx]: updatedDisplay,
+    }));
 
-      // INCOMPLETE
+    // INCOMPLETE
     const updatedBase64 = images64;
     updatedBase64.splice(index, 1);
-    setImages64(updatedBase64); 
+    setImages64(updatedBase64);
   };
 
 
@@ -570,25 +598,36 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
                   <>
 
-                    {i in displayImages && (
-                      displayImages[i].map((imageUrl, imgIndex) => (
-                        <div key={imgIndex} className="flex items-start gap-4 justify-end">
-                          <div className="grid gap-1.5 rounded-lg bg-primary p-3 px-4">
-                            <img
-                              src={imageUrl}
-                              alt={`Uploaded preview ${imgIndex}`}
-                              style={{ marginTop: '20px', maxWidth: '200px', height: 'auto' }}
-                            />
-                          </div>
-                        </div>
-                      ))
-                    )}
 
-                    <div key={i} className="flex items-start gap-4 justify-end">
-                      <div className="grid gap-1.5 rounded-lg bg-primary p-3 px-4">
-                        <p className="text-white">{m.content}</p>
-                      </div>
-                    </div>
+                    {
+                      // If Output is image,
+                      //  output of ai is url but will be converted into array immediately
+                      Array.isArray(m.content) ? (
+                        m.content.map((url, index) => (
+                          <>
+
+                            <div key={index} className="flex items-start gap-4 justify-end">
+                              <div className="grid gap-1.5 rounded-lg bg-primary p-3 px-4">
+                                <img
+                                  src={url}
+                                  alt={`Uploaded preview ${index}`}
+                                  style={{ marginTop: '20px', maxWidth: '200px', height: 'auto' }}
+                                />
+                              </div>
+                            </div>
+                          </>
+                        ))
+                      ) : (
+                        // gpt outputs Text instead
+                        <div key={i} className="flex items-start gap-4 justify-end">
+                          <div className="grid gap-1.5 rounded-lg bg-primary p-3 px-4">
+                            <p className="text-white">{m.content}</p>
+                          </div>
+                        </div>)
+                    }
+
+
+
                   </>
 
                 );
@@ -683,7 +722,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
         >
           {/* UPLOADED FILES LIST is DISPLAYED HERE */}
           {/* {imgLength !== 0 && ( */}
-            <UploadedFiles files={imgFiles} onDelete={handleDeleteFile} />
+          <UploadedFiles files={imgFiles} onDelete={handleDeleteFile} />
           {/* ) */}
 
           <div
