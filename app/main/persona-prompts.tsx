@@ -109,6 +109,7 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona })=> {
   const handleClick = (prompt: any) => {
     // Store values in sessionStorage, to be used on the /chat page
 
+    sessionStorage.setItem('task', prompt ?? "");
     sessionStorage.setItem('aiName', selectedPersona?.persona_name ?? "");
     sessionStorage.setItem('aiDescription', selectedPersona?.persona_tagline ?? "");
     sessionStorage.setItem('chatbot_id', prompt.chatbot_id);
@@ -237,8 +238,9 @@ interface PromptCardProps {
 const PromptCard: React.FC<PromptCardProps> = ({ promptObj, currentRole, aiName, aiDescription }) => {
   
   const router = useRouter();
-  const handleClick = () => {
+  const handleClick = (task : string) => {
     // Store values in sessionStorage
+    sessionStorage.setItem('task', task ?? "");
      sessionStorage.setItem('aiName', aiName ?? "");
      sessionStorage.setItem('aiDescription', aiDescription ?? "");
     sessionStorage.setItem('chatbot_id', promptObj.chatbot_id);
@@ -248,7 +250,7 @@ const PromptCard: React.FC<PromptCardProps> = ({ promptObj, currentRole, aiName,
   };
 
   return (
-    <div onClick={handleClick}>
+    <div onClick={() => handleClick(promptObj.task)}>
       <div className="w-full flex justify-between items-center p-2 px-4 border rounded-md border-slate-300 text-slate-600 hover:bg-slate-200 hover:text-slate-800 hover:cursor-pointer">
         {promptObj.role == currentRole && 
           <p>{promptObj.task}</p>

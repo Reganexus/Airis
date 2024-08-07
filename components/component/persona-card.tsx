@@ -9,11 +9,13 @@ import Link from "next/link";
 interface PersonaCardProps {
   persona: string;
   setIsOpenHistory: Function;
+  task: string;
 }
 
 const PersonaCard: React.FC<PersonaCardProps> = ({
   persona,
   setIsOpenHistory,
+  task,
 }) => {
   return (
     <div className="sticky top-0 z-10 flex justify-between items-center gap-4 max-w-5xl m-auto bg-white p-2 px-3 rounded-lg border shadow-md shadow-slate-600/20">
@@ -33,7 +35,7 @@ const PersonaCard: React.FC<PersonaCardProps> = ({
 
       {/* TOPIC NAME INSERT HERE */}
       <p className="absolute inset-0 w-full flex justify-center items-center font-semibold text-slate-700">
-        Topic of AI Chatbot
+        {task ?? ""}
       </p>
 
       <div className="flex item-center z-10">

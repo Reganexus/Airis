@@ -96,6 +96,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
   const aiName = sessionStorage.getItem('aiName');
   const aiDescription = sessionStorage.getItem('aiDescription');
+  const aiTask = sessionStorage.getItem('task');
 
   const [uploadUrl, setUploadUrl] = useState("");
   const inputFileRef = useRef<HTMLInputElement>(null);
@@ -583,7 +584,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       {/* Main Content */}
       <div className="flex flex-1 flex-col h-screen">
         <main className="relative overflow-auto pt-5 bg-slate-100 pb-0 h-full">
-          <PersonaCard persona={"ai"} setIsOpenHistory={setIsHistoryOpen} />
+          <PersonaCard persona={"ai"} setIsOpenHistory={setIsHistoryOpen} task={aiTask} />
 
           <div className="pt-4 px-2 ps-4 pb-8 grid gap-6 max-w-5xl m-auto">
             {messages.map((m, i) => {
