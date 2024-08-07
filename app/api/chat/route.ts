@@ -10,13 +10,22 @@ export async function POST(req: Request) {
   
   console.log('KYA YAMETE');
   messages[messages.length-1]['image'] = data.imageUrl;
-  console.log(messages[messages.length-1]);
-  console.log("MESSAGE KURURING: ");
-  console.log(data.imageUrl);	
-  console.log(messages);
+  console.log('IMAGES BASE 64: ');
+  console.log(data.images64);
 
-  if(data.image64 != ""){
-    console.log("DATA IS SUBMITTED");
+  if(data.images64 != ""){
+    console.log("IMAGE IS SUBMITTED");
+    const messageContent = [ { type: "text", text: (data.textInput == "") ? "What's in this image?" : data.textInput }];
+
+    for (const image64 of data.images64){
+      console.log(typeof(image64));
+      messageContent.push(
+            {
+              type: "image", // Use the correct type as per your API's schema
+              image: image64 // base64 images
+            },
+      );
+    }
     const result = await streamText({
       model: openai('gpt-4o-mini'),
       maxTokens: 4096,
@@ -24,13 +33,7 @@ export async function POST(req: Request) {
         // There is no "system" message (THIS MAY CHANGE)
         {
           role: "user",
-          content: [
-            { type: "text", text: (data.textInput == "") ? "What's in this image?" : data.textInput },
-            {
-              type: "image", // Use the correct type as per your API's schema
-              image: data.image64 // base64 images
-            },
-          ],
+          content: messageContent,
           
         }
       ],

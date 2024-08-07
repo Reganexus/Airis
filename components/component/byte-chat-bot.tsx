@@ -80,37 +80,37 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const [uploadUrl, setUploadUrl] = useState("");
   const inputFileRef = useRef<HTMLInputElement>(null);
   const [blob, setBlob] = useState<PutBlobResult | null>(null);
-  const [image, setImage] = useState<string>("");
-  const [displayImage, setDisplayImage] = useState<{ [key: number]: string }>({});
-  const [imgFile, setImgFile] = useState<File | null>(null);
-  const [num, setNum] = useState(0);
+  const [images64, setImages64] = useState<(string | ArrayBuffer | null)[]>([]);
+  const [displayImages, setDisplayImages] = useState<{ [key: number]: string[] }>({});
+  const [imgFiles, setImgFiles] = useState<File[]>([]);
+  const [imgIdx, setImgIdx] = useState(0);
 
   function handleImageChange(event: ChangeEvent<HTMLInputElement>) {
     if (event.target.files == null || event.target.files.length === 0) {
       // Reset the image state if no file is selected or the dialog is closed
-      setImage("");
-      setImgFile(null);
+      setImages64([]);
+      setImgFiles([]);
       console.log("DISPLAY iMAGE:");
-      console.log(displayImage);
+      console.log(displayImages);
       return;
     }
-    const file = event.target.files[0];
-    setImgFile(file);
+    const file = event.target.files[0]; // THE FILES WILL BECOME AN ARRAY
+    setImgFiles(prevImgFiles => [...prevImgFiles, file]);
     const url = URL.createObjectURL(file);
     console.log("URL: ", url);
-    setDisplayImage(prevState => ({
+    setDisplayImages(prevState => ({
       ...prevState,
-      [num]: url,
+      [imgIdx]: [...(prevState[imgIdx] || []), url],
     }));
 
     console.log("DISPLAY iMAGE:");
     console.log(url);
     //convert to base64
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
+    const reader = new FileReader(); 
+    reader.readAsDataURL(file); // YOU NEED TO MAP MOST OF THIS IN AN ARRAY
     reader.onload = () => {
       if (typeof reader.result == "string") {
-        setImage(reader.result);
+        setImages64( prevImages => [...prevImages, reader.result]);
       }
     }
 
@@ -335,26 +335,32 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     // let newBlob = {'url': ""};
     if (model == 'gpt-4o-mini') {
 
-      setNum(num => num + 2);
+      setImgIdx(num => num + 2);
+
+      const submitImages64 = images64.map(image => (typeof image === 'string' ? image : ''));;
       handleSubmit(e, {
-        data: { image64: image, textInput: input, imageUrl: displayImage },
+        data: { images64: submitImages64, textInput: input },
       });
 
-      if (imgFile == null) {
+      if (imgFiles == null) {
         console.log('No file selected');
       }
       else {
         console.log("FILE:");
-        console.log(imgFile);
-        if (imgFile) {
-          const newBlob = await upload(imgFile.name, imgFile, {
-            access: 'public',
-            handleUploadUrl: '/api/avatar/upload',
-          });
-          setBlob(newBlob);
-          console.log(newBlob);
+        console.log(imgFiles);
 
+        for (const imgFile of imgFiles){
+          if (imgFile) {
+            const newBlob = await upload(imgFile.name, imgFile, {
+              access: 'public',
+              handleUploadUrl: '/api/avatar/upload',
+            });
+            setBlob(newBlob);
+            console.log(newBlob);
+  
+          }
         }
+
       }
     }
     else {
@@ -460,9 +466,9 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                   <>
                     <div className="flex items-start gap-4 justify-end">
 
-                      {i in displayImage && 
+                      {i in displayImages && 
                       <div className="grid gap-1.5 rounded-lg bg-primary p-3 px-4">
-                        <img src={displayImage[i]}
+                        <img src={displayImages[i]}
                           alt="Uploaded preview"
                           style={{ maxWidth: '200px', height: 'auto' }} />
                       </div>}
