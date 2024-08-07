@@ -3,20 +3,17 @@ import { sql } from '@vercel/postgres';
 export async function POST(req: Request) {
   try {
     const information = await req.json()
-    console.log("heeeeeeeeee", information)
     const result = await sql`SELECT user_id FROM users WHERE email = ${information.email}`;
     const user_id = result.rows[0].user_id;
 
     if (information.conversation_id == 0) {
         // this means the convo is new
-        console.log("SAVE CONVERSATION:");
         console.log(information.messages);
         const messageStringify = JSON.stringify(information.messages);
         const result2 = await sql`INSERT INTO conversation (user_id, chatbot_id, messages) VALUES (${user_id}, ${information.chatbot_id}, ${messageStringify}::jsonb) RETURNING conversation_id`;
         const conversation_id = result2.rows[0].conversation_id;
         if (result2) {
             console.log("Query executed successfully");
-            console.log("Conversation ID:", conversation_id);
         } else {
             console.log("Query execution failed");
         }

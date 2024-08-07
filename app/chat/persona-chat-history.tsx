@@ -1,12 +1,11 @@
 import Image from "next/image";
 import "/app/main/persona-selection-scrollbar.css";
 import Link from "next/link";
-import { SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { fetchAndSetChatHistory } from "@/lib/chat/handle-chat-history";
 import { useSession } from "next-auth/react";
 import moment from 'moment';
 import { useRouter } from "next/navigation";
-import { getServerSession } from "next-auth/next";
 
 interface Conversation {
   conversation_id: number;

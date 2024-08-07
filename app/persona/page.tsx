@@ -2,7 +2,6 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import personaData from "@/lib/persona-url";
 import { format } from "path";
 import { fetchChatbotAllSelection, fetchPersonas } from "@/lib/db/fetch-queries";
 import { Persona, PersonaChatbots, SelectedPersona } from "@/lib/types";

@@ -1,14 +1,10 @@
 'use client';
 import Image from "next/image";
-import Link from "next/link";
-import { useRouter,notFound } from 'next/navigation';
-import { sql } from '@vercel/postgres';
 
-import { list } from '@vercel/blob';
 import { Key, useEffect, useState } from "react";
-import personaData from "@/lib/persona-url";
-import { fetchPersonas } from "@/lib/db/fetch-queries";
-import { PersonaChatbots, SelectedPersona } from "@/lib/types";
+import { SelectedPersona } from "@/lib/types";
+import { useStoreChatbotSession } from "@/lib/functions/local-storage/sessionStorage-chabot";
+import { fetchPrompts } from "@/lib/db/fetch-queries";
 
 
 interface PersonaChatbotsProps {
@@ -21,8 +17,11 @@ const PersonaPrompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona })=> {
     <div className="h-full w-full p-8">
       {/* The big card */}
       <div className="h-full w-full bg-white rounded-lg border border-slate-300 shadow flex flex-col p-4 gap-2">
+        
         <PersonaProfile selectedPersona={selectedPersona} />
+        
         <Prompts selectedPersona={selectedPersona} />
+      
       </div>
     </div>
   );
@@ -78,60 +77,41 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona })=> {
     default_prompt: boolean;
     subpersona: boolean;
   }[]>([]);
-  useEffect(() => {
-    async function fetchPrompts() {
-      if (selectedPersona?.persona_id) {
-        const response = await fetch('/api/query/query-tasks', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ persona_id: selectedPersona?.persona_id }), // Send persona_id in the request body
-          cache: 'force-cache',
-          next: { revalidate: 3600 }
-        });
-
-        const data = await response.json();
-        setPrompts(data);
-        
-        console.log(`PROMPTS FOR ${selectedPersona?.persona_id}`, data)
-      }
-    }
-
-    fetchPrompts();
-  }, [selectedPersona?.persona_id]);
-
-
+  
   /**
-   * Router for the default prompt 
-   */
-  const router = useRouter();
-  const handleClick = (prompt: any) => {
-    // Store values in sessionStorage, to be used on the /chat page
-
-    sessionStorage.setItem('aiName', selectedPersona?.persona_name ?? "");
-    sessionStorage.setItem('aiDescription', selectedPersona?.persona_tagline ?? "");
-    sessionStorage.setItem('chatbot_id', prompt.chatbot_id);
-    sessionStorage.setItem('persona_id', prompt.persona_id);
-    router.push('/chat');
-  };
-
-  /**
-   * @currentRole     - contains the role that will be shown 
-   * @roles           - contain all the roles of that persona
-   * @defaultRole     - contains the most 'default' prompt that will show immediately 
+   * currentRole      - contains the role that will be shown 
+   * roles            - contain all the roles of that persona
+   * defaultRole      - contains the most 'default' prompt that will show immediately 
    * handleRoleChange - contains the changing of the current role, default role and persona name
+   * storeSession     - prompt is clicked, chatbot information stored on Session storage before going to /chat
    */
   const [currentRole, setCurrentRole] = useState('');
   const [roles, setRoles] = useState<any>([]);
   const [defaultRole, setDefaultRole] = useState('');
+  const storeSession = useStoreChatbotSession();
+  
+  useEffect(() => {
+    const getPrompts = async () => {
+      if (selectedPersona?.persona_id) {
+        const data = await fetchPrompts(selectedPersona?.persona_id);
+        setPrompts(data);
+      }
+    };
+    getPrompts();
+  }, [selectedPersona?.persona_id]);
+
   useEffect(() => {
     handleRoleChange('')
   }, [prompts]);
 
+  /**
+   * Handles the change of a role shown on the Prompt Selection
+   *  Only has one usage here
+   */
   const handleRoleChange = (role: string) => {
     if (role == '<--' || role == '')  {
-      // will collect the set of roles as strings
+      // a return button is clicked or the default prompt is shown
+      // Assign the Default Role and get each of all the roles once, store them in roles variable
       const uniqueRoles = new Set<string>();
       prompts.forEach((prompt: any) => {
         if (prompt.default_prompt === true) {
@@ -143,11 +123,13 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona })=> {
       });
       setRoles(Array.from(uniqueRoles));
     } else {
+      // a sub-role is clicked, changing the current role
       setCurrentRole(role);
+      // removed to avoid showing other roless
       setRoles([]);
     }
   };
-
+  
 
   return (
     <div className="basis-[65%] border rounded-md flex flex-col">
@@ -176,40 +158,35 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona })=> {
       {/* Prompts Section and Cards */}
       <div className="flex p-4 h-full pt-0">
         {/* Default Prompt */}
-        {prompts.map((p, index) => (
-          (p.subpersona == false && p.role == currentRole) && (
-            <div onClick={() => handleClick(p)} className="basis-[35%]">
-              <div key={index} className="bg-ai-teacher  h-full relative flex flex-col justify-end rounded-lg p-6 hover:cursor-pointer hover:bg-orange-800">
-                <h4 className="text-4xl text-white">
-                  {p.task}
-                </h4>
-                <DiagonalArrow />
-              </div>
+        {prompts.filter(p => p.subpersona === false && p.role === currentRole).map(p => (
+          <div key={p.chatbot_id} onClick={() => storeSession(selectedPersona?.persona_name, selectedPersona?.persona_tagline, p.chatbot_id, p.persona_id)} className="basis-[35%]">
+            <div className="bg-ai-teacher h-full relative flex flex-col justify-end rounded-lg p-6 hover:cursor-pointer hover:bg-orange-800">
+              <h4 className="text-4xl text-white">
+                {p.task}
+              </h4>
+              <DiagonalArrow />
             </div>
-          )
+          </div>
         ))}
         <div className="w-full basis-[65%] h-full max-h-full flex flex-col gap-2 pl-4 overflow-auto">
           {/* Role List */}
           {roles.map((role: string | undefined, idx: Key | null | undefined) => (
             (role != currentRole &&
-              <RoleCard key={idx} role={role} onRoleChange={handleRoleChange} />
+              <RoleCard key={role} role={role} onRoleChange={handleRoleChange} />
             )
           ))}
           {/* Prompt List */}
-          {prompts.map((p, idx) => (
-
-            (p.default_prompt == false && p.role == currentRole && p.subpersona == true) && (
-              <PromptCard key={idx} 
-                          promptObj={p} 
-                          currentRole={currentRole} 
-                          aiName={selectedPersona?.persona_name} 
-                          aiDescription={selectedPersona?.persona_tagline}            
-              />
-            )
+          {prompts.filter(p => p.default_prompt === false && p.role === currentRole && p.subpersona === true).map(p => (
+            <PromptCard key={p.chatbot_id} 
+                        promptObj={p} 
+                        currentRole={currentRole} 
+                        aiName={selectedPersona?.persona_name} 
+                        aiDescription={selectedPersona?.persona_tagline} 
+            />
           ))}
           {/* Return */}
           {(defaultRole != currentRole && 
-              <RoleCard onRoleChange={handleRoleChange} />
+              <RoleCard key="return-to-default" onRoleChange={handleRoleChange} />
           )}
         </div>
 
@@ -235,20 +212,12 @@ interface PromptCardProps {
 }
 
 const PromptCard: React.FC<PromptCardProps> = ({ promptObj, currentRole, aiName, aiDescription }) => {
-  
-  const router = useRouter();
-  const handleClick = () => {
-    // Store values in sessionStorage
-     sessionStorage.setItem('aiName', aiName ?? "");
-     sessionStorage.setItem('aiDescription', aiDescription ?? "");
-    sessionStorage.setItem('chatbot_id', promptObj.chatbot_id);
-    sessionStorage.setItem('persona_id', promptObj.persona_id);
-    // Navigate to the desired page
-    router.push('/chat');
-  };
+
+  // used when prompt is clicked, chatbot information stored on Session storage before going to /chat
+  const storeSession = useStoreChatbotSession();
 
   return (
-    <div onClick={handleClick}>
+    <div onClick={()  => storeSession(aiName, aiDescription, promptObj.chatbot_id, promptObj.persona_id)}>
       <div className="w-full flex justify-between items-center p-2 px-4 border rounded-md border-slate-300 text-slate-600 hover:bg-slate-200 hover:text-slate-800 hover:cursor-pointer">
         {promptObj.role == currentRole && 
           <p>{promptObj.task}</p>
