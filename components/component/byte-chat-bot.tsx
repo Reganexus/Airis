@@ -93,10 +93,10 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const isFirstRender = useRef(true);
   const isSecondRender = useRef(true);
   const isPromptRendered = useRef(true);
-  
+
   const aiName = sessionStorage.getItem('aiName');
   const aiDescription = sessionStorage.getItem('aiDescription');
-  
+
   const [uploadUrl, setUploadUrl] = useState("");
   const inputFileRef = useRef<HTMLInputElement>(null);
   const [blob, setBlob] = useState<PutBlobResult | null>(null);
@@ -110,7 +110,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       }
     };
   }, [displayImage]);
-  
+
   function handleImageChange(event: ChangeEvent<HTMLInputElement>) {
     if (event.target.files == null || event.target.files.length === 0) {
       // Reset the image state if no file is selected or the dialog is closed
@@ -157,7 +157,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const [imgSize, setImgSize] = useState("256x256");
   const [imgStyle, setImgStyle] = useState("natural");
   const [quantity, setQuantity] = useState(1);
-
   const [model, setModel] = useState("gpt-4o-mini");
 
   useEffect(() => {
@@ -188,8 +187,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
   useEffect(() => {
     if (historyConversationId) {
-
-
       const numberHistoryConversationId = Number(historyConversationId);
 
       // VALIDATE -  historyConversationId type should be number
@@ -352,29 +349,41 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     // let newBlob = {'url': ""};
     if (model == 'gpt-4o-mini') {
 
+      setImgLength(0);
+      setImgFiles([]);
+      setImgIdx(num => num + 2);
 
-      // if (!inputFileRef.current?.files) {
-      //   throw new Error('No file selected');
-      // }
-      // else{
-      //   const file = inputFileRef.current.files[0];
-      //   console.log("FILE:");
-      //   console.log(file);
-      //   if(file){
-      //       newBlob = await upload(file.name, file, {
-      //       access: 'public',
-      //       handleUploadUrl: '/api/avatar/upload',
-      //     });
-      //     setBlob(newBlob);
-      //     console.log(newBlob);
-
-      //   }
-      // }
-
+      const submitImages64 = images64.map(image => (typeof image === 'string' ? image : ''));
+      setImages64([]);  
       handleSubmit(e, {
-        data: { image64: image, textInput: input },
+        data: { images64: submitImages64, textInput: input },
       });
+
+
+      if (imgFiles == null) {
+        console.log('No file selected');
+      }
+
+      else {
+        console.log("FILE:");
+        console.log(imgFiles);
+
+        for (const imgFile of imgFiles) {
+          if (imgFile) {
+            const newBlob = await upload(imgFile.name, imgFile, {
+              access: 'public',
+              handleUploadUrl: '/api/avatar/upload',
+            });
+            setBlob(newBlob);
+            console.log(newBlob);
+
+          }
+        }
+
+      }
+
     }
+
     else {
       /**
        * DALL-E MODEL
@@ -453,20 +462,88 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const [isFileDropdownOpen, setIsFileDropdownOpen] =
     React.useState<boolean>(false);
 
-  const [files, setFiles] = useState([]);
+  const [imgFiles, setImgFiles] = useState<File[]>([]);
+  useEffect(() => {
+    console.log("FILES IN imgFiles: ", imgFiles);
+    
+  }, [imgFiles]);
+
+  const [images64, setImages64] = useState<(string | ArrayBuffer | null)[]>([]);
+  useEffect(() => {
+    console.log("UPDATED BASE 64 IMAGES: ", images64);
+  }, [images64]);
+
+
+  const [displayImages, setDisplayImages] = useState<{ [key: number]: string[] }>({});
+  const isEmptyObject = (obj: object) => Object.keys(obj).length === 0;
+  useEffect(() => {
+    console.log("UPDATED DISPLAY IMAGES: ", displayImages);
+  }, [displayImages]);
+  const [imgIdx, setImgIdx] = useState(0);
+
+  const [imgLength, setImgLength] = useState(0);
 
   // Function to handle file selection
-  const handleFileChange = (e: any) => {
-    const selectedFiles = Array.from(e.target.files);
-    setFiles([...files, ...selectedFiles]);
+  const handleFileChange = (event: any) => {
+    if (event.target.files == null || event.target.files.length === 0) {
+      // Reset the image state if no file is selected or the dialog is closed
+      setImages64([]);
+      setImgFiles([]);
+      return;
+    }
+
+    const selectedFiles = Array.from(event.target.files as FileList);
+    setImgLength(selectedFiles.length);
+    console.log("SELECTED FILE CHANGED: ", selectedFiles);
+    setImgFiles(prevFiles => [...prevFiles, ...selectedFiles]);
+
+    for (const file of selectedFiles) {
+      const url = URL.createObjectURL(file);
+      setDisplayImages(prevState => ({
+        ...prevState,
+        [imgIdx]: [...(prevState[imgIdx] || []), url],
+      }));
+
+      console.log(url);
+      const reader = new FileReader();
+      reader.readAsDataURL(file); // YOU NEED TO MAP MOST OF THIS IN AN ARRAY
+      reader.onload = () => {
+        if (typeof reader.result == "string") {
+          setImages64(prevImages => [...prevImages, reader.result]);
+        }
+      }
+      reader.onerror = (error) => {
+        console.log("error: " + error);
+      }
+    }
+
+
   };
 
   // Function to handle file deletion
   const handleDeleteFile = (index: any) => {
-    const updatedFiles = [...files];
+    console.log('INDEX TO REMOVE: ', index);
+    const updatedFiles = [...imgFiles];
     updatedFiles.splice(index, 1);
-    setFiles(updatedFiles);
+    console.log('UPDATED FILES:', updatedFiles);
+    setImgFiles(updatedFiles);
+
+    // UPDATE DISPLAY IMAGES
+    const updatedDisplay = displayImages[imgIdx];
+    updatedDisplay.splice(index, 1);
+    setDisplayImages(prevState => ({
+        ...prevState,
+        [imgIdx]: updatedDisplay,
+      }));
+
+      // INCOMPLETE
+    const updatedBase64 = images64;
+    updatedBase64.splice(index, 1);
+    setImages64(updatedBase64); 
   };
+
+
+
 
   // JSX ELEMENT:
   return (
@@ -492,13 +569,21 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
 
                   <>
-                    {displayImage != "" && <div key={i} className="flex items-start gap-4 justify-end">
-                      <div className="grid gap-1.5 rounded-lg bg-primary p-3 px-4">
-                        <img src={displayImage}
-                          alt="Uploaded preview"
-                          style={{ marginTop: '20px', maxWidth: '200px', height: 'auto' }} />
-                      </div>
-                    </div>}
+
+                    {i in displayImages && (
+                      displayImages[i].map((imageUrl, imgIndex) => (
+                        <div key={imgIndex} className="flex items-start gap-4 justify-end">
+                          <div className="grid gap-1.5 rounded-lg bg-primary p-3 px-4">
+                            <img
+                              src={imageUrl}
+                              alt={`Uploaded preview ${imgIndex}`}
+                              style={{ marginTop: '20px', maxWidth: '200px', height: 'auto' }}
+                            />
+                          </div>
+                        </div>
+                      ))
+                    )}
+
                     <div key={i} className="flex items-start gap-4 justify-end">
                       <div className="grid gap-1.5 rounded-lg bg-primary p-3 px-4">
                         <p className="text-white">{m.content}</p>
@@ -535,16 +620,16 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                     <div className="relative grid gap-1.5 p-3 px-4 text-base">
                       <h1 className="font-semibold">{aiName}</h1>
                       {
-                          // If Output is image,
-                          //  output of ai is url but will be converted into array immediately
-                            Array.isArray(m.content) ? (
-                            m.content.map((url, index) => (
-                              <>
+                        // If Output is image,
+                        //  output of ai is url but will be converted into array immediately
+                        Array.isArray(m.content) ? (
+                          m.content.map((url, index) => (
+                            <>
                               <p>Here is your image:</p>
                               <img key={index} src={url} alt="Generated" />
-                              </>
-                            ))
-                          ) : (
+                            </>
+                          ))
+                        ) : (
                           // gpt outputs Text instead
                           <div dangerouslySetInnerHTML={{ __html: formatTextToHTML(m.content) }} />
                         )
@@ -597,9 +682,9 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
           className="pb-[20px] bg-slate-100 px-5 max-h-96 flex-1"
         >
           {/* UPLOADED FILES LIST is DISPLAYED HERE */}
-          {files.length !== 0 && (
-            <UploadedFiles files={files} onDelete={handleDeleteFile} />
-          )}
+          {/* {imgLength !== 0 && ( */}
+            <UploadedFiles files={imgFiles} onDelete={handleDeleteFile} />
+          {/* ) */}
 
           <div
             className={
@@ -628,21 +713,23 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                 disabled={isLoading || isLoading2}
               />
 
-              <input name="file"
+              {/* <input name="file"
                 type="file"
                 onChange={handleImageChange}
-              />
+              /> */}
 
               {/* <input type="file" id="fileUpload" name="fileUpload" /> */}
 
               {/* Hide these buttons if Image mode */}
               {!isImageModel && (
                 <>
+
+                  {/* SUBMIT BUTTON */}
                   <Button
                     variant="default"
                     size="icon"
                     className="bg-primary order-last p-3"
-                    disabled={isLoading || isLoading2}
+                    disabled={isLoading || isLoading2 || input.length == 0}
                   >
                     <SendIcon />
                     <span className="sr-only">Send</span>

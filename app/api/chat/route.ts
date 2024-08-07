@@ -6,16 +6,26 @@ export const maxDuration = 30;
 
 export async function POST(req: Request) {
 
-  const { messages, data } = await req.json();	
+  const { messages, data } = await req.json();
+  
+  console.log('KYA YAMETE');
+  messages[messages.length-1]['image'] = data.imageUrl;
+  console.log('IMAGES BASE 64: ');
+  console.log(data.images64);
 
+  if(data.images64 != ""){
+    console.log("IMAGE IS SUBMITTED");
+    const messageContent = [ { type: "text", text: (data.textInput == "") ? "What's in this image?" : data.textInput }];
 
-  console.log("MESSAGE KURURING: ");
-  console.log(data.textInput);	
-  // console.log("DATA image64:");
-  // console.log(data.image64);
-
-  if(data.image64 != ""){
-    console.log("DATA IS SUBMITTED");
+    for (const image64 of data.images64){
+      console.log(typeof(image64));
+      messageContent.push(
+            {
+              type: "image", // Use the correct type as per your API's schema
+              image: image64 // base64 images
+            },
+      );
+    }
     const result = await streamText({
       model: openai('gpt-4o-mini'),
       maxTokens: 4096,
@@ -23,17 +33,7 @@ export async function POST(req: Request) {
         // There is no "system" message (THIS MAY CHANGE)
         {
           role: "user",
-          content: [
-            { type: "text", text: (data.textInput == "") ? "What's in this image?" : data.textInput },
-            {
-              type: "image", // Use the correct type as per your API's schema
-              image: data.image64 // base64 images
-            },
-            {
-              type: "image", // Use the correct type as per your API's schema
-              image: data.image64 // base64 images
-            },
-          ],
+          content: messageContent,
           
         }
       ],
@@ -48,6 +48,7 @@ export async function POST(req: Request) {
       maxTokens: 4096,
       messages,	
     });	
+    
     return result.toAIStreamResponse();	
 
   }
@@ -96,6 +97,3 @@ export async function POST(req: Request) {
 //     return new Response('Internal Server Error', { status: 500 });
 //   }
 // }
-
-
-
