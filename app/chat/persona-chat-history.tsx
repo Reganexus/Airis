@@ -2,10 +2,10 @@ import Image from "next/image";
 import "/app/main/persona-selection-scrollbar.css";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { fetchAndSetChatHistory } from "@/lib/chat/handle-chat-history";
+import { clearChatHistory, fetchAndSetChatHistory } from "@/lib/chat/handle-chat-history";
 import { useSession } from "next-auth/react";
 import moment from 'moment';
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 interface Conversation {
   conversation_id: number;
@@ -52,11 +52,27 @@ const groupByDates = (data: Array<Conversation>): GroupedConversation => {
   return { today, yesterday, last7Days, last30Days, older };
 }
 
+interface PersonaChatHistoryProps {
+  refreshHistory: boolean;
+}
 
-const PersonaChatHistory = () => {
-  const aiName = sessionStorage.getItem('aiName');
-  const aiDescription = sessionStorage.getItem('aiDescription');
-  const [chatHistory, setChatHistory] = useState<Array<any>>();
+const PersonaChatHistory: React.FC<PersonaChatHistoryProps> = ({ refreshHistory }) => {
+  
+  /**
+   * Hooks and Important Variables such as user's session
+   */
+  const router = useRouter();
+  const pathname = usePathname();
+  const isInMainChatRoute = pathname === '/chat';
+  const { data: session, status } = useSession();
+  const user = session?.user;
+
+  /**
+   * Contains the Chatbot Name, Tagline displayed on Chat History Sidebar and groupings
+   * of all past conversation in groupedHistory
+   */
+  const [aiName, setAiName ]= useState<string | null>();
+  const [aiDescription, setAiDescription] = useState<string | null>();
   const [groupedHistory, setGroupedHistory] = useState<GroupedConversation>({
     today: [],
     yesterday: [],
@@ -64,21 +80,43 @@ const PersonaChatHistory = () => {
     last30Days: [],
     older: [],
   });
-  // Access user information from session
-  const { data: session, status } = useSession();
-  const user = session?.user;
+  useEffect(() => {
+    const name = sessionStorage.getItem('aiName');
+    const description = sessionStorage.getItem('aiDescription');
+    setAiName(name);
+    setAiDescription(description);
+  }, []);
+
   useEffect(() => {
     // Check if the User is logged in
     // Fetch the Chat History
     fetchAndSetChatHistory(status, user)
     .then(
       (result) => {
-        setChatHistory(result?.history)
         setGroupedHistory(groupByDates(result?.history))
       }
     );
-  }, [status, user]);
+  }, [status, user, refreshHistory]);
   
+  
+
+  const handleHistoryCleared = async () => {
+    // Clear the chat history 
+    const historyCleared = await clearChatHistory();
+    if (historyCleared) {
+      if (!isInMainChatRoute) {
+        router.push('/chat')
+      } else {
+        setGroupedHistory({
+          today: [],
+          yesterday: [],
+          last7Days: [],
+          last30Days: [],
+          older: [],
+        });
+      }
+    }
+  };
 
   
   return (
@@ -110,7 +148,7 @@ const PersonaChatHistory = () => {
       <div className="border-t border-b flex justify-between items-center p-3 gap-4 px-3 pb-3 bg-slate-50">
         <h3 className=" font-bold text-slate-700">Chat History</h3>
 
-        <ClearHistoryButton />
+        <ClearHistoryButton historyCleared={handleHistoryCleared} />
       </div>
 
       {/* Chat History Selection List */}
@@ -174,35 +212,13 @@ const ChatHistoryBatch: React.FC<ChatHistoryBatchProps> = ({
 };
 
 
-async function clearHistory() {
-  try {
-    // Specify the method if it's a POST operation
-    const response = await fetch('/api/query/query-delete-history', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',  // Ensure the content type is set to JSON
-      },
-    });
-
-    if (response.ok) {
-      console.log('Success: ', await response.text());
-      window.location.reload(); 
-    } else {
-      console.log('Failed: ', await response.text());
-      window.location.reload(); 
-    }
-  } catch (error) {
-    console.error('Error deleting history:', error);
-    window.location.reload(); // Optionally reload the page even if there's an error
-  }
+interface ClearHistoryProps {
+  historyCleared: () => void;
 }
-
-
-
-const ClearHistoryButton: React.FC = () => {
+const ClearHistoryButton: React.FC<ClearHistoryProps> = ({ historyCleared }) => {
   return (
     <button 
-      onClick={clearHistory} 
+      onClick={() => {historyCleared();}} 
       className="text-slate-500 py-1 px-2 hover:bg-red-200 hover:text-red-700 rounded-lg border bg-slate-200 flex gap-1 items-center"
     >
       <svg
