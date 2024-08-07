@@ -13,7 +13,7 @@ const PersonaSelection: React.FC<PersonaSelectionProps> = ({
   personas,
   selectedAgent,
 }) => {
-  const noDashAgentString = selectedAgent.replaceAll("-", " ");
+  const noDashAgentString = selectedAgent?.replaceAll("-", " ");
 
   return (
     <div className="bg-slate-100 min-w-80 flex flex-col border-r border-slate-300">
@@ -35,7 +35,7 @@ const PersonaSelection: React.FC<PersonaSelectionProps> = ({
             <PersonaCard
               key={p.name}
               persona={p}
-              isSelected={noDashAgentString.includes(
+              isSelected={noDashAgentString?.includes(
                 p.name.toLocaleLowerCase()
               )}
             />
