@@ -89,7 +89,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
   // Temporary url of images
 
-<!--   const [blob, setBlob] = useState<PutBlobResult | null>(null); -->
+// <!--   const [blob, setBlob] = useState<PutBlobResult | null>(null); -->
   const [refreshHistory, setRefreshHistory] = useState<boolean>(false);
 
   /**
