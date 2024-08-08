@@ -294,30 +294,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     }
   }, [chatbotId, historyConversationId, status]);
 
-  // useEffect(() => {
-  //   // if a chathistory is clicked, this will be saved
-  //   handleChatHistory(
-  //     historyConversationId,
-  //     status,
-  //     user,
-  //     router,
-  //     mounted
-  //   ).then(
-  //     (result) => {
-  //       if (result?.status == 'newchat') {
-  //         // New Chat
-  //         setChosenChatbot(result?.chatbot);
-  //         promptSubmit({ preventDefault: () => {} });
-  //         // Old Chat
-  //         setConversationId(result?.convo_id ?? 0);
-  //         setChosenChatbot(result?.chatbot);
-  //         setMessages(result?.chat);
-  //       }
-  //       console.log("Resltttttttttttttttttt", chosenChatbot)
-  //     }
-  //   );
-  // }, [historyConversationId, status]);
-
   useEffect(() => {
     // Skip the first and second render
     if (isFirstRender.current) {
