@@ -91,13 +91,12 @@ const Feature3: FC = () => {
 
       <div className="sm:basis-[50%] p-8 pr-4 flex flex-col justify-center">
         <h2 className="text-4xl sm:text-3xl font-bold text-slate-700 mb-6">
-          Automate your workflow
+          Streamline your work 
         </h2>
         <p className="text-xl sm:text-lg mb-10">
-          Boost efficiency by automating repetitive tasks and reducing errors
-          with our seamless automation solutions. Save time and enhance
-          productivity, allowing your team to focus on strategic, value-added
-          activities.
+        Increase efficiency by automating routine tasks and minimizing mistakes with 
+        our easy-to-use automation tools. Save time and boost productivity, letting 
+        your team concentrate on important, high-value projects.
         </p>
         <div>
           <Link

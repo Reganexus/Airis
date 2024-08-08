@@ -42,15 +42,13 @@ const Pricing: FC = () => {
 
           </div>
 
-          <button className="mt-auto mx-4 py-4 border rounded-lg border-slate-900">
+          <button className="w-2/3 mt-auto mx-auto py-4 border rounded-lg border-slate-900">
             Free
           </button>
         </div>
 
         {/* Plus tier */}
-        <div className="w-5/6 md:w-[22rem] bg-plus bg-cover rounded-lg h-fit md:h-[36rem] p-4 flex flex-col text-white relative overflow-clip border border-slate-500 gap-10">
-          <div className="absolute inset-0 bg-black bg-opacity-30 z-0"></div>
-
+        <div className="w-5/6 md:w-[22rem] bg-slate-100 bg-cover rounded-lg h-fit md:h-[36rem] p-4 flex flex-col gap-10">
           <div className="flex flex-col">
             <div className="flex flex-row md:flex-col justify-between align-baseline">
               <h2 className="text-center text-2xl font-semibold pt-4 z-10">Plus</h2>
@@ -75,15 +73,13 @@ const Pricing: FC = () => {
 
           </div>
 
-          <button className="z-10 text-xl mt-auto mx-4 py-4 border-2 rounded-lg border-white">
+          <button className="w-2/3 mt-auto mx-auto py-4 border rounded-lg bg-slate-900 text-slate-50">
             Purchase
           </button>
         </div>
 
         {/* Premium Tier */}
-        <div className="w-5/6 md:w-[20rem] bg-premium bg-cover rounded-lg h-fit md:h-[33rem] p-4 flex flex-col relative overflow-clip text-white border border-slate-500 gap-10 md:gap-0">
-          <div className="absolute inset-0 bg-black bg-opacity-30 z-0"></div>
-
+        <div className="w-5/6 md:w-[20rem] bg-slate-100 bg-cover rounded-lg h-fit md:h-[33rem] p-4 flex flex-col gap-10 md:gap-0">
           <div className="flex flex-col">
             <div className="flex flex-row md:flex-col justify-between align-baseline">
               <h2 className="text-center text-2xl font-semibold pt-4 z-10">Premium</h2>
@@ -106,7 +102,7 @@ const Pricing: FC = () => {
 
           </div>
 
-          <button className="z-10 text-xl mt-auto mx-4 py-4 border-2 rounded-lg border-white">
+          <button className="w-2/3 mt-auto mx-auto py-4 border rounded-lg border-slate-900">
             Purchase
           </button>
         </div>
