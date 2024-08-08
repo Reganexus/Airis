@@ -5,7 +5,6 @@ import { Key, useEffect, useState } from "react";
 import { SelectedPersona } from "@/lib/types";
 import { useStoreChatbotSession } from "@/lib/functions/local-storage/sessionStorage-chabot";
 import { fetchPrompts } from "@/lib/db/fetch-queries";
-import { promptIcons }  from "@/lib/prompticons";
 
 interface PersonaChatbotsProps {
   selectedPersona?: SelectedPersona;
@@ -219,11 +218,6 @@ const PromptCard: React.FC<PromptCardProps> = ({ promptObj, currentRole, aiName,
   // used when prompt is clicked, chatbot information stored on Session storage before going to /chat
   const storeSession = useStoreChatbotSession();
 
-  function findSvgByName(name: string) {
-    const icon = promptIcons.find(icon => icon.name.toLowerCase() === name.toLowerCase());
-    return icon ? icon.svg : null;
-  }
-  // {findSvgByName("Document")} // to be placed on JSX if iiiimplement na
   return (
     <div onClick={()  => storeSession(aiName, aiDescription, promptObj.chatbot_id, promptObj.persona_id)}>
       <div className="w-full flex justify-between items-center p-2 px-4 border rounded-md border-slate-300 text-slate-600 hover:bg-slate-200 hover:text-slate-800 hover:cursor-pointer">

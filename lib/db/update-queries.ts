@@ -25,9 +25,7 @@ export async function updatePersona(
         logo_name: personaIcon,
         bg_name: personaBg,
         persona_link: personaLink
-      }),
-      cache: 'force-cache',
-      next: { revalidate: 3600 }
+      })
     });
   
     const data = await response.json();
@@ -53,11 +51,42 @@ export async function updateDefaultChatbot(
         personaDefaultRole: personaDefaultRole,
         task: task,
         stringifiedSysprompt: stringifiedSysprompt
-      }),
-      cache: 'force-cache',
-      next: { revalidate: 3600 }
+      })
     });
   
     const data = await response.json();
     return data[0]
   }
+
+
+export async function updateChatbot(
+  chatbotId: string,
+  personaId: string,
+  role: string,
+  task: string,
+  stringifiedSysprompt: string,
+  isDefaultPrompt: boolean,
+  svg_icon: string
+) {
+  /**
+   * function required for updating a chatbot, provided with chatbot-id
+   */
+  const response = await fetch('/api/query/query-chatbot/update-chatbot', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      chatbot_id: chatbotId,
+      persona_id: personaId,
+      role: role,
+      task: task,
+      stringifiedSysprompt: stringifiedSysprompt,
+      isDefaultPrompt: isDefaultPrompt,
+      svg_icon: svg_icon
+    })
+  });
+
+  const data = await response.json();
+  return data[0]
+}

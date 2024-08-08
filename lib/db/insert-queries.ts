@@ -23,9 +23,7 @@ export async function insertPersona(
         logo_name: personaIcon,
         bg_name: personaBg,
         persona_link: personaLink
-      }),
-      cache: 'force-cache',
-      next: { revalidate: 3600 }
+      })
     });
   
     const data = await response.json();
@@ -51,9 +49,7 @@ export async function insertDefaultChatbot(
       personaDefaultRole: personaDefaultRole,
       task: task,
       stringifiedSysprompt: stringifiedSysprompt
-    }),
-    cache: 'force-cache',
-    next: { revalidate: 3600 }
+    })
   });
 
   const data = await response.json();
@@ -65,12 +61,13 @@ export async function insertChatbot(
   role: string,
   task: string,
   stringifiedSysprompt: string,
-  isDefaultPrompt: boolean
+  isDefaultPrompt: boolean,
+  svg_icon: string
 ) {
   /**
-   * function required for adding the default-chatbot of a newly created persona
+   * function required for adding a chatbot
    */
-  const response = await fetch('/api/query/query-chatbot/add-default-chatbot', {
+  const response = await fetch('/api/query/query-chatbot/add-chatbot', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -80,10 +77,9 @@ export async function insertChatbot(
       role: role,
       task: task,
       stringifiedSysprompt: stringifiedSysprompt,
-      isDefaultPrompt: isDefaultPrompt
-    }),
-    cache: 'force-cache',
-    next: { revalidate: 3600 }
+      isDefaultPrompt: isDefaultPrompt,
+      svg_icon: svg_icon
+    })
   });
 
   const data = await response.json();
