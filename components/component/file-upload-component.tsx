@@ -31,6 +31,7 @@ const FileUploadComponent = ({ onFileChange }: { onFileChange: any }) => {
         ref={fileInputRef}
         onChange={onFileChange}
         className="hidden"
+        accept="image/*"
       />
     </div>
   );
