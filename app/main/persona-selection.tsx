@@ -16,14 +16,16 @@ const PersonaSelection: React.FC<PersonaSelectionProps> = ({
   const noDashAgentString = selectedAgent?.replaceAll("-", " ");
 
   return (
-    <div className="bg-slate-100 w-full max-w-[23rem] flex flex-col border-r border-slate-300">
+    <div className="bg-slate-100 w-full max-w-[23rem] flex flex-col border-r border-slate-300 dark:bg-slate-900 dark:border-slate-500">
       {/* Header */}
-      <div className="shadow flex justify-between items-center p-5 gap-4 px-6 pb-5">
+      <div className="shadow flex justify-between items-center p-5 gap-4 px-6 pb-5 border-b border-slate-300 dark:border-slate-600">
         <div>
-          <h3 className="text-xl font-bold text-slate-700">
+          <h3 className="text-xl font-bold text-slate-700 dark:text-slate-200">
             Persona Selection
           </h3>
-          <p className="text-slate-500">Select a persona from list below</p>
+          <p className="text-slate-500 dark:text-slate-400">
+            Select a persona from list below
+          </p>
         </div>
         <AddPersonaIcon />
       </div>
@@ -63,8 +65,8 @@ const PersonaCard: React.FC<PersonaCardProps> = ({ persona, isSelected }) => {
     bgimage_name,
     persona_link,
   } = persona;
+
   const hoverStyles = `transform transition hover:scale-105 hover:shadow-lg hover:outline hover:outline-3 hover:border-0 hover:outline-airis-primary`;
-  //const hoverStyles = `transform transition hover:scale-105 hover:shadow-lg hover:outline hover:outline-3 ${outline} hover:border-0`;
 
   const link = "/persona/" + persona_link;
 
@@ -72,12 +74,14 @@ const PersonaCard: React.FC<PersonaCardProps> = ({ persona, isSelected }) => {
     <Link href={link}>
       <div
         className={`${
-          isSelected ? "outline outline-2 outline-airis-primary" : ""
-        } bg-airis-primary ${bgimage_name} rounded-2xl min-h-36 border border-slate-300 shadow relative overflow-clip hover:cursor-pointer ${hoverStyles}`}
+          isSelected
+            ? "outline outline-2 outline-airis-primary dark:outline-cyan-600"
+            : ""
+        } bg-airis-primary dark:bg-cyan-600 ${bgimage_name} rounded-2xl min-h-36 border border-slate-300 dark:border-slate-500 shadow relative overflow-clip hover:cursor-pointer ${hoverStyles}`}
       >
-        <div className="absolute bg-white w-full rounded-t-2xl bottom-0 left-0 h-[80%] flex flex-col p-4 pt-9 pl-4 ">
+        <div className="absolute bg-white dark:bg-slate-700 w-full rounded-t-2xl bottom-0 left-0 h-[80%] flex flex-col p-4 pt-9 pl-4 ">
           {isSelected && (
-            <span className="absolute top-2 right-2 text-xs py-1 px-2 bg-airis-primary bg-opacity-20 rounded-2xl text-airis-primary font-semibold">
+            <span className="absolute top-2 right-2 text-xs py-1 px-2 bg-airis-primary bg-opacity-20 dark:bg-opacity-60 rounded-2xl text-airis-primary font-semibold dark:text-slate-300">
               Selected
             </span>
           )}
@@ -86,10 +90,14 @@ const PersonaCard: React.FC<PersonaCardProps> = ({ persona, isSelected }) => {
             alt={name + "'s photo"}
             width={50}
             height={50}
-            className="rounded-full border-4 border-white absolute top-[-15px] left-3"
+            className="rounded-full border-4 border-white dark:border-slate-700 absolute top-[-15px] left-3"
           />
-          <h3 className="text-slate-700 font-bold">{name}</h3>
-          <p className="text-sm text-slate-500">{tagline}</p>
+          <h3 className="text-slate-700 font-bold dark:text-slate-200">
+            {name}
+          </h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            {tagline}
+          </p>
         </div>
       </div>
     </Link>
@@ -98,7 +106,7 @@ const PersonaCard: React.FC<PersonaCardProps> = ({ persona, isSelected }) => {
 
 const AddPersonaIcon = () => {
   return (
-    <button className="text-slate-500 p-3 hover:bg-slate-200 hover:text-primary rounded-lg border bg-slate-200">
+    <button className="text-slate-500 p-3 hover:bg-slate-200 hover:text-primary rounded-lg border bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"

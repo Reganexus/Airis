@@ -1,24 +1,24 @@
 const PersonaProfileLoading = () => {
   return (
-    <div className="border rounded-md rounded-b-none border-b-0 relative overflow-clip flex flex-col">
+    <div className="border rounded-md rounded-b-none border-b-0 dark:border-slate-600 relative overflow-clip flex flex-col">
       {/* just a background color style */}
       <div className="bg-airis-primary h-1"></div>
 
-      <div className="relative w-full h-[95%] bottom-0 bg-white flex px-4 py-3 items-center gap-3">
+      <div className="relative w-full h-[95%] bottom-0  flex px-4 py-3 items-center gap-3">
         {/* Image of the persona */}
-        <div className="rounded-full w-14 h-14 border-4 border-white overflow-clip relative bg-slate-200">
-          <div className="absolute inset-0 transform -translate-x-full bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200 animate-shimmer"></div>
+        <div className="rounded-full w-14 h-14 border-4 border-white dark:border-slate-500 overflow-clip relative bg-slate-200 dark:bg-slate-700">
+          <div className="absolute inset-0 transform -translate-x-full bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200 dark:from-slate-800 dark:via-slate-700 dark:to-slate-800 animate-shimmer"></div>
         </div>
 
         {/* Persona Name and Descriptions */}
         <div className="flex flex-col">
-          <h2 className="text-xl text-slate-800 font-bold self-start bg-slate-300 mb-1 text-opacity-0 rounded-sm relative overflow-clip">
-            <div className="absolute inset-0 transform -translate-x-full bg-gradient-to-r from-slate-300 via-slate-400 to-slate-300 animate-shimmer"></div>
+          <h2 className="text-xl text-slate-800 font-bold self-start bg-slate-300 dark:bg-slate-500 mb-1 text-opacity-0 rounded-sm relative overflow-clip">
+            <div className="absolute inset-0 transform -translate-x-full bg-gradient-to-r from-slate-300 via-slate-400 to-slate-300 animate-shimmer dark:from-slate-600 dark:via-slate-500 dark:to-slate-600"></div>
             AI Persona Name
           </h2>
 
-          <p className="text-slate-500 self-start bg-slate-200 text-sm text-opacity-0 rounded-sm relative overflow-clip">
-            <div className="absolute inset-0 transform -translate-x-full bg-gradient-to-r from-slate-100 via-slate-200 to-slate-100 animate-shimmer"></div>
+          <p className="text-slate-500 self-start bg-slate-200 dark:bg-slate-600 text-sm text-opacity-0 rounded-sm relative overflow-clip">
+            <div className="absolute inset-0 transform -translate-x-full bg-gradient-to-r from-slate-100 via-slate-200 to-slate-100 animate-shimmer dark:from-slate-600 dark:via-slate-500 dark:to-slate-600"></div>
             Persona Tagline ihere loreom ipsum Skibidi
           </p>
         </div>
@@ -27,14 +27,14 @@ const PersonaProfileLoading = () => {
         <div className="flex items-center ml-auto text-sm">
           <PersonaSettingsButton />
 
-          <button className="text-slate-500 py-2 pr-3 pl-2 border border-white bg-slate-200  border-r-0 flex items-center gap-2 text-opacity-0 relative overflow-clip">
-            <div className="absolute inset-0 transform -translate-x-full bg-gradient-to-r from-slate-100 via-slate-200 to-slate-100 animate-shimmer"></div>
+          <button className="text-slate-500 py-2 pr-3 pl-2 border border-white bg-slate-200 dark:bg-slate-700 dark:border-slate-500 border-r-0 flex items-center gap-2 text-opacity-0 relative overflow-clip">
+            <div className="absolute inset-0 transform -translate-x-full bg-gradient-to-r from-slate-100 via-slate-200 to-slate-100 animate-shimmer dark:from-slate-600 dark:via-slate-500 dark:to-slate-600"></div>
             <ModifyPromptIcon />
             Modify Prompt
           </button>
 
-          <button className="text-slate-500 py-2 pr-3 pl-2  border border-white bg-slate-200 rounded-lg rounded-l-none flex items-center gap-1 text-opacity-0 relative overflow-clip">
-            <div className="absolute inset-0 transform -translate-x-full bg-gradient-to-r from-slate-100 via-slate-200 to-slate-100 animate-shimmer"></div>
+          <button className="text-slate-500 py-2 pr-3 pl-2  border border-white bg-slate-200 dark:bg-slate-700 dark:border-slate-500 rounded-lg rounded-l-none flex items-center gap-1 text-opacity-0 relative overflow-clip">
+            <div className="absolute inset-0 transform -translate-x-full bg-gradient-to-r from-slate-100 via-slate-200 to-slate-100 animate-shimmer dark:from-slate-600 dark:via-slate-500 dark:to-slate-600"></div>
             <AddPromptIcon />
             Add Prompt
           </button>
@@ -48,8 +48,8 @@ export default PersonaProfileLoading;
 
 const PersonaSettingsButton = () => {
   return (
-    <button className="text-slate-500 p-2 border border-white bg-slate-200 rounded-lg rounded-r-none border-r-0 text-opacity-0 overflow-clip relative">
-      <div className="absolute inset-0 transform -translate-x-full bg-gradient-to-r from-slate-100 via-slate-200 to-slate-100 animate-shimmer"></div>
+    <button className="text-slate-500 p-2 border border-white bg-slate-200 rounded-lg rounded-r-none border-r-0 text-opacity-0 overflow-clip relative dark:bg-slate-700 dark:border-slate-500">
+      <div className="absolute inset-0 transform -translate-x-full bg-gradient-to-r from-slate-100 via-slate-200 to-slate-100 dark:from-slate-600 dark:via-slate-500 dark:to-slate-600 animate-shimmer"></div>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"

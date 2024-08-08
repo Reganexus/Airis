@@ -6,6 +6,7 @@ const config: Config = {
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  darkMode: "class",
   theme: {
     extend: {
       gridTemplateRows: {
@@ -14,6 +15,7 @@ const config: Config = {
       backgroundImage: {
         "main-gradient": "url('/backgrounds/gradient_green_5.jpg')",
         "persona-bg": "url('/backgrounds/backdrop_light.png')",
+        "dark-mode": "url('/backgrounds/backdrop_dark.png')",
         feature1: "url('/img/feature_1.png')",
         feature2: "url('/img/feature_2.png')",
         feature3: "url('/img/feature_3.png')",
