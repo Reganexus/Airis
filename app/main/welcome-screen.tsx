@@ -23,11 +23,11 @@ const WelcomeScreen = () => {
   return (
     <div className="w-full max-w-7xl h-[90%] z-10 flex flex-col justify-between items-center p-4">
       {/* Header */}
-      <div className="bg-white p-8 rounded-lg shadow w-full">
-        <h1 className="text-5xl font-bold mb-2 text-primary">
+      <div className="p-8 rounded-lg w-full dark:bg-opacity-0 border dark:border-0">
+        <h1 className="text-5xl font-bold mb-2 text-primary dark:text-cyan-400">
           Welcome to Airis, Julia!
         </h1>
-        <h4 className="text-2xl font-semibold text-slate-600 pl-2">
+        <h4 className="text-2xl font-semibold text-slate-600 pl-2 dark:text-slate-300">
           How may I help you today?
         </h4>
       </div>
@@ -36,19 +36,19 @@ const WelcomeScreen = () => {
       <div className="w-full h-96 grid grid-cols-2 grid-rows-3 gap-8">
         {prompts.map((p) => (
           <div
-            className={`relative overflow-clip ${p.bg} rounded-lg shadow-md hover:cursor-pointer border border-slate-300`}
+            className={`relative overflow-clip bg-airis-primary dark:bg-cyan-600 rounded-lg shadow-md hover:cursor-pointer border border-slate-300 dark:border-slate-500`}
             key={p.prompt}
           >
-            <div className="bg-white w-full bottom-0 absolute h-[90%] rounded-t-lg p-4 flex flex-col justify-between">
-              <h4 className="text-slate-600">{p.ai}</h4>
-              <h2 className="font-semibold">{p.prompt}</h2>
+            <div className="bg-white dark:bg-slate-700  w-full bottom-0 absolute h-[95%] rounded-t-lg p-4 flex flex-col justify-between">
+              <h4 className="text-slate-600 dark:text-slate-300">{p.ai}</h4>
+              <h2 className="font-semibold dark:text-slate-200">{p.prompt}</h2>
               <DiagonalArrow />
             </div>
           </div>
         ))}
       </div>
 
-      <p className="text-center text-slate-700">
+      <p className="text-center text-slate-700 dark:text-slate-400">
         This AI chatbot is for informational purposes only and should not be
         considered professional advice.
       </p>
@@ -60,7 +60,7 @@ export default WelcomeScreen;
 
 const DiagonalArrow = () => {
   return (
-    <span className="absolute right-4 bottom-3 text-slate-700">
+    <span className="absolute right-4 bottom-3 text-slate-700 dark:text-slate-300">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
