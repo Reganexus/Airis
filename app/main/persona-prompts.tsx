@@ -1,26 +1,38 @@
-'use client';
+"use client";
 import Image from "next/image";
 
-import { Key, useEffect, useState } from "react";
+import { Key, Suspense, useEffect, useState } from "react";
 import { SelectedPersona } from "@/lib/types";
 import { useStoreChatbotSession } from "@/lib/functions/local-storage/sessionStorage-chabot";
 import { fetchPrompts } from "@/lib/db/fetch-queries";
+import { promptIcons } from "@/lib/prompticons";
+import PersonaProfileLoading from "./persona-profile-loading";
+import * as PromptLoading from "./prompts-loading";
 
 interface PersonaChatbotsProps {
   selectedPersona?: SelectedPersona;
+  isLoading?: Boolean;
 }
 
-const PersonaPrompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona })=> {
-
+const PersonaPrompts: React.FC<PersonaChatbotsProps> = ({
+  selectedPersona,
+  isLoading,
+}) => {
   return (
     <div className="h-full w-full p-8">
       {/* The big card */}
-      <div className="h-full w-full bg-white rounded-lg border border-slate-300 shadow flex flex-col p-4 gap-2">
-        
-        <PersonaProfile selectedPersona={selectedPersona} />
-        
-        <Prompts selectedPersona={selectedPersona} />
-      
+      <div className="h-full w-full bg-white rounded-lg border border-slate-300 shadow flex flex-col p-4">
+        {isLoading ? (
+          <PersonaProfileLoading />
+        ) : (
+          <PersonaProfile selectedPersona={selectedPersona} />
+        )}
+
+        {isLoading ? (
+          <PromptLoading.Page />
+        ) : (
+          <Prompts selectedPersona={selectedPersona} />
+        )}
       </div>
     </div>
   );
@@ -28,15 +40,19 @@ const PersonaPrompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona })=> {
 
 export default PersonaPrompts;
 
-const PersonaProfile: React.FC<PersonaChatbotsProps> = ({ selectedPersona })  => {
-  
+const PersonaProfile: React.FC<PersonaChatbotsProps> = ({
+  selectedPersona,
+}) => {
   return (
-    <div className="basis-[35%] border rounded-md bg-ai-marketing relative overflow-clip">
-      <div className="absolute w-full h-[45%] bottom-0 bg-white">
+    <div className="border rounded-md rounded-b-none border-b-0 relative overflow-clip flex flex-col">
+      {/* just a background color style */}
+      <div className="bg-airis-primary h-1"></div>
+
+      <div className="relative w-full h-[95%] bottom-0 bg-white flex px-4 py-3 items-center gap-3">
         {/* Image of the persona */}
-        <div className="absolute left-4 top-[-20px] rounded-full w-28 h-28 border-4 border-white overflow-clip">
+        <div className="rounded-full w-14 h-14 border-4 border-white overflow-clip relative">
           <Image
-            src={"/persona_icons/icon_marketing.png"}
+            src={"/persona_icons/icon_law.png"}
             alt="icon picture"
             layout="fill"
             objectFit="cover"
@@ -44,63 +60,85 @@ const PersonaProfile: React.FC<PersonaChatbotsProps> = ({ selectedPersona })  =>
           />
         </div>
 
-        <div className="flex gap-4 items-center pl-36 pt-3 mb-2">
-          <h2 className="text-3xl text-slate-800 font-bold">{selectedPersona?.persona_name}</h2>
-          <PersonaSettingsButton />
-          <button className="text-slate-500 p-2 px-4 hover:bg-slate-100 border border-slate-500 rounded-full">
-            Add or Modify Prompt
-          </button>
+        {/* Persona Name and Descriptions */}
+        <div className="flex flex-col">
+          <h2 className="text-2xl text-slate-800 font-bold">
+            {selectedPersona?.persona_name}
+          </h2>
+
+          <p className="text-slate-500">{selectedPersona?.persona_tagline}</p>
         </div>
 
-        <p className="pl-36 pr-8">
-          {selectedPersona?.persona_tagline}
-        </p>
+        {/* Persona Action Buttons */}
+        <div className="flex items-center ml-auto text-sm">
+          <PersonaSettingsButton />
+
+          <button className="text-slate-500 py-2 pr-3 pl-2 hover:bg-slate-100 border border-slate-500  border-r-0 flex items-center gap-2">
+            <ModifyPromptIcon />
+            Modify Prompt
+          </button>
+
+          <button className="text-slate-500 py-2 pr-3 pl-2 hover:bg-slate-100 border border-slate-500 rounded-lg rounded-l-none flex items-center gap-1">
+            <AddPromptIcon />
+            Add Prompt
+          </button>
+        </div>
       </div>
     </div>
   );
 };
 
-
-const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona })=> {
-
+const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
+  const [isLoading, setIsLoading] = useState<Boolean>(false);
   /**
    * Will hold all the chatbot prompts on of a specific persona depending on the params
    *  fetchPrompts will be called to get all the prompts of that persona
    */
-  const [prompts, setPrompts] = useState<{ 
-    role: string;
-    task: string;
-    persona_name: string;
-    chatbot_id: string;
-    persona_id: string;
-    default_prompt: boolean;
-    subpersona: boolean;
-  }[]>([]);
-  
+  const [prompts, setPrompts] = useState<
+    {
+      role: string;
+      task: string;
+      persona_name: string;
+      chatbot_id: string;
+      persona_id: string;
+      default_prompt: boolean;
+      subpersona: boolean;
+      svg_icon: string;
+    }[]
+  >([]);
+  useEffect(() => {
+    console.log('Prompts updated:', prompts);
+  }, [prompts]);
   /**
-   * currentRole      - contains the role that will be shown 
+   * currentRole      - contains the role that will be shown
    * roles            - contain all the roles of that persona
-   * defaultRole      - contains the most 'default' prompt that will show immediately 
+   * defaultRole      - contains the most 'default' prompt that will show immediately
    * handleRoleChange - contains the changing of the current role, default role and persona name
    * storeSession     - prompt is clicked, chatbot information stored on Session storage before going to /chat
    */
-  const [currentRole, setCurrentRole] = useState('');
+  const [currentRole, setCurrentRole] = useState("");
   const [roles, setRoles] = useState<any>([]);
-  const [defaultRole, setDefaultRole] = useState('');
+  const [defaultRole, setDefaultRole] = useState("");
   const storeSession = useStoreChatbotSession();
-  
+
   useEffect(() => {
+    setIsLoading(true);
+
     const getPrompts = async () => {
       if (selectedPersona?.persona_id) {
         const data = await fetchPrompts(selectedPersona?.persona_id);
+        console.log("DATA FROM THE DATABASE: ", data);
         setPrompts(data);
+
+        setIsLoading(false);
       }
+      setIsLoading(false);
     };
     getPrompts();
   }, [selectedPersona?.persona_id]);
 
   useEffect(() => {
-    handleRoleChange('')
+    handleRoleChange("");
   }, [prompts]);
 
   /**
@@ -108,7 +146,7 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona })=> {
    *  Only has one usage here
    */
   const handleRoleChange = (role: string) => {
-    if (role == '<--' || role == '')  {
+    if (role == "<--" || role == "") {
       // a return button is clicked or the default prompt is shown
       // Assign the Default Role and get each of all the roles once, store them in roles variable
       const uniqueRoles = new Set<string>();
@@ -117,7 +155,7 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona })=> {
           setCurrentRole(prompt.role);
           setDefaultRole(prompt.role);
         }
-        
+
         uniqueRoles.add(prompt.role);
       });
       setRoles(Array.from(uniqueRoles));
@@ -128,77 +166,99 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona })=> {
       setRoles([]);
     }
   };
-  
-  
-  
 
   return (
-    <div className="basis-[65%] border rounded-md flex flex-col">
+    <div className="border rounded-md flex flex-col rounded-t-none grow">
       {/* Header of Prompts */}
-      <div className="flex justify-between items-end p-4 px-5">
-        {/* text */}
-        <div>
-          <h2 className="text-2xl font-semibold text-slate-800">
-            Select a prompt
-          </h2>
-          <p className="text-slate-600">
-            Select the prompt the best matches your needs.
-          </p>
+      <div className="flex flex-col p-4 px-5">
+        {/* Breadcrumbs */}
+
+        <div className="bg-slate-100 rounded-full px-5 text-slate-600 py-1 border mb-4 self-start">
+          <span>{selectedPersona?.persona_name}</span>
+
+          {defaultRole !== currentRole && (
+            <>
+              <span> &gt; </span>
+              <span>{currentRole}</span>
+            </>
+          )}
         </div>
 
-        {/* Breadcrumbs */}
-        <div className="bg-slate-100 rounded-full px-5 text-slate-600 py-1 border">
-          <span>{selectedPersona?.persona_name}</span>
-          
-          {defaultRole !== currentRole && (
-              <><span> &gt; </span><span>{currentRole}</span></>
-          )}
+        {/* text */}
+        <div>
+          <h2 className="text-2xl font-semibold text-slate-700">
+            Select a Prompt
+          </h2>
         </div>
       </div>
 
       {/* Prompts Section and Cards */}
-      <div className="flex p-4 h-full pt-0">
+      <div className="flex flex-col p-4 h-full pt-0">
         {/* Default Prompt */}
-        {prompts.filter(p => p.subpersona === false && p.role === currentRole).map(p => (
-          <div key={p.chatbot_id} onClick={() => storeSession(selectedPersona?.persona_name, selectedPersona?.persona_tagline, p.chatbot_id, p.persona_id)} className="basis-[35%]">
-            <div className="bg-ai-teacher h-full relative flex flex-col justify-end rounded-lg p-6 hover:cursor-pointer hover:bg-orange-800">
-              <h4 className="text-4xl text-white">
-                {p.task}
-              </h4>
-              <DiagonalArrow />
+        {prompts
+          .filter((p) => p.subpersona === false && p.role === currentRole)
+          .map((p) => (
+            <div
+              key={p.chatbot_id}
+              onClick={() =>
+                storeSession(
+                  selectedPersona?.persona_name,
+                  selectedPersona?.persona_tagline,
+                  p.chatbot_id,
+                  p.persona_id
+                )
+              }
+              className="basis-[30%] mb-4"
+            >
+              <div className="bg-airis-primary h-full relative flex flex-col justify-end rounded-lg p-6 hover:cursor-pointer hover:bg-slate-700">
+                <h4 className="text-4xl text-white">{p.task}</h4>
+                <DiagonalArrow />
+              </div>
             </div>
-          </div>
-        ))}
-        <div className="w-full basis-[65%] h-full max-h-full flex flex-col gap-2 pl-4 overflow-auto">
+          ))}
+
+        {/* PROMPS LISTS */}
+        <div className="w-full basis-[70%] h-full max-h-full grid grid-cols-3 overflow-auto gap-4 grid-rows-fixed">
           {/* Role List */}
-          {roles.map((role: string | undefined, idx: Key | null | undefined) => (
-            (role != currentRole &&
-              <RoleCard key={role} role={role} onRoleChange={handleRoleChange} />
-            )
-          ))}
+          {roles.map(
+            (role: string | undefined, idx: Key | null | undefined) =>
+              role != currentRole && (
+                <RoleCard
+                  key={role}
+                  role={role}
+                  onRoleChange={handleRoleChange}
+                />
+              )
+          )}
           {/* Prompt List */}
-          
-          {prompts.filter(p => p.default_prompt === false && p.role === currentRole && p.subpersona === true).map(p => (
-            <PromptCard key={p.chatbot_id} 
-                        promptObj={p} 
-                        currentRole={currentRole} 
-                        aiName={selectedPersona?.persona_name} 
-                        aiDescription={selectedPersona?.persona_tagline} 
-            />
-          ))}
+          {prompts
+            .filter(
+              (p) =>
+                p.default_prompt === false &&
+                p.role === currentRole &&
+                p.subpersona === true
+            )
+            .map((p) => (
+              <PromptCard
+                key={p.chatbot_id}
+                promptObj={p}
+                currentRole={currentRole}
+                aiName={selectedPersona?.persona_name}
+                aiDescription={selectedPersona?.persona_tagline}
+                svg_icon={p.svg_icon} // MODIFY THIS
+              />
+            ))}
           {/* Return */}
-          {(defaultRole != currentRole && 
-              <RoleCard key="return-to-default" onRoleChange={handleRoleChange} />
+          {defaultRole != currentRole && (
+            <RoleCard key="return-to-default" onRoleChange={handleRoleChange} />
           )}
         </div>
-
       </div>
     </div>
   );
 };
 
 interface PromptCardProps {
-
   promptObj: {
     role: string;
     task: string;
@@ -211,20 +271,48 @@ interface PromptCardProps {
   currentRole: string;
   aiName?: string;
   aiDescription?: string;
+  svg_icon?: string;
 }
 
-const PromptCard: React.FC<PromptCardProps> = ({ promptObj, currentRole, aiName, aiDescription }) => {
-
+const PromptCard: React.FC<PromptCardProps> = ({
+  promptObj,
+  currentRole,
+  aiName,
+  aiDescription,
+  svg_icon,
+}) => {
   // used when prompt is clicked, chatbot information stored on Session storage before going to /chat
   const storeSession = useStoreChatbotSession();
 
+  function findSvgByName(name?: string) {
+    if (!name) {
+      return;
+    }
+    try {
+      const icon = promptIcons.find(icon => icon.name.toLowerCase() === name.toLowerCase());
+      return icon ? icon.svg : '';
+    } catch (error) {
+      console.error('Error finding SVG:', error);
+      return;
+    }
+  }
+
   return (
-    <div onClick={()  => storeSession(aiName, aiDescription, promptObj.chatbot_id, promptObj.persona_id)}>
-      <div className="w-full flex justify-between items-center p-2 px-4 border rounded-md border-slate-300 text-slate-600 hover:bg-slate-200 hover:text-slate-800 hover:cursor-pointer">
-      
-        {promptObj.role == currentRole && 
-          <p>{promptObj.task}</p>
-        }
+    <div
+      onClick={() =>
+        storeSession(
+          aiName,
+          aiDescription,
+          promptObj.chatbot_id,
+          promptObj.persona_id
+        )
+      }
+    >
+      <div className="w-full h-full flex text-xl p-3 px-4 border rounded-md border-slate-300 text-slate-600 hover:bg-slate-200 hover:text-slate-800 hover:cursor-pointer">
+        {/* ADD THE ICONS HERE */}
+        <p>{findSvgByName(svg_icon)}</p>
+        &nbsp;
+        {promptObj.role == currentRole && <p>{promptObj.task}</p>}
       </div>
     </div>
   );
@@ -235,38 +323,37 @@ interface RoleCardProps {
   onRoleChange: (role: string) => void;
 }
 
-const RoleCard: React.FC<RoleCardProps> = ({ 
-  role = '<--', 
-  onRoleChange 
-}) => {
-
+const RoleCard: React.FC<RoleCardProps> = ({ role = "<--", onRoleChange }) => {
   const handleClick = () => {
     onRoleChange(role); // Trigger the role change in parent component
   };
 
   return (
     <div onClick={handleClick}>
-      <div className="w-full flex justify-between items-center p-2 px-4 border rounded-md border-slate-300 text-slate-600 hover:bg-slate-200 hover:text-slate-800 hover:cursor-pointer">
-        <p>{role}</p>
-        {role != '<--' && <ArrowIcon />}
+      <div className="relative w-full h-full text-xl p-3 px-4 border rounded-md border-slate-300 text-slate-600 hover:bg-slate-200 hover:text-slate-800 hover:cursor-pointer">
+        <p>
+          {role} {role == "<--" && "Return"}
+        </p>
+
+        <span className="absolute bottom-2 right-2">
+          {role != "<--" && <ArrowIcon />}
+        </span>
       </div>
     </div>
   );
 };
 
-
-
 // ICONS and BUTTONS
 const PersonaSettingsButton = () => {
   return (
-    <button className="text-slate-500 p-2 hover:bg-slate-100 border border-slate-500 rounded-full">
+    <button className="text-slate-500 p-2 border border-slate-500 hover:bg-slate-100 rounded-lg rounded-r-none border-r-0">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"
         strokeWidth={1.5}
         stroke="currentColor"
-        className="size-6"
+        className="size-5"
       >
         <path
           strokeLinecap="round"
@@ -306,6 +393,27 @@ const DiagonalArrow = () => {
 
 const ArrowIcon = () => {
   return (
+    <span className="text-4xl">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+        className="size-8"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="m12.75 15 3-3m0 0-3-3m3 3h-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+        />
+      </svg>
+    </span>
+  );
+};
+
+const AddPromptIcon = () => {
+  return (
     <span>
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -313,12 +421,33 @@ const ArrowIcon = () => {
         viewBox="0 0 24 24"
         strokeWidth={1.5}
         stroke="currentColor"
-        className="size-6"
+        className="size-5"
       >
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
-          d="m12.75 15 3-3m0 0-3-3m3 3h-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+          d="M12 4.5v15m7.5-7.5h-15"
+        />
+      </svg>
+    </span>
+  );
+};
+
+const ModifyPromptIcon = () => {
+  return (
+    <span>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+        className="size-5"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75"
         />
       </svg>
     </span>

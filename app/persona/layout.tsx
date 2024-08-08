@@ -2,10 +2,12 @@
 import { fetchPersonas } from "@/lib/db/fetch-queries";
 import { Persona } from "@/lib/types";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import SideBar from "../main/side-bar";
 import PersonaSelection from "../main/persona-selection";
 import React from "react";
+import Loading from "./persona-selection-loading";
+import PersonaSelectionLoading from "./persona-selection-loading";
 
 export default function SelectionLayout({
   children,
@@ -13,6 +15,7 @@ export default function SelectionLayout({
   children: React.ReactNode;
 }>) {
   // contains the dynamic persona url parameter
+  const [isLoading, setIsLoading] = useState<Boolean>(false);
   const { agent } = useParams();
 
   /**
@@ -25,6 +28,7 @@ export default function SelectionLayout({
   const [temp, setTemp] = useState<Persona[]>([]);
 
   useEffect(() => {
+    setIsLoading(true);
     /**
      * Get all the personaData [1] and the persona blobs(images) [2] from the database
      * and store [1] on the temporary variable and [2] on personaBlobs
@@ -43,6 +47,8 @@ export default function SelectionLayout({
       // [2]
       const blobs = response.blob;
       setPersonaBlobs(blobs);
+
+      setIsLoading(false);
     };
     fetchPersonaData();
   }, []);
@@ -78,7 +84,13 @@ export default function SelectionLayout({
   return (
     <main className="flex h-screen">
       <SideBar />
-      <PersonaSelection personas={personaLists} selectedAgent={agent} />
+
+      {isLoading ? (
+        <PersonaSelectionLoading />
+      ) : (
+        <PersonaSelection personas={personaLists} selectedAgent={agent} />
+      )}
+
       {childrenWithProps}
     </main>
   );
