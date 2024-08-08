@@ -630,10 +630,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                   /* User message */
                 }
                 return (
-
-
                   <>
-
 
                     {
                       // If the output is an image (URL), display it
