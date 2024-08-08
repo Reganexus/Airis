@@ -91,8 +91,8 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const isSecondRender = useRef(true);
   const isPromptRendered = useRef(true);
 
-  const aiName = sessionStorage.getItem('aiName');
-  const aiDescription = sessionStorage.getItem('aiDescription');
+  // const aiName = sessionStorage.getItem('aiName');
+  // const aiDescription = sessionStorage.getItem('aiDescription');
   const aiTask = sessionStorage.getItem('task');
 
   const [uploadUrl, setUploadUrl] = useState("");
