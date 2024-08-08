@@ -233,7 +233,8 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
                     selectedPersona?.persona_name,
                     selectedPersona?.persona_tagline,
                     p.chatbot_id,
-                    p.persona_id
+                    p.persona_id,
+                    p.task
                   )
                 }
                 className="basis-[30%] mb-4"
@@ -338,7 +339,8 @@ const PromptCard: React.FC<PromptCardProps> = ({
           aiName,
           aiDescription,
           promptObj.chatbot_id,
-          promptObj.persona_id
+          promptObj.persona_id,
+          promptObj.task
         )
       }
     >

@@ -152,3 +152,19 @@ export async function fetchPersonaForPromptEdit(persona_name: string | string[] 
   return data[0]
 
 }
+
+export async function fetchPromptSuggestion(input: string ) {
+  const response = await fetch('/api/image/image-prompt-suggestion', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      input: input
+    })
+  });
+
+  const data = await response.json();
+  return data
+
+}

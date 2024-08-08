@@ -9,13 +9,15 @@ import Link from "next/link";
 interface PersonaCardProps {
   persona: string;
   setIsOpenHistory: Function;
-  task: string;
+  task: string | null;
+  logo: string | null;
 }
 
 const PersonaCard: React.FC<PersonaCardProps> = ({
   persona,
   setIsOpenHistory,
   task,
+  logo,
 }) => {
   return (
     <div className="sticky top-0 z-10 flex justify-between items-center gap-4 max-w-5xl m-auto bg-white p-2 px-3 rounded-lg border shadow-md shadow-slate-600/20">
@@ -25,7 +27,7 @@ const PersonaCard: React.FC<PersonaCardProps> = ({
 
         <div className="w-[40px] h-[40px] rounded-full overflow-clip">
           <Image
-            src="/persona_icons/icon_law.png"
+            src={logo ?? "/persona_icons/icon_law.png"}
             alt="default chabot icon"
             width={100}
             height={100}

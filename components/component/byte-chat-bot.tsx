@@ -20,6 +20,7 @@ import {
   fetchSaveConvo,
   fetchOldChat,
   fetchChatUID,
+  fetchPromptSuggestion,
 } from "@/lib/db/fetch-queries";
 import { handleChatRegenerate } from "@/lib/chat/handle-chat-submit";
 import UploadFilesDropdown from "./file-upload-component";
@@ -85,7 +86,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
   // const aiName = sessionStorage.getItem('aiName');
   // const aiDescription = sessionStorage.getItem('aiDescription');
-  const aiTask = sessionStorage.getItem('task');
+  // const aiTask = sessionStorage.getItem('task');
 
   // Temporary url of images
   const [blob, setBlob] = useState<PutBlobResult | null>(null);  
@@ -132,14 +133,20 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const [chatbotId, setChatbotId] = useState<string | null>(null);
   const [personaId, setPersonaId] = useState<string | null>(null);
   const [aiName, setAiName] = useState<string | null>(null);
+  const [aiTask, setAiTask] = useState<string | null>(null);
+  const [aiLogo, setLogo] = useState<string | null>(null);
   useEffect(() => {
     // Retrieve values from sessionStorage
     const chatbot_id = sessionStorage.getItem("chatbot_id");
     const persona_id = sessionStorage.getItem("persona_id");
     const ai_name = sessionStorage.getItem('aiName');
+    const aiTask = sessionStorage.getItem('task');
+    const logo = sessionStorage.getItem('persona_logo');
     setChatbotId(chatbot_id);
     setPersonaId(persona_id);
     setAiName(ai_name);
+    setAiTask(aiTask);
+    setLogo(logo);
   }, []);
 
 
@@ -539,19 +546,62 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   };
 
 
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [promptSuggestions, setPromptSuggestions] = useState<[]>();
+  const handleTimeout = () => {
+    if (isImageModel && input) {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      timeoutRef.current = setTimeout(() => {
+        if (isImageModel && input) {
+          console.log("Timeout function");
+          
+          const promptSuggestion = async (user_input: string) => {
+            
+            const data = await fetchPromptSuggestion(user_input);
 
+            const suggestions = data.response.split(",")
+            setPromptSuggestions(suggestions);
+          };
+  
+          promptSuggestion(input)
+        }
+      }, 1500);
+    }
+  };
+
+  useEffect(() => {
+    // Clear timeout on component unmount
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  const addSuggestion = (suggestion: string) => {
+    // Combine suggestion with the current input value
+    const combinedInput = `${input} \n[${suggestion.trim()}]`;
+  
+    // Create a synthetic event object with the value property
+    const event = { target: { value: combinedInput } } as ChangeEvent<HTMLTextAreaElement>;
+  
+    // Update the input state with the combined value
+    handleInputChange(event);
+  }
 
   // JSX ELEMENT:
   return (
     <div className="flex h-screen w-full">
       <SideBar />
 
-      {isHistoryOpen && <PersonaChatHistory refreshHistory={refreshHistory}/>}
+      {isHistoryOpen && <PersonaChatHistory refreshHistory={refreshHistory} />}
 
       {/* Main Content */}
       <div className="flex flex-1 flex-col h-screen">
         <main className="relative overflow-auto pt-5 bg-slate-100 pb-0 h-full">
-          <PersonaCard persona={"ai"} setIsOpenHistory={setIsHistoryOpen} task={aiTask} />
+          <PersonaCard persona={"ai"} setIsOpenHistory={setIsHistoryOpen} task={aiTask} logo={aiLogo} />
 
           <div className="pt-4 px-2 ps-4 pb-8 grid gap-6 max-w-5xl m-auto">
             {messages.map((m, i) => {
@@ -609,8 +659,8 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                     <div className="pt-4">
                       <div className="h-[40px] w-[40px] rounded-full bg-slate-400 overflow-clip">
                         <Image
-                          src="/default_blue.png"
-                          alt="default chabot icon"
+                          src={aiLogo ?? "/default_blue.png"}
+                          alt="default chatbot icon"
                           width={100}
                           height={100}
                         />
@@ -709,8 +759,14 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                 disabled={isLoading || isLoading2}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey && input) {
+                    // submit it
                     e.preventDefault(); // Prevents default form submission
                     promptSubmit(e); // Triggers form submission
+                  } else {
+
+                    if (isImageModel) {
+                      handleTimeout();
+                    }
                   }
                 }}
 
@@ -761,7 +817,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
               />
 
               {/* Suggestion Chips */}
-              {isImageModel && <SuggestionChips />}
+              {isImageModel && <SuggestionChips suggestions={promptSuggestions} suggestionClicked={addSuggestion} />}
             </div>
 
             {/* Image model setting */}
@@ -884,7 +940,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                 </button>
               </div>
             )}
-            {/**/}
           </div>
 
           <p className="text-sm text-center pt-3 text-slate-500">
@@ -901,37 +956,37 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   );
 }
 
-const dummySuggestions = [
-  { suggestion: "photo" },
-  { suggestion: "illustration" },
-  { suggestion: "3d render" },
-  { suggestion: "typography" },
-];
+interface SuggestionChipsProps {
+  suggestions?: [];
+  suggestionClicked: (role: string) => void;
+}
 
-const SuggestionChips = ({ suggestions = dummySuggestions }) => {
+const SuggestionChips: React.FC<SuggestionChipsProps> = ({ suggestions = [], suggestionClicked }) => {
   return (
     <div className="w-full mt-auto flex gap-1">
       {suggestions.map((s) => (
         <button
           onClick={(e) => {
             e.preventDefault();
+            suggestionClicked(s);
           }}
-          key={s.suggestion}
+          key={s}
           className="bg-slate-50 border rounded-sm py-1 px-2 text-sm text-slate-500 hover:bg-slate-100 hover:text-slate-600"
         >
-          {s.suggestion}
+          {s}
         </button>
       ))}
 
       {/* More button? */}
-      <button
+      {/** Commented For Now */}
+      {/* <button
         onClick={(e) => {
           e.preventDefault();
         }}
         className="bg-slate-50 border rounded-sm py-1 px-2 text-sm text-slate-500 hover:bg-slate-100 hover:text-slate-600"
       >
         ...
-      </button>
+      </button> */}
     </div>
   );
 };

@@ -73,6 +73,7 @@ const PersonaChatHistory: React.FC<PersonaChatHistoryProps> = ({ refreshHistory 
    */
   const [aiName, setAiName ]= useState<string | null>();
   const [aiDescription, setAiDescription] = useState<string | null>();
+  const [aiLogo, setAiLogo] = useState<string | null>();
   const [groupedHistory, setGroupedHistory] = useState<GroupedConversation>({
     today: [],
     yesterday: [],
@@ -83,8 +84,10 @@ const PersonaChatHistory: React.FC<PersonaChatHistoryProps> = ({ refreshHistory 
   useEffect(() => {
     const name = sessionStorage.getItem('aiName');
     const description = sessionStorage.getItem('aiDescription');
+    const logo = sessionStorage.getItem('persona_logo');
     setAiName(name);
     setAiDescription(description);
+    setAiLogo(logo);;
   }, []);
 
   useEffect(() => {
@@ -127,7 +130,7 @@ const PersonaChatHistory: React.FC<PersonaChatHistoryProps> = ({ refreshHistory 
           <div className="absolute bottom-0 w-full h-[60%] bg-white p-5 pt-8 rounded-t-lg">
             <div className="absolute left-3 top-[-25px] rounded-full w-14 h-14 border-4 border-white overflow-clip">
               <Image
-                src={"/persona_icons/icon_law.png"}
+                src={aiLogo ?? "/persona_icons/icon_law.png"}
                 alt="icon picture"
                 layout="fill"
                 objectFit="cover"
