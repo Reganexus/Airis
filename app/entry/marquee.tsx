@@ -14,7 +14,7 @@ const Marquee: React.FC = () => {
 
           <div className="relative h-full basis-[60%]">
             <Image
-              src="/f1_login.png"
+              src="/img/feature_1_small.png"
               alt="feature chatbot"
               layout="fill"
               objectFit="contain"
@@ -26,7 +26,7 @@ const Marquee: React.FC = () => {
         <div className="h-96 my-10 flex pr-8">
           <div className="relative h-full basis-[60%]">
             <Image
-              src="/f2_login.png"
+              src="/img/feature_2_small.png"
               alt="feature chatbot"
               layout="fill"
               objectFit="contain"
@@ -46,7 +46,7 @@ const Marquee: React.FC = () => {
 
           <div className="relative h-full basis-[60%]">
             <Image
-              src="/f3_login.png"
+              src="/img/feature_3_small.png"
               alt="feature chatbot"
               layout="fill"
               objectFit="contain"
@@ -64,7 +64,7 @@ const Marquee: React.FC = () => {
 
           <div className="relative h-full basis-[60%]">
             <Image
-              src="/f1_login.png"
+              src="/img/feature_1_small.png"
               alt="feature chatbot"
               layout="fill"
               objectFit="contain"
@@ -76,7 +76,7 @@ const Marquee: React.FC = () => {
         <div className="h-96 my-10 flex pr-8">
           <div className="relative h-full basis-[60%]">
             <Image
-              src="/f2_login.png"
+              src="/img/feature_2_small.png"
               alt="feature chatbot"
               layout="fill"
               objectFit="contain"
@@ -96,7 +96,7 @@ const Marquee: React.FC = () => {
 
           <div className="relative h-full basis-[60%]">
             <Image
-              src="/f3_login.png"
+              src="/img/feature_3_small.png"
               alt="feature chatbot"
               layout="fill"
               objectFit="contain"

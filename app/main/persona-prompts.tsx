@@ -18,6 +18,7 @@ const PersonaPrompts: React.FC<PersonaChatbotsProps> = ({
   selectedPersona,
   isLoading,
 }) => {
+  console.log("skibidi", selectedPersona, selectedPersona?.persona_name)
   return (
     <div className="h-full w-full p-8">
       {/* The big card */}
@@ -189,6 +190,30 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
    *  Only has one usage here
    */
 
+  let prompt_bg = "";
+
+  if (selectedPersona?.persona_name == "Intern AI"){
+    prompt_bg = "bg-prompt-intern-large";
+    console.log("gyatt")
+  } else if (selectedPersona?.persona_name == "Marketing AI"){
+    prompt_bg = "bg-prompt-marketing-large";
+    console.log("gyatt")
+  } else if (selectedPersona?.persona_name == "Human Resources AI"){
+    prompt_bg = "bg-prompt-hr-large";
+    console.log("gyatt")
+  } else if (selectedPersona?.persona_name == "Law AI"){
+    prompt_bg = "bg-prompt-law-large";
+    console.log("gyatt")
+  } else if (selectedPersona?.persona_name == "Admin AI"){
+    prompt_bg = "bg-prompt-admin-large";
+    console.log("gyatt")
+  } else if (selectedPersona?.persona_name == "Teacher AI"){
+    prompt_bg = "bg-prompt-teacher-large";
+    console.log("gyatt")
+  } else {
+    console.log("toilet")
+  }
+
   return (
     <div className="border rounded-md flex flex-col rounded-t-none grow dark:border-slate-600">
       {/* Header of Prompts */}
@@ -238,7 +263,7 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
                 }
                 className="basis-[30%] mb-4"
               >
-                <div className="bg-airis-primary dark:bg-cyan-600 dark:hover:bg-cyan-700 h-full relative flex flex-col justify-end rounded-lg p-6 hover:cursor-pointer hover:bg-slate-700">
+                <div className={`${prompt_bg} bg-right bg-airis-primary dark:bg-cyan-600 dark:hover:bg-cyan-700 h-full relative flex flex-col justify-end rounded-lg p-6 hover:cursor-pointer hover:bg-slate-700`}>
                   <h4 className="text-4xl text-white">{p.task}</h4>
                   <DiagonalArrow />
                 </div>
