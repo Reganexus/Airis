@@ -2,9 +2,12 @@ import Image from "next/image";
 import "/app/main/persona-selection-scrollbar.css";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { clearChatHistory, fetchAndSetChatHistory } from "@/lib/chat/handle-chat-history";
+import {
+  clearChatHistory,
+  fetchAndSetChatHistory,
+} from "@/lib/chat/handle-chat-history";
 import { useSession } from "next-auth/react";
-import moment from 'moment';
+import moment from "moment";
 import { usePathname, useRouter } from "next/navigation";
 
 interface Conversation {
@@ -15,11 +18,11 @@ interface Conversation {
   created_at: string; // ISO 8601 date-time string
 }
 
-interface GroupedConversation  {
+interface GroupedConversation {
   today: Conversation[];
-  yesterday: Conversation[]; 
-  last7Days: Conversation[]; 
-  last30Days: Conversation[]; 
+  yesterday: Conversation[];
+  last7Days: Conversation[];
+  last30Days: Conversation[];
   older: Conversation[];
 }
 
@@ -34,14 +37,24 @@ const groupByDates = (data: Array<Conversation>): GroupedConversation => {
     data.forEach((conversation) => {
       const date = moment(conversation.created_at);
       const now = moment();
-  
-      if (date.isSame(now, 'day')) {
+
+      if (date.isSame(now, "day")) {
         today.push(conversation);
-      } else if (date.isSame(now.subtract(1, 'days'), 'day')) {
+      } else if (date.isSame(now.subtract(1, "days"), "day")) {
         yesterday.push(conversation);
-      } else if (date.isBetween(now.subtract(7, 'days').startOf('day'), now.startOf('day'))) {
+      } else if (
+        date.isBetween(
+          now.subtract(7, "days").startOf("day"),
+          now.startOf("day")
+        )
+      ) {
         last7Days.push(conversation);
-      } else if (date.isBetween(now.subtract(30, 'days').startOf('day'), now.subtract(7, 'days').endOf('day'))) {
+      } else if (
+        date.isBetween(
+          now.subtract(30, "days").startOf("day"),
+          now.subtract(7, "days").endOf("day")
+        )
+      ) {
         last30Days.push(conversation);
       } else {
         older.push(conversation);
@@ -50,20 +63,21 @@ const groupByDates = (data: Array<Conversation>): GroupedConversation => {
   }
 
   return { today, yesterday, last7Days, last30Days, older };
-}
+};
 
 interface PersonaChatHistoryProps {
   refreshHistory: boolean;
 }
 
-const PersonaChatHistory: React.FC<PersonaChatHistoryProps> = ({ refreshHistory }) => {
-  
+const PersonaChatHistory: React.FC<PersonaChatHistoryProps> = ({
+  refreshHistory,
+}) => {
   /**
    * Hooks and Important Variables such as user's session
    */
   const router = useRouter();
   const pathname = usePathname();
-  const isInMainChatRoute = pathname === '/chat';
+  const isInMainChatRoute = pathname === "/chat";
   const { data: session, status } = useSession();
   const user = session?.user;
 
@@ -71,7 +85,7 @@ const PersonaChatHistory: React.FC<PersonaChatHistoryProps> = ({ refreshHistory 
    * Contains the Chatbot Name, Tagline displayed on Chat History Sidebar and groupings
    * of all past conversation in groupedHistory
    */
-  const [aiName, setAiName ]= useState<string | null>();
+  const [aiName, setAiName] = useState<string | null>();
   const [aiDescription, setAiDescription] = useState<string | null>();
   const [aiLogo, setAiLogo] = useState<string | null>();
   const [groupedHistory, setGroupedHistory] = useState<GroupedConversation>({
@@ -85,6 +99,7 @@ const PersonaChatHistory: React.FC<PersonaChatHistoryProps> = ({ refreshHistory 
     const name = sessionStorage.getItem('aiName');
     const description = sessionStorage.getItem('aiDescription');
     const logo = sessionStorage.getItem('persona_logo');
+
     setAiName(name);
     setAiDescription(description);
     setAiLogo(logo);;
@@ -93,22 +108,17 @@ const PersonaChatHistory: React.FC<PersonaChatHistoryProps> = ({ refreshHistory 
   useEffect(() => {
     // Check if the User is logged in
     // Fetch the Chat History
-    fetchAndSetChatHistory(status, user)
-    .then(
-      (result) => {
-        setGroupedHistory(groupByDates(result?.history))
-      }
-    );
+    fetchAndSetChatHistory(status, user).then((result) => {
+      setGroupedHistory(groupByDates(result?.history));
+    });
   }, [status, user, refreshHistory]);
-  
-  
 
   const handleHistoryCleared = async () => {
-    // Clear the chat history 
+    // Clear the chat history
     const historyCleared = await clearChatHistory();
     if (historyCleared) {
       if (!isInMainChatRoute) {
-        router.push('/chat')
+        router.push("/chat");
       } else {
         setGroupedHistory({
           today: [],
@@ -121,14 +131,13 @@ const PersonaChatHistory: React.FC<PersonaChatHistoryProps> = ({ refreshHistory 
     }
   };
 
-  
   return (
-    <div className="bg-slate-100 min-w-80 max-w-80 flex flex-col border-r border-slate-300">
+    <div className="bg-slate-100 min-w-80 max-w-80 flex flex-col border-r border-slate-300 dark:bg-slate-800 dark:border-slate-500">
       {/* Persona Card */}
-      <div className="p-2 bg-slate-50">
-        <div className="relative w-full flex flex-col bg-ai-law min-h-48 h-auto overflow-clip rounded-lg border">
-          <div className="absolute bottom-0 w-full h-[60%] bg-white p-5 pt-8 rounded-t-lg">
-            <div className="absolute left-3 top-[-25px] rounded-full w-14 h-14 border-4 border-white overflow-clip">
+      <div className="p-2 bg-slate-50 dark:bg-opacity-0">
+        <div className="relative w-full flex flex-col bg-ai-law min-h-48 h-auto overflow-clip rounded-lg border dark:border-slate-500">
+          <div className="absolute bottom-0 w-full h-[60%] bg-white dark:bg-slate-700 p-5 pt-8 rounded-t-lg ">
+            <div className="absolute left-3 top-[-25px] rounded-full w-14 h-14 border-4 border-white overflow-clip dark:border-slate-700">
               <Image
                 src={aiLogo ?? "/persona_icons/icon_law.png"}
                 alt="icon picture"
@@ -138,9 +147,11 @@ const PersonaChatHistory: React.FC<PersonaChatHistoryProps> = ({ refreshHistory 
               />
             </div>
 
-            <h4 className="font-bold text-slate-700">{aiName}</h4>
+            <h4 className="font-bold text-slate-700 dark:text-slate-200">
+              {aiName}
+            </h4>
 
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-500 dark:text-slate-300">
               {aiDescription}
             </p>
           </div>
@@ -148,22 +159,42 @@ const PersonaChatHistory: React.FC<PersonaChatHistoryProps> = ({ refreshHistory 
       </div>
 
       {/* Chat History Header */}
-      <div className="border-t border-b flex justify-between items-center p-3 gap-4 px-3 pb-3 bg-slate-50">
-        <h3 className=" font-bold text-slate-700">Chat History</h3>
+      <div className="border-t border-b flex justify-between items-center p-3 gap-4 px-3 pb-3 bg-slate-50 dark:bg-slate-700 dark:border-slate-500">
+        <h3 className=" font-bold text-slate-700 dark:text-slate-300">
+          Chat History
+        </h3>
 
         <ClearHistoryButton historyCleared={handleHistoryCleared} />
       </div>
 
       {/* Chat History Selection List */}
       <div className="flex flex-col max-h-full max-w-full overflow-y-auto gap-3 p-3 px-4 py-4 h-full relative persona-selection-scrollbar">
-        
         {groupedHistory && (
           <>
-            {groupedHistory.today.length > 0 && <ChatHistoryBatch date="Today" topics={groupedHistory.today} />}
-            {groupedHistory.yesterday.length > 0 && <ChatHistoryBatch date="Yesterday" topics={groupedHistory.yesterday} />}
-            {groupedHistory.last7Days.length > 0 && <ChatHistoryBatch date="Previous 7 days" topics={groupedHistory.last7Days} />}
-            {groupedHistory.last30Days.length > 0 && <ChatHistoryBatch date="Previous 30 days" topics={groupedHistory.last30Days} />}
-            {groupedHistory.older.length > 0 && <ChatHistoryBatch date="Older" topics={groupedHistory.older} />}
+            {groupedHistory.today.length > 0 && (
+              <ChatHistoryBatch date="Today" topics={groupedHistory.today} />
+            )}
+            {groupedHistory.yesterday.length > 0 && (
+              <ChatHistoryBatch
+                date="Yesterday"
+                topics={groupedHistory.yesterday}
+              />
+            )}
+            {groupedHistory.last7Days.length > 0 && (
+              <ChatHistoryBatch
+                date="Previous 7 days"
+                topics={groupedHistory.last7Days}
+              />
+            )}
+            {groupedHistory.last30Days.length > 0 && (
+              <ChatHistoryBatch
+                date="Previous 30 days"
+                topics={groupedHistory.last30Days}
+              />
+            )}
+            {groupedHistory.older.length > 0 && (
+              <ChatHistoryBatch date="Older" topics={groupedHistory.older} />
+            )}
           </>
         )}
       </div>
@@ -172,7 +203,6 @@ const PersonaChatHistory: React.FC<PersonaChatHistoryProps> = ({ refreshHistory 
 };
 
 export default PersonaChatHistory;
-
 
 interface ChatHistoryBatchProps {
   date?: string;
@@ -183,15 +213,13 @@ const dummyHistory = [
   {
     conversation_id: "",
     title: "Sign up Now",
-  }
+  },
 ];
 
 const ChatHistoryBatch: React.FC<ChatHistoryBatchProps> = ({
   date = "Yesterday",
   topics = dummyHistory,
 }) => {
-  
-  
   const router = useRouter();
 
   return (
@@ -214,15 +242,18 @@ const ChatHistoryBatch: React.FC<ChatHistoryBatchProps> = ({
   );
 };
 
-
 interface ClearHistoryProps {
   historyCleared: () => void;
 }
-const ClearHistoryButton: React.FC<ClearHistoryProps> = ({ historyCleared }) => {
+const ClearHistoryButton: React.FC<ClearHistoryProps> = ({
+  historyCleared,
+}) => {
   return (
-    <button 
-      onClick={() => {historyCleared();}} 
-      className="text-slate-500 py-1 px-2 hover:bg-red-200 hover:text-red-700 rounded-lg border bg-slate-200 flex gap-1 items-center"
+    <button
+      onClick={() => {
+        historyCleared();
+      }}
+      className="text-slate-500 dark:text-slate-300 dark:bg-slate-600 dark:border-slate-500 py-1 px-2 hover:bg-red-200 hover:text-red-700 dark:hover:text-red-100 rounded-lg border bg-slate-200 flex gap-1 items-center dark:hover:bg-red-900"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

@@ -26,6 +26,7 @@ export async function generateDALLE(model: string, prompt: string, quality: stri
   
     const data = await res.json();
     console.log("FETCH DALL-E RESPONSE: ");
+    console.log("THE WHOLE DATA: ", data);
     console.log(data.filenames);
     console.log(data.response);
   

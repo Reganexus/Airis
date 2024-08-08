@@ -20,7 +20,7 @@ const PersonaCard: React.FC<PersonaCardProps> = ({
   logo,
 }) => {
   return (
-    <div className="sticky top-0 z-10 flex justify-between items-center gap-4 max-w-5xl m-auto bg-white p-2 px-3 rounded-lg border shadow-md shadow-slate-600/20">
+    <div className="sticky top-0 z-10 flex justify-between items-center gap-4 max-w-5xl m-auto bg-white dark:bg-slate-700 dark:border-slate-500 p-2 px-3 rounded-lg border shadow-md shadow-slate-600/20">
       <div className="flex items-center gap-2 z-10">
         <BackToPersonaSelectionButton />
         <PersonaChatHistoryButton setIsOpenHistory={setIsOpenHistory} />
@@ -36,19 +36,27 @@ const PersonaCard: React.FC<PersonaCardProps> = ({
       </div>
 
       {/* TOPIC NAME INSERT HERE */}
-      <p className="absolute inset-0 w-full flex justify-center items-center font-semibold text-slate-700">
+      <p className="absolute inset-0 w-full flex justify-center items-center font-semibold text-slate-700 dark:text-slate-300">
         {task ?? ""}
       </p>
 
       <div className="flex item-center z-10">
-        <Button variant="ghost" size="icon" className="bg-none">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="bg-none dark:text-slate-300"
+        >
           <SettingsIcon />
-          <span className="sr-only">More</span>
+          <span className="sr-only">Settings</span>
         </Button>
 
-        <Button variant="ghost" size="icon" className="bg-none">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="bg-none dark:text-slate-300"
+        >
           <NewChatIcon />
-          <span className="sr-only">Send</span>
+          <span className="sr-only">New Chat</span>
         </Button>
       </div>
     </div>
@@ -62,7 +70,7 @@ function NewChatIcon() {
       fill="none"
       viewBox="0 0 24 24"
       stroke-width="1.5"
-      stroke="#64748b"
+      stroke="currentColor"
       className="size-6"
     >
       <path
@@ -81,7 +89,7 @@ function SettingsIcon() {
       fill="none"
       viewBox="0 0 24 24"
       stroke-width="1.5"
-      stroke="#64748b"
+      stroke="currentColor"
       className="size-6"
     >
       <path
@@ -102,7 +110,7 @@ const BackToPersonaSelectionButton = () => {
   return (
     <Link
       href={`/`}
-      className="text-slate-500 p-2 hover:bg-slate-200 hover:text-primary rounded-lg"
+      className="text-slate-500 p-2 hover:bg-slate-200 hover:text-primary rounded-lg dark:text-slate-200 dark:hover:bg-slate-800"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

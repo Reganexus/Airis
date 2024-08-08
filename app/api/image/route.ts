@@ -64,7 +64,7 @@ export async function POST(request: Request) {
 
     // Array to store the generated image URLs
     let imgURLS= [];
-
+    let downloadURLS = [];
     // Process each generated image
 
     let fileNames =  [];
@@ -97,6 +97,7 @@ export async function POST(request: Request) {
                 
                 console.log(blob);
                 console.log('Blob URL:', blob.url);
+                downloadURLS.push(blob.downloadUrl);
 
                 // Revalidate the cache for the root path
                 revalidatePath('/');
@@ -117,6 +118,7 @@ export async function POST(request: Request) {
             prompt: user_prompt,
             response: imgURLS,
             filenames: fileNames,
+            downloadUrls: downloadURLS, 
         }
     ));
 }
