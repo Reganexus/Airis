@@ -85,12 +85,12 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
   // const aiName = sessionStorage.getItem('aiName');
   // const aiDescription = sessionStorage.getItem('aiDescription');
-  const aiTask = sessionStorage.getItem('task');
+  const aiTask = sessionStorage.getItem("task");
 
   // Temporary url of images
+
+<!--   const [blob, setBlob] = useState<PutBlobResult | null>(null); -->
   const [refreshHistory, setRefreshHistory] = useState<boolean>(false);
-
-
 
   /**
    * Represents the loading state of the component.
@@ -135,13 +135,11 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     // Retrieve values from sessionStorage
     const chatbot_id = sessionStorage.getItem("chatbot_id");
     const persona_id = sessionStorage.getItem("persona_id");
-    const ai_name = sessionStorage.getItem('aiName');
+    const ai_name = sessionStorage.getItem("aiName");
     setChatbotId(chatbot_id);
     setPersonaId(persona_id);
     setAiName(ai_name);
   }, []);
-
-
 
   useEffect(() => {
     if (historyConversationId) {
@@ -149,25 +147,27 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
       // VALIDATE -  historyConversationId type should be number
       if (isNaN(numberHistoryConversationId)) {
-
         // Redirect to base chat route if invalid ID
         // TO BE REVISED, GO TO CHAT SELECTION INSTEEEEEEED
-        router.push('/');
+        router.push("/");
         return;
       }
 
       // VALIDATE - User should be logged in, with right account
-      if (status === 'unauthenticated') {
-        router.push('/');
+      if (status === "unauthenticated") {
+        router.push("/");
         return;
       }
 
-      if (status === 'authenticated' && user != undefined) {
+      if (status === "authenticated" && user != undefined) {
         const validateUser = async () => {
-          const data = await fetchChatUID(numberHistoryConversationId, user?.email);
+          const data = await fetchChatUID(
+            numberHistoryConversationId,
+            user?.email
+          );
 
-          if (data == 'wrong uid') {
-            router.push('/');
+          if (data == "wrong uid") {
+            router.push("/");
 
             return;
           } else {
@@ -176,19 +176,21 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
             const getOldChat = async () => {
               try {
                 const data = await fetchOldChat(numberHistoryConversationId);
-                if (data.error != '') {
+                if (data.error != "") {
                   console.log("Cannot find old conversation", data.error);
-                  router.push('/');
-                  return
+                  router.push("/");
+                  return;
                 }
-                console.log("Here is the fetched chatbot id of the chosen chat history,", data.chatbot_id)
+                console.log(
+                  "Here is the fetched chatbot id of the chosen chat history,",
+                  data.chatbot_id
+                );
                 // Fetch the Chatbot as well
                 const chatdata = await fetchChatbot(data.chatbot_id);
                 setChosenChatbot(chatdata.chatbot);
 
-                console.log('THIS IS THE OLD DATA MESSAGES');
+                console.log("THIS IS THE OLD DATA MESSAGES");
                 console.log(data.messages);
-
 
                 console.log("Messages Set");
                 setMessages(data.messages);
@@ -199,20 +201,17 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                 //     message.content = JSON.stringify(message.content);
                 //   }
                 // });
-
               } catch (error) {
                 console.error("Failed to fetch chatbot data", error);
               }
             };
             getOldChat();
 
-
             // Allow the system to save the conversation after the user has  sent a message
             isPromptRendered.current = false;
           }
         };
         validateUser();
-
       }
     } else {
       if (!mounted.current) return;
@@ -228,13 +227,13 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
             setMessages([
               {
                 id: "firstprompt",
-                role: 'user',
-                content: stringify
+                role: "user",
+                content: stringify,
               },
             ]);
             promptSubmit({
-              preventDefault: () => { },
-              target: undefined
+              preventDefault: () => {},
+              target: undefined,
             });
           } catch (error) {
             console.error("Failed to fetch chatbot data", error);
@@ -258,8 +257,8 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       return;
     }
 
-    if (!isLoading && !isLoading2 && status == 'authenticated' && user) {
-      // do not save if when first prompt is being shown 
+    if (!isLoading && !isLoading2 && status == "authenticated" && user) {
+      // do not save if when first prompt is being shown
 
       if (isPromptRendered.current) {
         isPromptRendered.current = false;
@@ -278,7 +277,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
         console.log("NEW CONVO", data);
         if (data.new_convo) {
           setConversationId(data.convo_id);
-          setRefreshHistory(true)
+          setRefreshHistory(true);
         }
       };
 
@@ -290,18 +289,16 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
    * Handles the submission event of both chat components (GPT or DALL-E)
    * this is called by the form
    */
-  async function promptSubmit(e: {
-    target: any; preventDefault: () => void
-  }) {
+  async function promptSubmit(e: { target: any; preventDefault: () => void }) {
     e.preventDefault();
     // let newBlob = {'url': ""};
-    if (model == 'gpt-4o-mini') {
-
+    if (model == "gpt-4o-mini") {
       const filesToHandle = imgFiles;
       setImgFiles([]);
-      const submitImages64 = images64.map(image => (typeof image === 'string' ? image : ''));
+      const submitImages64 = images64.map((image) =>
+        typeof image === "string" ? image : ""
+      );
       setImages64([]);
-
 
       console.log("IMAGE FILES LENGTH: ", filesToHandle.length);
 
@@ -321,29 +318,26 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
         setMessages(messagesToSet);
       }
 
-      setImgIdx(num => num + 2);
-      setImageFileNames([]);
 
+      setImgIdx((num) => num + 2);
+
+      setImageFileNames([]);
 
       handleSubmit(e, {
         data: { images64: submitImages64, textInput: input },
       });
 
-
-
       if (filesToHandle == null) {
-        console.log('No file selected');
-      }
-
-      else {
+        console.log("No file selected");
+      } else {
         console.log("FILE:");
         console.log(filesToHandle);
 
         for (const imgFile of filesToHandle) {
           if (imgFile) {
             const newBlob = await upload(imgFile.name, imgFile, {
-              access: 'public',
-              handleUploadUrl: '/api/avatar/upload',
+              access: "public",
+              handleUploadUrl: "/api/avatar/upload",
             });
 
 
@@ -353,18 +347,14 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
             }));
 
 
+
           }
         }
-
       }
-
 
       // Resets variables after submitting messages
 
-
-    }
-
-    else {
+    } else {
       /**
        * DALL-E MODEL
        * Calls the app/api/image/route.ts to generate image output
@@ -395,11 +385,13 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
           console.log("FILE NAMES TO BE SET:");
           console.log(res.filenames);
 
-          let messagesToShow = [{
-            id: "",
-            role: "user",
-            content: input,
-          }];
+          let messagesToShow = [
+            {
+              id: "",
+              role: "user",
+              content: input,
+            },
+          ];
           for (let i = 0; i < res.response.length; i++) {
             messagesToShow.push({
               id: "",
@@ -410,10 +402,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
               // Assuming res.filenames is an array with the same length as res.response
             });
           }
-          setMessages([
-            ...messages,
-            ...messagesToShow,
-          ]);
+          setMessages([...messages, ...messagesToShow]);
         }
       );
     }
@@ -423,9 +412,9 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
    * Handles the change of the model and updates the placeholder text when toggle button is clicked.
    */
   function handleModelChange() {
-    setQuality('standard');
-    setImgSize('256x256');
-    setImgStyle('natural');
+    setQuality("standard");
+    setImgSize("256x256");
+    setImgStyle("natural");
     setQuantity(1);
 
     if (model == "gpt-4o-mini") {
@@ -447,13 +436,10 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
   const [isHistoryOpen, setIsHistoryOpen] = React.useState<boolean>(true);
   const [isImageModel, setIsImageModel] = React.useState<boolean>(false);
-  const [isFileDropdownOpen, setIsFileDropdownOpen] =
-    React.useState<boolean>(false);
 
   const [imgFiles, setImgFiles] = useState<File[]>([]);
   useEffect(() => {
     console.log("FILES IN imgFiles: ", imgFiles);
-
   }, [imgFiles]);
 
   const [images64, setImages64] = useState<(string | ArrayBuffer | null)[]>([]);
@@ -468,6 +454,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   }, [downloadUrls]);
   const [displayImages, setDisplayImages] = useState<{ [key: number]: string[] }>({});
   const [imgFileNames, setImageFileNames] = useState<(string | ArrayBuffer | null)[]>([]);
+
   useEffect(() => {
     console.log("UPDATED IMAGE FILE NAMES: ", imgFileNames);
   }, [imgFileNames]);
@@ -476,7 +463,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     console.log("UPDATED DISPLAY IMAGES: ", displayImages);
   }, [displayImages]);
   const [imgIdx, setImgIdx] = useState(0);
-
 
   // Function to handle file selection
   const handleFileChange = (event: any) => {
@@ -489,14 +475,14 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
     const selectedFiles = Array.from(event.target.files as FileList);
     console.log("SELECTED FILE CHANGED: ", selectedFiles);
-    setImgFiles(prevFiles => [...prevFiles, ...selectedFiles]);
+    setImgFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
 
     for (const file of selectedFiles) {
       // ADD FILE NAMES AS ANNOTATIONS USING imgFileNames.. DO NOT FORGET AS THIS IS IMPORTANT BRO
       console.log("FILE NAME OF : ", file.name);
-      setImageFileNames(prevFileNames => [...prevFileNames, file.name]);
+      setImageFileNames((prevFileNames) => [...prevFileNames, file.name]);
       const url = URL.createObjectURL(file);
-      setDisplayImages(prevState => ({
+      setDisplayImages((prevState) => ({
         ...prevState,
         [imgIdx]: [...(prevState[imgIdx] || []), url],
       }));
@@ -506,29 +492,27 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       reader.readAsDataURL(file); // YOU NEED TO MAP MOST OF THIS IN AN ARRAY
       reader.onload = () => {
         if (typeof reader.result == "string") {
-          setImages64(prevImages => [...prevImages, reader.result]);
+          setImages64((prevImages) => [...prevImages, reader.result]);
         }
-      }
+      };
       reader.onerror = (error) => {
         console.log("error: " + error);
-      }
+      };
     }
-
-
   };
 
   // Function to handle file deletion
   const handleDeleteFile = (index: any) => {
-    console.log('INDEX TO REMOVE: ', index);
+    console.log("INDEX TO REMOVE: ", index);
     const updatedFiles = [...imgFiles];
     updatedFiles.splice(index, 1);
-    console.log('UPDATED FILES:', updatedFiles);
+    console.log("UPDATED FILES:", updatedFiles);
     setImgFiles(updatedFiles);
 
     // UPDATE DISPLAY IMAGES
     const updatedDisplay = displayImages[imgIdx];
     updatedDisplay.splice(index, 1);
-    setDisplayImages(prevState => ({
+    setDisplayImages((prevState) => ({
       ...prevState,
       [imgIdx]: updatedDisplay,
     }));
@@ -538,7 +522,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     updatedFileNames.splice(index, 1);
     setImageFileNames(updatedFileNames);
 
-    // UPDATE BASE 64 
+    // UPDATE BASE 64
     const updatedBase64 = images64;
     updatedBase64.splice(index, 1);
     setImages64(updatedBase64);
@@ -573,6 +557,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       });
   };
 
+
   // JSX ELEMENT:
   return (
     <div className="flex h-screen w-full">
@@ -581,9 +566,13 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       {isHistoryOpen && <PersonaChatHistory refreshHistory={refreshHistory} />}
 
       {/* Main Content */}
-      <div className="flex flex-1 flex-col h-screen">
-        <main className="relative overflow-auto pt-5 bg-slate-100 pb-0 h-full">
-          <PersonaCard persona={"ai"} setIsOpenHistory={setIsHistoryOpen} task={aiTask} />
+      <div className="flex flex-1 flex-col h-screen dark:bg-dark-mode dark:text-slate-100">
+        <main className="relative overflow-auto pt-5 bg-slate-100 dark:bg-opacity-0 pb-0 h-full">
+          <PersonaCard
+            persona={"ai"}
+            setIsOpenHistory={setIsHistoryOpen}
+            task={aiTask}
+          />
 
           <div className="pt-4 px-2 ps-4 pb-8 grid gap-6 max-w-5xl m-auto">
             {messages.map((m, i) => {
@@ -595,11 +584,10 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                 }
                 return (
                   <>
-
                     {
                       // If the output is an image (URL), display it
-                      m.content.startsWith('https') || m.content.startsWith('blob:http') ? (
-
+                      m.content.startsWith("https") ||
+                      m.content.startsWith("blob:http") ? (
                         <div className="flex items-start gap-4 justify-end">
                           <div className="grid gap-1.5 rounded-lg bg-primary p-3 px-4">
 
@@ -618,22 +606,22 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                               </svg>
                             </a>
+
                           </div>
                         </div>
                       ) : (
                         // Otherwise, assume the output is text and format it accordingly
-                        <div key={i} className="flex items-start gap-4 justify-end">
+                        <div
+                          key={i}
+                          className="flex items-start gap-4 justify-end"
+                        >
                           <div className="grid gap-1.5 rounded-lg bg-primary p-3 px-4">
                             <p className="text-white">{m.content}</p>
                           </div>
                         </div>
                       )
                     }
-
-
-
                   </>
-
                 );
               } else if (m.role == "assistant") {
                 {
@@ -664,7 +652,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                       <h1 className="font-semibold">{aiName}</h1>
                       {
                         // If the output is an image (URL), display it
-                        m.content.startsWith('https') ? (
+                        m.content.startsWith("https") ? (
                           <div>
                             <p>Here is your image:</p>
                             <img src={m.content} alt="Generated" />
@@ -678,10 +666,13 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                           </div>
                         ) : (
                           // Otherwise, assume the output is text and format it accordingly
-                          <div dangerouslySetInnerHTML={{ __html: formatTextToHTML(m.content) }} />
+                          <div
+                            dangerouslySetInnerHTML={{
+                              __html: formatTextToHTML(m.content),
+                            }}
+                          />
                         )
                       }
-
 
                       {(isLastMessage || isHovered) && (
                         <div className="absolute z-10 bottom-[-15px] left-4 mt-1 flex gap-2">
@@ -719,15 +710,12 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
               }
             })}
           </div>
-
-          {/* The gradient effect */}
-          <div className="sticky bottom-0 h-4 bg-gradient-to-b from-transparent to-slate-100"></div>
         </main>
 
         {/* INPUT */}
         <form
           onSubmit={promptSubmit}
-          className="pb-[20px] bg-slate-100 px-5 max-h-96 flex-1"
+          className="pb-[20px] bg-slate-100  dark:bg-opacity-0 px-5 max-h-96 flex-1"
         >
           {/* UPLOADED FILES LIST is DISPLAYED HERE */}
           <UploadedFiles files={imgFiles} onDelete={handleDeleteFile} />
@@ -735,8 +723,8 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
           <div
             className={
               !isImageModel
-                ? `rounded-lg max-w-5xl m-auto z-10 flex items-start gap-2 border bg-white px-4 h-auto sm:px-3 p-2`
-                : `rounded-lg max-w-5xl m-auto z-10 flex gap-2 border bg-white px-4 h-auto sm:px-3 p-2`
+                ? `rounded-lg max-w-5xl m-auto z-10 flex items-start gap-2 border bg-white dark:bg-slate-700 dark:border-slate-500 px-4 h-auto sm:px-3 p-2`
+                : `rounded-lg max-w-5xl m-auto z-10 flex gap-2 border bg-white dark:bg-slate-700 dark:border-slate-500 px-4 h-auto sm:px-3 p-2`
             }
           >
             <div
@@ -758,25 +746,22 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                 onChange={handleInputChange}
                 disabled={isLoading || isLoading2}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey && input) {
+                  if (e.key === "Enter" && !e.shiftKey && input) {
                     e.preventDefault(); // Prevents default form submission
                     promptSubmit(e); // Triggers form submission
                   }
                 }}
-
               />
               {/* <input type="file" id="fileUpload" name="fileUpload" /> */}
 
               {/* Hide these buttons if Image mode */}
               {!isImageModel && (
                 <>
-
                   {/* SUBMIT BUTTON */}
                   <Button
                     variant="default"
                     size="icon"
                     className="bg-primary order-last p-3"
-
                     disabled={isLoading || isLoading2 || !input}
                   >
                     <SendIcon />
@@ -818,7 +803,10 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
             {isImageModel && (
               <div className="min-w-80 border rounded-lg h-auto flex flex-col p-3 gap-2">
                 <div className="flex justify-between items-center">
-                  <label className="font-semibold text-slate-700" htmlFor="">
+                  <label
+                    className="font-semibold text-slate-700 dark:text-slate-300"
+                    htmlFor=""
+                  >
                     Model
                   </label>
 
@@ -829,7 +817,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                       setModel(e.target.value);
                       setQuantity(1);
                     }}
-                    className="text-sm text-slate-600 py-1 px-2 border rounded-md bg-slate-50"
+                    className="text-sm text-slate-600 py-1 px-2 border rounded-md bg-slate-50 "
                     disabled={
                       (model !== "dall-e-2" && model !== "dall-e-3") ||
                       isLoading ||
@@ -842,17 +830,22 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                 </div>
 
                 {/* Dropdown for image quality selection */}
-                <div className="flex justify-between items-center">
-                  <label className="font-semibold text-slate-700" htmlFor="">
+                <div className="flex justify-between items-center ">
+                  <label
+                    className="font-semibold text-slate-700 dark:text-slate-300"
+                    htmlFor=""
+                  >
                     Quality{" "}
-                    <sup className="font-normal text-slate-600">DALL-E3</sup>
+                    <sup className="font-normal text-slate-600 dark:text-slate-400">
+                      DALL-E3
+                    </sup>
                   </label>
                   <select
                     value={quality}
                     onChange={(e) => {
                       setQuality(e.target.value);
                     }}
-                    className="text-sm text-slate-600 py-1 px-2 border rounded-md bg-slate-50"
+                    className="text-sm text-slate-600 py-1 px-2 border rounded-md bg-slate-50 dark:text-slate-300"
                     disabled={model !== "dall-e-3" || isLoading || isLoading2}
                   >
                     <option value="standard">Standard</option>
@@ -862,7 +855,10 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
                 {/* Dropdown for image size selection */}
                 <div className="flex justify-between items-center">
-                  <label className="font-semibold text-slate-700" htmlFor="">
+                  <label
+                    className="font-semibold text-slate-700 dark:text-slate-300"
+                    htmlFor=""
+                  >
                     Size
                   </label>
                   <select
@@ -892,10 +888,15 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                 </div>
 
                 {/* Dropdown for image style selection */}
-                <div className="flex justify-between items-center">
-                  <label className="font-semibold text-slate-700" htmlFor="">
+                <div className="flex justify-between items-center ">
+                  <label
+                    className="font-semibold text-slate-700 dark:text-slate-300"
+                    htmlFor=""
+                  >
                     Style{" "}
-                    <sup className="font-normal text-slate-600">DALL-E3</sup>
+                    <sup className="font-normal text-slate-600 dark:text-slate-400">
+                      DALL-E3
+                    </sup>
                   </label>
 
                   <select
@@ -911,9 +912,14 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
                 {/* Dropdown for image quantity selection */}
                 <div className="flex justify-between items-center">
-                  <label className="font-semibold text-slate-700" htmlFor="">
+                  <label
+                    className="font-semibold text-slate-700 dark:text-slate-300"
+                    htmlFor=""
+                  >
                     Quantity{" "}
-                    <sup className="font-normal text-slate-600">DALL-E2</sup>
+                    <sup className="font-normal text-slate-600 dark:text-slate-400">
+                      DALL-E2
+                    </sup>
                   </label>
 
                   <select
@@ -937,7 +943,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
             {/**/}
           </div>
 
-          <p className="text-sm text-center pt-3 text-slate-500">
+          <p className="text-sm text-center pt-3 text-slate-500 dark:text-slate-400">
             This AI chatbot is for informational purposes only and should not be
             considered professional advice.
           </p>
@@ -967,7 +973,7 @@ const SuggestionChips = ({ suggestions = dummySuggestions }) => {
             e.preventDefault();
           }}
           key={s.suggestion}
-          className="bg-slate-50 border rounded-sm py-1 px-2 text-sm text-slate-500 hover:bg-slate-100 hover:text-slate-600"
+          className="bg-slate-50 dark:bg-slate-700 dark:border-slate-500 dark:text-slate-300 border rounded-sm py-1 px-2 text-sm text-slate-500 hover:bg-slate-100 hover:text-slate-600"
         >
           {s.suggestion}
         </button>
@@ -978,7 +984,7 @@ const SuggestionChips = ({ suggestions = dummySuggestions }) => {
         onClick={(e) => {
           e.preventDefault();
         }}
-        className="bg-slate-50 border rounded-sm py-1 px-2 text-sm text-slate-500 hover:bg-slate-100 hover:text-slate-600"
+        className="bg-slate-50 dark:bg-slate-700 dark:border-slate-500 dark:text-slate-300 border rounded-sm py-1 px-2 text-sm text-slate-500 hover:bg-slate-100 hover:text-slate-600"
       >
         ...
       </button>
@@ -1066,7 +1072,7 @@ function TextIcon() {
       fill="none"
       viewBox="0 0 24 24"
       stroke-width="1.5"
-      stroke="#64748b"
+      stroke="currentColor"
       className="size-6"
     >
       <path
@@ -1085,7 +1091,7 @@ function ImageIcon() {
       fill="none"
       viewBox="0 0 24 24"
       stroke-width="1.5"
-      stroke="#64748b"
+      stroke="currentColor"
       className="size-6"
     >
       <path
