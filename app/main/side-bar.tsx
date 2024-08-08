@@ -15,12 +15,35 @@ interface SideBarProps {
 const SideBar: React.FC<SideBarProps> = ({ id }) => {
   const [isDarkMode, setIsDarkMode] = React.useState<boolean>(false);
 
+  React.useEffect(() => {
+    // Check local storage for the dark mode preference
+    const darkModePreference = localStorage.getItem("darkMode");
+    if (darkModePreference === "true") {
+      setIsDarkMode(true);
+      document.body.classList.add("dark");
+    } else {
+      setIsDarkMode(false);
+      document.body.classList.remove("dark");
+    }
+  }, []);
+
   const onDarkModeToggle = () => {
-    setIsDarkMode((b) => !b);
+    setIsDarkMode((prevMode) => {
+      const newMode = !prevMode;
+      // Store the new mode in local storage
+      localStorage.setItem("darkMode", newMode.toString());
+      // Toggle the class on the body element
+      if (newMode) {
+        document.body.classList.add("dark");
+      } else {
+        document.body.classList.remove("dark");
+      }
+      return newMode;
+    });
   };
 
   return (
-    <div className="bg-slate-50 w-full max-w-20 flex flex-col justify-between border-r border-slate-300">
+    <div className="bg-slate-50 w-full max-w-20 flex flex-col justify-between border-r border-slate-300 dark:border-slate-600 dark:bg-slate-800">
       {/* LOGO */}
 
       <div className="flex justify-center items-center p-2">
@@ -35,14 +58,14 @@ const SideBar: React.FC<SideBarProps> = ({ id }) => {
       </div>
 
       {/* Profile Section */}
-      <div className="flex flex-col justify-between border-t border-slate-300 items-center py-2 px-2 pb-4 pt-3">
-        <div className="p-2 flex justify-center items-center hover:cursor-pointer hover:bg-slate-200 rounded-lg mb-1">
+      <div className="flex flex-col justify-between border-t border-slate-300 dark:border-slate-600 items-center py-2 px-2 pb-4 pt-3">
+        <div className="p-2 flex justify-center items-center hover:cursor-pointer hover:bg-slate-200 rounded-lg mb-1 dark:hover:bg-slate-700">
           <Image
             src="/user_placeholder_img.png"
             alt="user photo"
             width={50}
             height={50}
-            className="rounded-full hover:ring-2 ring-offset-2 ring-slate-400 border-2 border-white shadow-md"
+            className="rounded-full border-2 border-white shadow-md dark:border-slate-400"
           />
         </div>
 
@@ -64,7 +87,7 @@ export default SideBar;
 
 const ProfileIconButton = () => {
   return (
-    <button className="text-slate-500 p-4 hover:bg-slate-200 hover:text-primary rounded-lg">
+    <button className="text-slate-500 p-4 hover:bg-slate-200 hover:text-primary rounded-lg dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-200">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
@@ -85,7 +108,7 @@ const ProfileIconButton = () => {
 
 const SettingsIconButton = () => {
   return (
-    <button className="text-slate-500 p-4 hover:bg-slate-200 hover:text-primary rounded-lg">
+    <button className="text-slate-500 p-4 hover:bg-slate-200 hover:text-primary rounded-lg dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-200">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
@@ -120,7 +143,7 @@ const ToggleDarkModeIconButton: React.FC<DarkModeToggleProps> = ({
   return (
     <button
       onClick={onClick}
-      className="text-slate-500 p-4 hover:bg-slate-200 hover:text-primary rounded-lg"
+      className="text-slate-500 p-4 hover:bg-slate-200 hover:text-primary rounded-lg dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-200"
     >
       {isDarkMode ? (
         <svg
@@ -164,7 +187,7 @@ const LogoutIconButton = () => {
         signOut({ callbackUrl: "/" });
       }}
       title="Sign Out"
-      className="text-slate-500 p-4 hover:bg-red-100 hover:text-red-500 rounded-lg"
+      className="text-slate-500 p-4 hover:bg-red-100 hover:text-red-500 rounded-lg dark:text-slate-300 dark:hover:bg-red-500/30 dark:hover:text-red-300"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

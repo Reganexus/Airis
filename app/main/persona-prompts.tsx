@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 
-import { Key, Suspense, useEffect, useState } from "react";
+import { Key, Suspense, useCallback, useEffect, useState } from "react";
 import { SelectedPersona } from "@/lib/types";
 import { useStoreChatbotSession } from "@/lib/functions/local-storage/sessionStorage-chabot";
 import { fetchPrompts } from "@/lib/db/fetch-queries";
@@ -20,7 +20,7 @@ const PersonaPrompts: React.FC<PersonaChatbotsProps> = ({
   return (
     <div className="h-full w-full p-8">
       {/* The big card */}
-      <div className="h-full w-full bg-white rounded-lg border border-slate-300 shadow flex flex-col p-4">
+      <div className="h-full w-full bg-white rounded-lg border border-slate-300 dark:border-slate-600 shadow flex flex-col p-4 dark:bg-slate-800">
         {isLoading ? (
           <PersonaProfileLoading />
         ) : (
@@ -43,13 +43,13 @@ const PersonaProfile: React.FC<PersonaChatbotsProps> = ({
   selectedPersona,
 }) => {
   return (
-    <div className="border rounded-md rounded-b-none border-b-0 relative overflow-clip flex flex-col">
+    <div className="border rounded-md rounded-b-none border-b-0 relative dark:border-slate-600 overflow-clip flex flex-col">
       {/* just a background color style */}
       <div className="bg-airis-primary h-1"></div>
 
-      <div className="relative w-full h-[95%] bottom-0 bg-white flex px-4 py-3 items-center gap-3">
+      <div className="relative w-full h-[95%] bottom-0 flex px-4 py-3 items-center gap-3">
         {/* Image of the persona */}
-        <div className="rounded-full w-14 h-14 border-4 border-white overflow-clip relative">
+        <div className="rounded-full w-14 h-14 border-4 border-white dark:border-slate-700 overflow-clip relative">
           <Image
             src={"/persona_icons/icon_law.png"}
             alt="icon picture"
@@ -61,23 +61,25 @@ const PersonaProfile: React.FC<PersonaChatbotsProps> = ({
 
         {/* Persona Name and Descriptions */}
         <div className="flex flex-col">
-          <h2 className="text-2xl text-slate-800 font-bold">
+          <h2 className="text-2xl text-slate-800 font-bold dark:text-slate-300">
             {selectedPersona?.persona_name}
           </h2>
 
-          <p className="text-slate-500">{selectedPersona?.persona_tagline}</p>
+          <p className="text-slate-500 dark:text-slate-400">
+            {selectedPersona?.persona_tagline}
+          </p>
         </div>
 
         {/* Persona Action Buttons */}
         <div className="flex items-center ml-auto text-sm">
           <PersonaSettingsButton />
 
-          <button className="text-slate-500 py-2 pr-3 pl-2 hover:bg-slate-100 border border-slate-500  border-r-0 flex items-center gap-2">
+          <button className="text-slate-500 dark:text-slate-400 py-2 pr-3 pl-2 hover:bg-slate-100 dark:hover:bg-slate-700 dark:hover:text-slate-300 border border-slate-500  border-r-0 flex items-center gap-2">
             <ModifyPromptIcon />
             Modify Prompt
           </button>
 
-          <button className="text-slate-500 py-2 pr-3 pl-2 hover:bg-slate-100 border border-slate-500 rounded-lg rounded-l-none flex items-center gap-1">
+          <button className="text-slate-500 dark:text-slate-400 py-2 pr-3 pl-2 hover:bg-slate-100 dark:hover:bg-slate-700 dark:hover:text-slate-300 border border-slate-500 rounded-lg rounded-l-none flex items-center gap-1">
             <AddPromptIcon />
             Add Prompt
           </button>
@@ -117,6 +119,31 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
   const [defaultRole, setDefaultRole] = useState("");
   const storeSession = useStoreChatbotSession();
 
+  const handleRoleChange = useCallback(
+    (role: string) => {
+      if (role == "<--" || role == "") {
+        // a return button is clicked or the default prompt is shown
+        // Assign the Default Role and get each of all the roles once, store them in roles variable
+        const uniqueRoles = new Set<string>();
+        prompts.forEach((prompt: any) => {
+          if (prompt.default_prompt === true) {
+            setCurrentRole(prompt.role);
+            setDefaultRole(prompt.role);
+          }
+
+          uniqueRoles.add(prompt.role);
+        });
+        setRoles(Array.from(uniqueRoles));
+      } else {
+        // a sub-role is clicked, changing the current role
+        setCurrentRole(role);
+        // removed to avoid showing other roless
+        setRoles([]);
+      }
+    },
+    [prompts]
+  );
+
   useEffect(() => {
     setIsLoading(true);
 
@@ -134,41 +161,19 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
 
   useEffect(() => {
     handleRoleChange("");
-  }, [prompts]);
+  }, [prompts, handleRoleChange]);
 
   /**
    * Handles the change of a role shown on the Prompt Selection
    *  Only has one usage here
    */
-  const handleRoleChange = (role: string) => {
-    if (role == "<--" || role == "") {
-      // a return button is clicked or the default prompt is shown
-      // Assign the Default Role and get each of all the roles once, store them in roles variable
-      const uniqueRoles = new Set<string>();
-      prompts.forEach((prompt: any) => {
-        if (prompt.default_prompt === true) {
-          setCurrentRole(prompt.role);
-          setDefaultRole(prompt.role);
-        }
-
-        uniqueRoles.add(prompt.role);
-      });
-      setRoles(Array.from(uniqueRoles));
-    } else {
-      // a sub-role is clicked, changing the current role
-      setCurrentRole(role);
-      // removed to avoid showing other roless
-      setRoles([]);
-    }
-  };
 
   return (
-    <div className="border rounded-md flex flex-col rounded-t-none grow">
+    <div className="border rounded-md flex flex-col rounded-t-none grow dark:border-slate-600">
       {/* Header of Prompts */}
       <div className="flex flex-col p-4 px-5">
         {/* Breadcrumbs */}
-
-        <div className="bg-slate-100 rounded-full px-5 text-slate-600 py-1 border mb-4 self-start">
+        <div className="bg-slate-100 dark:bg-slate-600 rounded-full px-5 text-slate-600 dark:text-slate-300 py-1 border mb-4 self-start">
           <span>{selectedPersona?.persona_name}</span>
 
           {defaultRole !== currentRole && (
@@ -181,7 +186,7 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
 
         {/* text */}
         <div>
-          <h2 className="text-2xl font-semibold text-slate-700">
+          <h2 className="text-2xl font-semibold text-slate-700 dark:text-slate-300">
             Select a Prompt
           </h2>
         </div>
@@ -205,7 +210,7 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
               }
               className="basis-[30%] mb-4"
             >
-              <div className="bg-airis-primary h-full relative flex flex-col justify-end rounded-lg p-6 hover:cursor-pointer hover:bg-slate-700">
+              <div className="bg-airis-primary dark:bg-cyan-600 dark:hover:bg-cyan-700 h-full relative flex flex-col justify-end rounded-lg p-6 hover:cursor-pointer hover:bg-slate-700">
                 <h4 className="text-4xl text-white">{p.task}</h4>
                 <DiagonalArrow />
               </div>
@@ -287,7 +292,7 @@ const PromptCard: React.FC<PromptCardProps> = ({
         )
       }
     >
-      <div className="w-full h-full flex text-xl p-3 px-4 border rounded-md border-slate-300 text-slate-600 hover:bg-slate-200 hover:text-slate-800 hover:cursor-pointer">
+      <div className="w-full h-full flex text-xl p-3 px-4 border rounded-md border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-200 hover:text-slate-800 dark:hover:bg-slate-700 dark:hover:text-slate-200 hover:cursor-pointer">
         {promptObj.role == currentRole && <p>{promptObj.task}</p>}
       </div>
     </div>
@@ -306,7 +311,7 @@ const RoleCard: React.FC<RoleCardProps> = ({ role = "<--", onRoleChange }) => {
 
   return (
     <div onClick={handleClick}>
-      <div className="relative w-full h-full text-xl p-3 px-4 border rounded-md border-slate-300 text-slate-600 hover:bg-slate-200 hover:text-slate-800 hover:cursor-pointer">
+      <div className="relative w-full h-full text-xl p-3 px-4 border rounded-md border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-200 hover:text-slate-800 dark:hover:bg-slate-700 dark:hover:text-slate-200 hover:cursor-pointer">
         <p>
           {role} {role == "<--" && "Return"}
         </p>
@@ -322,7 +327,7 @@ const RoleCard: React.FC<RoleCardProps> = ({ role = "<--", onRoleChange }) => {
 // ICONS and BUTTONS
 const PersonaSettingsButton = () => {
   return (
-    <button className="text-slate-500 p-2 border border-slate-500 hover:bg-slate-100 rounded-lg rounded-r-none border-r-0">
+    <button className="text-slate-500 dark:text-slate-400 p-2 border border-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 dark:hover:text-slate-300 rounded-lg rounded-r-none border-r-0">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
