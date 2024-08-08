@@ -9,7 +9,7 @@ const NotFoundPage = () => {
       <header className="z-20 sticky inset-0 shadow flex justify-between items-center h-[4rem] border-b border-slate-300 px-4 bg-white">
         <Logo />
 
-        <div className="flex gap-3 items-align gap-4 py-3 z-20">
+        <div className="flex items-align gap-4 py-3 z-20">
           <Link
             href={{ pathname: "/entry", query: { type: "register" } }}
             className="bg-none border border-slate-700 rounded-lg px-4 p-2 hover:bg-slate-200 flex items-center"
