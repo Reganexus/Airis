@@ -5,6 +5,7 @@ import { Key, Suspense, useCallback, useEffect, useState } from "react";
 import { SelectedPersona } from "@/lib/types";
 import { useStoreChatbotSession } from "@/lib/functions/local-storage/sessionStorage-chabot";
 import { fetchPrompts } from "@/lib/db/fetch-queries";
+import { promptIcons } from "@/lib/prompticons";
 import PersonaProfileLoading from "./persona-profile-loading";
 import * as PromptLoading from "./prompts-loading";
 
@@ -104,9 +105,12 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
       persona_id: string;
       default_prompt: boolean;
       subpersona: boolean;
+      svg_icon: string;
     }[]
   >([]);
-
+  useEffect(() => {
+    console.log('Prompts updated:', prompts);
+  }, [prompts]);
   /**
    * currentRole      - contains the role that will be shown
    * roles            - contain all the roles of that persona
@@ -150,6 +154,7 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
     const getPrompts = async () => {
       if (selectedPersona?.persona_id) {
         const data = await fetchPrompts(selectedPersona?.persona_id);
+        console.log("DATA FROM THE DATABASE: ", data);
         setPrompts(data);
 
         setIsLoading(false);
@@ -257,6 +262,7 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
                 currentRole={currentRole}
                 aiName={selectedPersona?.persona_name}
                 aiDescription={selectedPersona?.persona_tagline}
+                svg_icon={p.svg_icon} // MODIFY THIS
               />
             ))}
           {/* Return */}
@@ -282,6 +288,7 @@ interface PromptCardProps {
   currentRole: string;
   aiName?: string;
   aiDescription?: string;
+  svg_icon?: string;
 }
 
 const PromptCard: React.FC<PromptCardProps> = ({
@@ -289,9 +296,23 @@ const PromptCard: React.FC<PromptCardProps> = ({
   currentRole,
   aiName,
   aiDescription,
+  svg_icon,
 }) => {
   // used when prompt is clicked, chatbot information stored on Session storage before going to /chat
   const storeSession = useStoreChatbotSession();
+
+  function findSvgByName(name?: string) {
+    if (!name) {
+      return;
+    }
+    try {
+      const icon = promptIcons.find(icon => icon.name.toLowerCase() === name.toLowerCase());
+      return icon ? icon.svg : '';
+    } catch (error) {
+      console.error('Error finding SVG:', error);
+      return;
+    }
+  }
 
   return (
     <div
@@ -304,7 +325,12 @@ const PromptCard: React.FC<PromptCardProps> = ({
         )
       }
     >
+
       <div className="w-full h-full flex text-xl p-3 px-4 border rounded-md border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-200 hover:text-slate-800 dark:hover:bg-slate-700 dark:hover:text-slate-200 hover:cursor-pointer">
+        {/* ADD THE ICONS HERE */}
+        <p>{findSvgByName(svg_icon)}</p>
+        &nbsp;
+
         {promptObj.role == currentRole && <p>{promptObj.task}</p>}
       </div>
     </div>
