@@ -9,13 +9,15 @@ export const useStoreChatbotSession = () => {
         name: string | undefined, 
         description: string | undefined, 
         chatbot_id: string, 
-        persona_id: string
+        persona_id: string,
+        task: string
     ) => {
         console.log("Storing session...");
         sessionStorage.setItem('aiName', name ?? "");
         sessionStorage.setItem('aiDescription', description ?? "");
         sessionStorage.setItem('chatbot_id', chatbot_id);
         sessionStorage.setItem('persona_id', persona_id);
+        sessionStorage.setItem('task', task);
 
         router.push('/chat');
     };

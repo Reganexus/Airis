@@ -53,7 +53,7 @@ export async function POST(request: Request) {
     // Generate images using the OpenAI API
     const image = await openai.images.generate(
         {
-            model: model, 
+            model: model,
             prompt: user_prompt,
             size: size,
             n: quantity,
