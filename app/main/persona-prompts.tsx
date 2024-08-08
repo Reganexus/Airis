@@ -8,6 +8,7 @@ import { fetchPrompts } from "@/lib/db/fetch-queries";
 import { promptIcons } from "@/lib/prompticons";
 import PersonaProfileLoading from "./persona-profile-loading";
 import * as PromptLoading from "./prompts-loading";
+import * as PromptLoadingStatic from "./prompts-loading-static";
 
 interface PersonaChatbotsProps {
   selectedPersona?: SelectedPersona;
@@ -29,7 +30,7 @@ const PersonaPrompts: React.FC<PersonaChatbotsProps> = ({
         )}
 
         {isLoading ? (
-          <PromptLoading.Page />
+          <PromptLoadingStatic.Page />
         ) : (
           <Prompts selectedPersona={selectedPersona} />
         )}
@@ -109,7 +110,7 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
     }[]
   >([]);
   useEffect(() => {
-    console.log('Prompts updated:', prompts);
+    console.log("Prompts updated:", prompts);
   }, [prompts]);
   /**
    * currentRole      - contains the role that will be shown
@@ -164,21 +165,20 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
     getPrompts();
   }, [selectedPersona?.persona_id]);
 
-
   /**
-   * Router for the default prompt 
+   * Router for the default prompt
    */
-//   const router = useRouter();
-//   const handleClick = (prompt: any) => {
-//     // Store values in sessionStorage, to be used on the /chat page
+  //   const router = useRouter();
+  //   const handleClick = (prompt: any) => {
+  //     // Store values in sessionStorage, to be used on the /chat page
 
-//     sessionStorage.setItem('task', prompt ?? "");
-//     sessionStorage.setItem('aiName', selectedPersona?.persona_name ?? "");
-//     sessionStorage.setItem('aiDescription', selectedPersona?.persona_tagline ?? "");
-//     sessionStorage.setItem('chatbot_id', prompt.chatbot_id);
-//     sessionStorage.setItem('persona_id', prompt.persona_id);
-//     router.push('/chat');
-//   };
+  //     sessionStorage.setItem('task', prompt ?? "");
+  //     sessionStorage.setItem('aiName', selectedPersona?.persona_name ?? "");
+  //     sessionStorage.setItem('aiDescription', selectedPersona?.persona_tagline ?? "");
+  //     sessionStorage.setItem('chatbot_id', prompt.chatbot_id);
+  //     sessionStorage.setItem('persona_id', prompt.persona_id);
+  //     router.push('/chat');
+  //   };
 
   useEffect(() => {
     handleRoleChange("");
@@ -308,7 +308,6 @@ interface PromptCardProps {
   svg_icon?: string;
 }
 
-
 const PromptCard: React.FC<PromptCardProps> = ({
   promptObj,
   currentRole,
@@ -324,10 +323,12 @@ const PromptCard: React.FC<PromptCardProps> = ({
       return;
     }
     try {
-      const icon = promptIcons.find(icon => icon.name.toLowerCase() === name.toLowerCase());
-      return icon ? icon.svg : '';
+      const icon = promptIcons.find(
+        (icon) => icon.name.toLowerCase() === name.toLowerCase()
+      );
+      return icon ? icon.svg : "";
     } catch (error) {
-      console.error('Error finding SVG:', error);
+      console.error("Error finding SVG:", error);
       return;
     }
   }
@@ -344,12 +345,10 @@ const PromptCard: React.FC<PromptCardProps> = ({
         )
       }
     >
-
       <div className="w-full h-full flex text-xl p-3 px-4 border rounded-md border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-200 hover:text-slate-800 dark:hover:bg-slate-700 dark:hover:text-slate-200 hover:cursor-pointer">
         {/* ADD THE ICONS HERE */}
         <p>{findSvgByName(svg_icon)}</p>
         &nbsp;
-
         {promptObj.role == currentRole && <p>{promptObj.task}</p>}
       </div>
     </div>
