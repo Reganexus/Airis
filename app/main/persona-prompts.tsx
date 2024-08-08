@@ -52,7 +52,7 @@ const PersonaProfile: React.FC<PersonaChatbotsProps> = ({
         {/* Image of the persona */}
         <div className="rounded-full w-14 h-14 border-4 border-white overflow-clip relative">
           <Image
-            src={"/persona_icons/icon_law.png"}
+            src={selectedPersona?.persona_icon ?? "/logo/airis_logo_sq.png"}
             alt="icon picture"
             layout="fill"
             objectFit="cover"

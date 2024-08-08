@@ -34,4 +34,5 @@ export interface SelectedPersona {
   persona_name: string;
   persona_tagline: string;
   persona_link: string;
+  persona_icon: string | null;
 }

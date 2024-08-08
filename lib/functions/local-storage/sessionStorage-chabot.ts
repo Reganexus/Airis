@@ -20,3 +20,13 @@ export const useStoreChatbotSession = () => {
         router.push('/chat');
     };
 };
+
+export const useStorePersonaLogoSession = () => {
+    // Function when a Persona is clicked on to pass the persona_logo
+  return (
+        persona_logo: string | undefined, 
+    ) => {
+        console.log("Storing persona logo session...");
+        sessionStorage.setItem('persona_logo', persona_logo ?? "");
+    };
+};
