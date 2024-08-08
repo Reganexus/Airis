@@ -7,18 +7,17 @@ export const maxDuration = 30;
 export async function POST(req: Request) {
 
   const { messages, data } = await req.json();
-  
-  console.log('KYA YAMETE');
+
   messages[messages.length-1]['image'] = data.imageUrl;
-  console.log('IMAGES BASE 64: ');
-  console.log(data.images64);
+  // console.log('IMAGES BASE 64: ');
+  // console.log(data.images64);
 
   if(data.images64 != ""){
-    console.log("IMAGE IS SUBMITTED");
+    // console.log("IMAGE IS SUBMITTED");
     const messageContent = [ { type: "text", text: (data.textInput == "") ? "What's in this image?" : data.textInput }];
 
     for (const image64 of data.images64){
-      console.log(typeof(image64));
+      // console.log(typeof(image64));
       messageContent.push(
             {
               type: "image", // Use the correct type as per your API's schema
@@ -42,7 +41,7 @@ export async function POST(req: Request) {
 
   }
   else{
-    console.log("IMAGE IS NOT SUBMITTED");
+    // console.log("IMAGE IS NOT SUBMITTED");
     const result = await streamText({	
       model: openai('gpt-4o-mini'),	
       maxTokens: 4096,

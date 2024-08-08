@@ -231,8 +231,20 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                 const chatdata = await fetchChatbot(data.chatbot_id);
                 setChosenChatbot(chatdata.chatbot);
 
+                console.log('THIS IS THE OLD DATA MESSAGES');
+                console.log(data.messages);
+
+
                 console.log("Messages Set");
                 setMessages(data.messages);
+
+                // DO THIS AFTER THE MESSAGES HAVE BEEN RETRIEVED
+                // data.messages.forEach((message) => {
+                //   if (Array.isArray(message.content)) {
+                //     message.content = JSON.stringify(message.content);
+                //   }
+                // });
+
               } catch (error) {
                 console.error("Failed to fetch chatbot data", error);
               }
@@ -350,47 +362,52 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     // let newBlob = {'url': ""};
     if (model == 'gpt-4o-mini') {
 
-      setImgLength(0);
-
-
+      const filesToHandle = imgFiles;
+      setImgFiles([]);
       const submitImages64 = images64.map(image => (typeof image === 'string' ? image : ''));
+      setImgLength(0);
       setImages64([]);
 
-      console.log("IMAGE FILES LENGTH: ", imgFiles.length);
-      if (imgFiles.length != 0) {
-        setMessages([
-          ...messages,
-          {
+
+      console.log("IMAGE FILES LENGTH: ", filesToHandle.length);
+
+      console.log("DISPLAY IMAGES: ", displayImages);
+
+      let messagesToSet = [...messages];
+
+      if (filesToHandle.length != 0) {
+        for (let i = 0; i < displayImages[imgIdx].length; i++) {
+          messagesToSet.push({
             id: "",
             role: "user",
-            content: displayImages[imgIdx],
-          },
-        ]);
+            content: displayImages[imgIdx][i],
+            annotations: imgFileNames[i],
+          });
+        }
+        setMessages(messagesToSet);
       }
-
-      for (const file of imgFiles){
-        
-      }
-
 
       setImgIdx(num => num + 2);
 
-      setImgFiles([]);
+
+      setImageFileNames([]);
+
 
       handleSubmit(e, {
         data: { images64: submitImages64, textInput: input },
       });
 
 
-      if (imgFiles == null) {
+
+      if (filesToHandle == null) {
         console.log('No file selected');
       }
 
       else {
         console.log("FILE:");
-        console.log(imgFiles);
+        console.log(filesToHandle);
 
-        for (const imgFile of imgFiles) {
+        for (const imgFile of filesToHandle) {
           if (imgFile) {
             const newBlob = await upload(imgFile.name, imgFile, {
               access: 'public',
@@ -403,6 +420,12 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
         }
 
       }
+
+
+      // Resets variables after submitting messages
+
+
+
 
     }
 
@@ -436,19 +459,23 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
           console.log(res.response);
           console.log("FILE NAMES TO BE SET:");
           console.log(res.filenames);
-          setMessages([
-            ...messages,
-            {
-              id: "",
-              role: "user",
-              content: input,
-            },
-            {
+
+          let messagesToShow = [{
+            id: "",
+            role: "user",
+            content: input,
+          }];
+          for (let i = 0; i < res.response.length; i++) {
+            messagesToShow.push({
               id: "",
               role: "assistant",
-              content: res.response,
-              annotations: res.filenames,
-            },
+              content: res.response[i],
+              annotations: res.filenames[i], // Assuming res.filenames is an array with the same length as res.response
+            });
+          }
+          setMessages([
+            ...messages,
+            ...messagesToShow,
           ]);
         }
       );
@@ -500,6 +527,9 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
   const [displayImages, setDisplayImages] = useState<{ [key: number]: string[] }>({});
   const [imgFileNames, setImageFileNames] = useState<(string | ArrayBuffer | null)[]>([]);
+  useEffect(() => {
+    console.log("UPDATED IMAGE FILE NAMES: ", imgFileNames);
+  }, [imgFileNames]);
 
   const isEmptyObject = (obj: object) => Object.keys(obj).length === 0;
   useEffect(() => {
@@ -524,9 +554,9 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     setImgFiles(prevFiles => [...prevFiles, ...selectedFiles]);
 
     for (const file of selectedFiles) {
-
       // ADD FILE NAMES AS ANNOTATIONS USING imgFileNames.. DO NOT FORGET AS THIS IS IMPORTANT BRO
       console.log("FILE NAME OF : ", file.name);
+      setImageFileNames(prevFileNames => [...prevFileNames, file.name]);
       const url = URL.createObjectURL(file);
       setDisplayImages(prevState => ({
         ...prevState,
@@ -565,7 +595,12 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       [imgIdx]: updatedDisplay,
     }));
 
-    // INCOMPLETE
+    // UPDATE FILE NAMES
+    const updatedFileNames = imgFileNames;
+    updatedFileNames.splice(index, 1);
+    setImageFileNames(updatedFileNames);
+
+    // UPDATE BASE 64 
     const updatedBase64 = images64;
     updatedBase64.splice(index, 1);
     setImages64(updatedBase64);
@@ -601,30 +636,26 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
 
                     {
-                      // If Output is image,
-                      //  output of ai is url but will be converted into array immediately
-                      Array.isArray(m.content) ? (
-                        m.content.map((url, index) => (
-                          <>
+                      // If the output is an image (URL), display it
+                      m.content.startsWith('https') || m.content.startsWith('blob:http') ? (
 
-                            <div key={index} className="flex items-start gap-4 justify-end">
-                              <div className="grid gap-1.5 rounded-lg bg-primary p-3 px-4">
-                                <img
-                                  src={url}
-                                  alt={`Uploaded preview ${index}`}
-                                  style={{ marginTop: '20px', maxWidth: '200px', height: 'auto' }}
-                                />
-                              </div>
-                            </div>
-                          </>
-                        ))
+                        <div className="flex items-start gap-4 justify-end">
+                          <div className="grid gap-1.5 rounded-lg bg-primary p-3 px-4">
+                            <img
+                              src={m.content}
+                              alt={`Uploaded preview`}
+                              style={{ maxWidth: '200px', height: 'auto' }}
+                            />
+                          </div>
+                        </div>
                       ) : (
-                        // gpt outputs Text instead
+                        // Otherwise, assume the output is text and format it accordingly
                         <div key={i} className="flex items-start gap-4 justify-end">
                           <div className="grid gap-1.5 rounded-lg bg-primary p-3 px-4">
                             <p className="text-white">{m.content}</p>
                           </div>
-                        </div>)
+                        </div>
+                      )
                     }
 
 
@@ -660,20 +691,18 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                     <div className="relative grid gap-1.5 p-3 px-4 text-base">
                       <h1 className="font-semibold">{aiName}</h1>
                       {
-                        // If Output is image,
-                        //  output of ai is url but will be converted into array immediately
-                        Array.isArray(m.content) ? (
-                          m.content.map((url, index) => (
-                            <>
-                              <p>Here is your image:</p>
-                              <img key={index} src={url} alt="Generated" />
-                            </>
-                          ))
+                        // If the output is an image (URL), display it
+                        m.content.startsWith('https') ? (
+                          <div>
+                            <p>Here is your image:</p>
+                            <img src={m.content} alt="Generated" />
+                          </div>
                         ) : (
-                          // gpt outputs Text instead
+                          // Otherwise, assume the output is text and format it accordingly
                           <div dangerouslySetInnerHTML={{ __html: formatTextToHTML(m.content) }} />
                         )
                       }
+
 
                       {(isLastMessage || isHovered) && (
                         <div className="absolute z-10 bottom-[-15px] left-4 mt-1 flex gap-2">
