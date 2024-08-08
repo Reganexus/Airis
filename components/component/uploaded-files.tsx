@@ -12,13 +12,16 @@ const dummyFiles: any[] = [
   { fileName: "pic.jpg", fileType: "img" },
 ];
 
-type UploadedFilesProps = { files: File[]; onDelete: () => void };
+type UploadedFilesProps = { files: File[]; onDelete: (i : number) => void };
 
 const UploadedFiles = ({ files, onDelete }: UploadedFilesProps) => {
   return (
     <div className="max-w-5xl m-auto w-full bg-white mb-1 py-1 pt-2 px-4 rounded-lg border border-slate-200  flex gap-3">
       {files.map((f, i) => (
-        <FileCard key={i} fileName={f.name} onDelete={onDelete} file={f} />
+        <FileCard 
+        key={i} 
+        fileName={f.name} 
+        onDelete={()=> { onDelete(i)}} file={f} />
       ))}
     </div>
   );

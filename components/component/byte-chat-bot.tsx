@@ -90,9 +90,11 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const isFirstRender = useRef(true);
   const isSecondRender = useRef(true);
   const isPromptRendered = useRef(true);
-  
-  
-  
+
+  const aiName = sessionStorage.getItem('aiName');
+  const aiDescription = sessionStorage.getItem('aiDescription');
+  const aiTask = sessionStorage.getItem('task');
+
   const [uploadUrl, setUploadUrl] = useState("");
   const inputFileRef = useRef<HTMLInputElement>(null);
   const [blob, setBlob] = useState<PutBlobResult | null>(null);
@@ -108,7 +110,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       }
     };
   }, [displayImage]);
-  
+
   function handleImageChange(event: ChangeEvent<HTMLInputElement>) {
     if (event.target.files == null || event.target.files.length === 0) {
       // Reset the image state if no file is selected or the dialog is closed
@@ -155,7 +157,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const [imgSize, setImgSize] = useState("256x256");
   const [imgStyle, setImgStyle] = useState("natural");
   const [quantity, setQuantity] = useState(1);
-
   const [model, setModel] = useState("gpt-4o-mini");
 
   useEffect(() => {
@@ -190,8 +191,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
   useEffect(() => {
     if (historyConversationId) {
-
-
       const numberHistoryConversationId = Number(historyConversationId);
 
       // VALIDATE -  historyConversationId type should be number
@@ -233,8 +232,20 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                 const chatdata = await fetchChatbot(data.chatbot_id);
                 setChosenChatbot(chatdata.chatbot);
 
+                console.log('THIS IS THE OLD DATA MESSAGES');
+                console.log(data.messages);
+
+
                 console.log("Messages Set");
                 setMessages(data.messages);
+
+                // DO THIS AFTER THE MESSAGES HAVE BEEN RETRIEVED
+                // data.messages.forEach((message) => {
+                //   if (Array.isArray(message.content)) {
+                //     message.content = JSON.stringify(message.content);
+                //   }
+                // });
+
               } catch (error) {
                 console.error("Failed to fetch chatbot data", error);
               }
@@ -356,29 +367,73 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     // let newBlob = {'url': ""};
     if (model == 'gpt-4o-mini') {
 
+      const filesToHandle = imgFiles;
+      setImgFiles([]);
+      const submitImages64 = images64.map(image => (typeof image === 'string' ? image : ''));
+      setImgLength(0);
+      setImages64([]);
 
-      // if (!inputFileRef.current?.files) {
-      //   throw new Error('No file selected');
-      // }
-      // else{
-      //   const file = inputFileRef.current.files[0];
-      //   console.log("FILE:");
-      //   console.log(file);
-      //   if(file){
-      //       newBlob = await upload(file.name, file, {
-      //       access: 'public',
-      //       handleUploadUrl: '/api/avatar/upload',
-      //     });
-      //     setBlob(newBlob);
-      //     console.log(newBlob);
 
-      //   }
-      // }
+      console.log("IMAGE FILES LENGTH: ", filesToHandle.length);
+
+      console.log("DISPLAY IMAGES: ", displayImages);
+
+      let messagesToSet = [...messages];
+
+      if (filesToHandle.length != 0) {
+        for (let i = 0; i < displayImages[imgIdx].length; i++) {
+          messagesToSet.push({
+            id: "",
+            role: "user",
+            content: displayImages[imgIdx][i],
+            annotations: imgFileNames[i],
+          });
+        }
+        setMessages(messagesToSet);
+      }
+
+      setImgIdx(num => num + 2);
+
+
+      setImageFileNames([]);
+
 
       handleSubmit(e, {
-        data: { image64: image, textInput: input },
+        data: { images64: submitImages64, textInput: input },
       });
+
+
+
+      if (filesToHandle == null) {
+        console.log('No file selected');
+      }
+
+      else {
+        console.log("FILE:");
+        console.log(filesToHandle);
+
+        for (const imgFile of filesToHandle) {
+          if (imgFile) {
+            const newBlob = await upload(imgFile.name, imgFile, {
+              access: 'public',
+              handleUploadUrl: '/api/avatar/upload',
+            });
+            setBlob(newBlob);
+            console.log(newBlob);
+
+          }
+        }
+
+      }
+
+
+      // Resets variables after submitting messages
+
+
+
+
     }
+
     else {
       /**
        * DALL-E MODEL
@@ -405,21 +460,27 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       generateDALLE(model, input, quality, imgSize, imgStyle, quantity).then(
         (res) => {
           setIsLoading2(false);
+          console.log("CONTENT OF IMAGE GENERATION: ");
+          console.log(res.response);
           console.log("FILE NAMES TO BE SET:");
           console.log(res.filenames);
-          setMessages([
-            ...messages,
-            {
-              id: "",
-              role: "user",
-              content: input,
-            },
-            {
+
+          let messagesToShow = [{
+            id: "",
+            role: "user",
+            content: input,
+          }];
+          for (let i = 0; i < res.response.length; i++) {
+            messagesToShow.push({
               id: "",
               role: "assistant",
-              content: res.response,
-              annotations: res.filenames,
-            },
+              content: res.response[i],
+              annotations: res.filenames[i], // Assuming res.filenames is an array with the same length as res.response
+            });
+          }
+          setMessages([
+            ...messages,
+            ...messagesToShow,
           ]);
         }
       );
@@ -457,20 +518,101 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const [isFileDropdownOpen, setIsFileDropdownOpen] =
     React.useState<boolean>(false);
 
-  const [files, setFiles] = useState([]);
+  const [imgFiles, setImgFiles] = useState<File[]>([]);
+  useEffect(() => {
+    console.log("FILES IN imgFiles: ", imgFiles);
+
+  }, [imgFiles]);
+
+  const [images64, setImages64] = useState<(string | ArrayBuffer | null)[]>([]);
+  useEffect(() => {
+    console.log("UPDATED BASE 64 IMAGES: ", images64);
+  }, [images64]);
+
+
+  const [displayImages, setDisplayImages] = useState<{ [key: number]: string[] }>({});
+  const [imgFileNames, setImageFileNames] = useState<(string | ArrayBuffer | null)[]>([]);
+  useEffect(() => {
+    console.log("UPDATED IMAGE FILE NAMES: ", imgFileNames);
+  }, [imgFileNames]);
+
+  const isEmptyObject = (obj: object) => Object.keys(obj).length === 0;
+  useEffect(() => {
+    console.log("UPDATED DISPLAY IMAGES: ", displayImages);
+  }, [displayImages]);
+  const [imgIdx, setImgIdx] = useState(0);
+
+  const [imgLength, setImgLength] = useState(0);
 
   // Function to handle file selection
-  const handleFileChange = (e: any) => {
-    const selectedFiles = Array.from(e.target.files);
-    setFiles([...files, ...selectedFiles]);
+  const handleFileChange = (event: any) => {
+    if (event.target.files == null || event.target.files.length === 0) {
+      // Reset the image state if no file is selected or the dialog is closed
+      setImages64([]);
+      setImgFiles([]);
+      return;
+    }
+
+    const selectedFiles = Array.from(event.target.files as FileList);
+    setImgLength(selectedFiles.length);
+    console.log("SELECTED FILE CHANGED: ", selectedFiles);
+    setImgFiles(prevFiles => [...prevFiles, ...selectedFiles]);
+
+    for (const file of selectedFiles) {
+      // ADD FILE NAMES AS ANNOTATIONS USING imgFileNames.. DO NOT FORGET AS THIS IS IMPORTANT BRO
+      console.log("FILE NAME OF : ", file.name);
+      setImageFileNames(prevFileNames => [...prevFileNames, file.name]);
+      const url = URL.createObjectURL(file);
+      setDisplayImages(prevState => ({
+        ...prevState,
+        [imgIdx]: [...(prevState[imgIdx] || []), url],
+      }));
+
+      console.log(url);
+      const reader = new FileReader();
+      reader.readAsDataURL(file); // YOU NEED TO MAP MOST OF THIS IN AN ARRAY
+      reader.onload = () => {
+        if (typeof reader.result == "string") {
+          setImages64(prevImages => [...prevImages, reader.result]);
+        }
+      }
+      reader.onerror = (error) => {
+        console.log("error: " + error);
+      }
+    }
+
+
   };
 
   // Function to handle file deletion
   const handleDeleteFile = (index: any) => {
-    const updatedFiles = [...files];
+    console.log('INDEX TO REMOVE: ', index);
+    const updatedFiles = [...imgFiles];
     updatedFiles.splice(index, 1);
-    setFiles(updatedFiles);
+    console.log('UPDATED FILES:', updatedFiles);
+    setImgFiles(updatedFiles);
+
+    // UPDATE DISPLAY IMAGES
+    const updatedDisplay = displayImages[imgIdx];
+    updatedDisplay.splice(index, 1);
+    setDisplayImages(prevState => ({
+      ...prevState,
+      [imgIdx]: updatedDisplay,
+    }));
+
+    // UPDATE FILE NAMES
+    const updatedFileNames = imgFileNames;
+    updatedFileNames.splice(index, 1);
+    setImageFileNames(updatedFileNames);
+
+    // UPDATE BASE 64 
+    const updatedBase64 = images64;
+    updatedBase64.splice(index, 1);
+    setImages64(updatedBase64);
   };
+
+
+
 
   // JSX ELEMENT:
   return (
@@ -482,7 +624,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       {/* Main Content */}
       <div className="flex flex-1 flex-col h-screen">
         <main className="relative overflow-auto pt-5 bg-slate-100 pb-0 h-full">
-          <PersonaCard persona={"ai"} setIsOpenHistory={setIsHistoryOpen} />
+          <PersonaCard persona={"ai"} setIsOpenHistory={setIsHistoryOpen} task={aiTask} />
 
           <div className="pt-4 px-2 ps-4 pb-8 grid gap-6 max-w-5xl m-auto">
             {messages.map((m, i) => {
@@ -493,21 +635,33 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                   /* User message */
                 }
                 return (
-
-
                   <>
-                    {displayImage != "" && <div key={i} className="flex items-start gap-4 justify-end">
-                      <div className="grid gap-1.5 rounded-lg bg-primary p-3 px-4">
-                        <img src={displayImage}
-                          alt="Uploaded preview"
-                          style={{ marginTop: '20px', maxWidth: '200px', height: 'auto' }} />
-                      </div>
-                    </div>}
-                    <div key={i} className="flex items-start gap-4 justify-end">
-                      <div className="grid gap-1.5 rounded-lg bg-primary p-3 px-4">
-                        <p className="text-white">{m.content}</p>
-                      </div>
-                    </div>
+
+                    {
+                      // If the output is an image (URL), display it
+                      m.content.startsWith('https') || m.content.startsWith('blob:http') ? (
+
+                        <div className="flex items-start gap-4 justify-end">
+                          <div className="grid gap-1.5 rounded-lg bg-primary p-3 px-4">
+                            <img
+                              src={m.content}
+                              alt={`Uploaded preview`}
+                              style={{ maxWidth: '200px', height: 'auto' }}
+                            />
+                          </div>
+                        </div>
+                      ) : (
+                        // Otherwise, assume the output is text and format it accordingly
+                        <div key={i} className="flex items-start gap-4 justify-end">
+                          <div className="grid gap-1.5 rounded-lg bg-primary p-3 px-4">
+                            <p className="text-white">{m.content}</p>
+                          </div>
+                        </div>
+                      )
+                    }
+
+
+
                   </>
 
                 );
@@ -539,20 +693,18 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                     <div className="relative grid gap-1.5 p-3 px-4 text-base">
                       <h1 className="font-semibold">{aiName}</h1>
                       {
-                          // If Output is image,
-                          //  output of ai is url but will be converted into array immediately
-                            Array.isArray(m.content) ? (
-                            m.content.map((url, index) => (
-                              <>
-                              <p>Here is your image:</p>
-                              <img key={index} src={url} alt="Generated" />
-                              </>
-                            ))
-                          ) : (
-                          // gpt outputs Text instead
+                        // If the output is an image (URL), display it
+                        m.content.startsWith('https') ? (
+                          <div>
+                            <p>Here is your image:</p>
+                            <img src={m.content} alt="Generated" />
+                          </div>
+                        ) : (
+                          // Otherwise, assume the output is text and format it accordingly
                           <div dangerouslySetInnerHTML={{ __html: formatTextToHTML(m.content) }} />
                         )
                       }
+
 
                       {(isLastMessage || isHovered) && (
                         <div className="absolute z-10 bottom-[-15px] left-4 mt-1 flex gap-2">
@@ -601,9 +753,9 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
           className="pb-[20px] bg-slate-100 px-5 max-h-96 flex-1"
         >
           {/* UPLOADED FILES LIST is DISPLAYED HERE */}
-          {files.length !== 0 && (
-            <UploadedFiles files={files} onDelete={handleDeleteFile} />
-          )}
+          {/* {imgLength !== 0 && ( */}
+          <UploadedFiles files={imgFiles} onDelete={handleDeleteFile} />
+          {/* ) */}
 
           <div
             className={
@@ -639,20 +791,23 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
               />
 
-              <input name="file"
+              {/* <input name="file"
                 type="file"
                 onChange={handleImageChange}
-              />
+              /> */}
 
               {/* <input type="file" id="fileUpload" name="fileUpload" /> */}
 
               {/* Hide these buttons if Image mode */}
               {!isImageModel && (
                 <>
+
+                  {/* SUBMIT BUTTON */}
                   <Button
                     variant="default"
                     size="icon"
                     className="bg-primary order-last p-3"
+
                     disabled={isLoading || isLoading2 || !input}
                   >
                     <SendIcon />
