@@ -1,25 +1,37 @@
 "use client";
 import Image from "next/image";
 
-import { Key, useEffect, useState } from "react";
+import { Key, Suspense, useEffect, useState } from "react";
 import { SelectedPersona } from "@/lib/types";
 import { useStoreChatbotSession } from "@/lib/functions/local-storage/sessionStorage-chabot";
 import { fetchPrompts } from "@/lib/db/fetch-queries";
+import PersonaProfileLoading from "./persona-profile-loading";
+import * as PromptLoading from "./prompts-loading";
 
 interface PersonaChatbotsProps {
   selectedPersona?: SelectedPersona;
+  isLoading?: Boolean;
 }
 
 const PersonaPrompts: React.FC<PersonaChatbotsProps> = ({
   selectedPersona,
+  isLoading,
 }) => {
   return (
     <div className="h-full w-full p-8">
       {/* The big card */}
       <div className="h-full w-full bg-white rounded-lg border border-slate-300 shadow flex flex-col p-4">
-        <PersonaProfile selectedPersona={selectedPersona} />
+        {isLoading ? (
+          <PersonaProfileLoading />
+        ) : (
+          <PersonaProfile selectedPersona={selectedPersona} />
+        )}
 
-        <Prompts selectedPersona={selectedPersona} />
+        {isLoading ? (
+          <PromptLoading.Page />
+        ) : (
+          <Prompts selectedPersona={selectedPersona} />
+        )}
       </div>
     </div>
   );
@@ -76,6 +88,7 @@ const PersonaProfile: React.FC<PersonaChatbotsProps> = ({
 };
 
 const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
+  const [isLoading, setIsLoading] = useState<Boolean>(false);
   /**
    * Will hold all the chatbot prompts on of a specific persona depending on the params
    *  fetchPrompts will be called to get all the prompts of that persona
@@ -105,11 +118,16 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
   const storeSession = useStoreChatbotSession();
 
   useEffect(() => {
+    setIsLoading(true);
+
     const getPrompts = async () => {
       if (selectedPersona?.persona_id) {
         const data = await fetchPrompts(selectedPersona?.persona_id);
         setPrompts(data);
+
+        setIsLoading(false);
       }
+      setIsLoading(false);
     };
     getPrompts();
   }, [selectedPersona?.persona_id]);
@@ -149,6 +167,7 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
       {/* Header of Prompts */}
       <div className="flex flex-col p-4 px-5">
         {/* Breadcrumbs */}
+
         <div className="bg-slate-100 rounded-full px-5 text-slate-600 py-1 border mb-4 self-start">
           <span>{selectedPersona?.persona_name}</span>
 
