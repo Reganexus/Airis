@@ -88,7 +88,8 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const aiTask = sessionStorage.getItem("task");
 
   // Temporary url of images
-  const [blob, setBlob] = useState<PutBlobResult | null>(null);
+
+<!--   const [blob, setBlob] = useState<PutBlobResult | null>(null); -->
   const [refreshHistory, setRefreshHistory] = useState<boolean>(false);
 
   /**
@@ -317,6 +318,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
         setMessages(messagesToSet);
       }
 
+
       setImgIdx((num) => num + 2);
 
       setImageFileNames([]);
@@ -337,13 +339,21 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
               access: "public",
               handleUploadUrl: "/api/avatar/upload",
             });
-            setBlob(newBlob);
-            console.log(newBlob);
+
+
+            setDownloadUrls(prevState => ({
+              ...prevState,
+              [imgIdx]: [...(prevState[imgIdx] || []), newBlob.downloadUrl],
+            }));
+
+
+
           }
         }
       }
 
       // Resets variables after submitting messages
+
     } else {
       /**
        * DALL-E MODEL
@@ -387,7 +397,9 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
               id: "",
               role: "assistant",
               content: res.response[i],
-              annotations: res.filenames[i], // Assuming res.filenames is an array with the same length as res.response
+              data: res.downloadUrls[i],
+              annotations: res.filenames[i],
+              // Assuming res.filenames is an array with the same length as res.response
             });
           }
           setMessages([...messages, ...messagesToShow]);
@@ -435,12 +447,14 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     console.log("UPDATED BASE 64 IMAGES: ", images64);
   }, [images64]);
 
-  const [displayImages, setDisplayImages] = useState<{
-    [key: number]: string[];
-  }>({});
-  const [imgFileNames, setImageFileNames] = useState<
-    (string | ArrayBuffer | null)[]
-  >([]);
+
+  const [downloadUrls, setDownloadUrls] = useState<{ [key: string]: string[] }>({});
+  useEffect(() => {
+    console.log("UPDATED BLOBS URLS: ", downloadUrls);
+  }, [downloadUrls]);
+  const [displayImages, setDisplayImages] = useState<{ [key: number]: string[] }>({});
+  const [imgFileNames, setImageFileNames] = useState<(string | ArrayBuffer | null)[]>([]);
+
   useEffect(() => {
     console.log("UPDATED IMAGE FILE NAMES: ", imgFileNames);
   }, [imgFileNames]);
@@ -514,6 +528,36 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     setImages64(updatedBase64);
   };
 
+  const generateRandomFileName = () => {
+    const timestamp = Date.now(); // Get current timestamp
+    const randomNumber = Math.floor(Math.random() * 1000000); // Generate random number
+    return `image-${timestamp}-${randomNumber}`; // Create a randomized file name
+  };
+
+  const download = e => {
+    e.preventDefault();
+    console.log(e.target.href);
+    fetch(e.target.href, {
+      method: "GET",
+      headers: {}
+    })
+      .then(response => {
+        response.arrayBuffer().then(function (buffer) {
+          const downloadFileName = generateRandomFileName();
+          const url = window.URL.createObjectURL(new Blob([buffer]));
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute("download", `${downloadFileName}.png`); //or any other extension
+          document.body.appendChild(link);
+          link.click();
+        });
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
+
+
   // JSX ELEMENT:
   return (
     <div className="flex h-screen w-full">
@@ -546,11 +590,23 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                       m.content.startsWith("blob:http") ? (
                         <div className="flex items-start gap-4 justify-end">
                           <div className="grid gap-1.5 rounded-lg bg-primary p-3 px-4">
+
+
                             <img
                               src={m.content}
                               alt={`Uploaded preview`}
-                              style={{ maxWidth: "200px", height: "auto" }}
-                            />
+                              style={{ maxWidth: '200px', height: 'auto' }}
+                            ></img>
+                            <a
+                              href={m.content}
+                              download
+                              onClick={e => download(e)}
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                              </svg>
+                            </a>
+
                           </div>
                         </div>
                       ) : (
@@ -600,6 +656,13 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                           <div>
                             <p>Here is your image:</p>
                             <img src={m.content} alt="Generated" />
+
+
+                            <a href={m.data}>
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                              </svg>
+                            </a>
                           </div>
                         ) : (
                           // Otherwise, assume the output is text and format it accordingly
