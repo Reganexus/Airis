@@ -815,7 +815,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                   <label className="font-semibold text-slate-700" htmlFor="">
                     Size
                   </label>
-
                   <select
                     value={imgSize}
                     onChange={(e) => setImgSize(e.target.value)}
