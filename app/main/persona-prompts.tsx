@@ -27,7 +27,7 @@ const PersonaPrompts: React.FC<PersonaChatbotsProps> = ({
           <PersonaProfile selectedPersona={selectedPersona} />
         )}
 
-        {isLoading ? (
+        {!isLoading ? (
           <PromptLoading.Page />
         ) : (
           <Prompts selectedPersona={selectedPersona} />
