@@ -46,13 +46,17 @@ const SideBar: React.FC<SideBarProps> = ({ id }) => {
     <div className="bg-slate-50 w-full max-w-20 flex flex-col justify-between border-r border-slate-300 dark:border-slate-600 dark:bg-slate-800">
       {/* LOGO */}
 
-      <div className="flex justify-center items-center p-2">
+      <div className="flex justify-center items-center p-2 mt-2">
         <Link href={"/landing"}>
           <Image
-            src="/logo/airis_logo_sq_trans.png"
+            src={
+              isDarkMode
+                ? "/logo/airis_logo_sq_trans_dark.png"
+                : "/logo/airis_logo_sq_trans.png"
+            }
             alt="airis logo"
-            width={70}
-            height={70}
+            width={55}
+            height={55}
           />
         </Link>
       </div>
