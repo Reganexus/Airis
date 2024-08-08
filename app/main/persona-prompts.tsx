@@ -8,6 +8,7 @@ import { fetchPrompts } from "@/lib/db/fetch-queries";
 import { promptIcons } from "@/lib/prompticons";
 import PersonaProfileLoading from "./persona-profile-loading";
 import * as PromptLoading from "./prompts-loading";
+
 interface PersonaChatbotsProps {
   selectedPersona?: SelectedPersona;
   isLoading?: Boolean;
