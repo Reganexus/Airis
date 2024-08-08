@@ -4,6 +4,7 @@ import "./persona-selection-scrollbar.css";
 import Link from "next/link";
 import { Persona } from "@/lib/types";
 import { useStorePersonaLogoSession } from "@/lib/functions/local-storage/sessionStorage-chabot";
+import Tooltip from "@/components/component/tooltip";
 
 interface PersonaSelectionProps {
   personas?: Persona[];
@@ -28,7 +29,9 @@ const PersonaSelection: React.FC<PersonaSelectionProps> = ({
             Select a persona from list below
           </p>
         </div>
-        <AddPersonaIcon />
+        <Tooltip content="Add Persona">
+          <AddPersonaIcon />
+        </Tooltip>
       </div>
 
       {/* Persona Selection List */}
@@ -70,7 +73,7 @@ const PersonaCard: React.FC<PersonaCardProps> = ({ persona, isSelected }) => {
   const hoverStyles = `transform transition hover:scale-105 hover:shadow-lg hover:outline hover:outline-3 hover:border-0 hover:outline-airis-primary`;
 
   const link = "/persona/" + persona_link;
-  
+
   // Store the logo link on the local storage, it's slower to call the img per click of a persona
   const storeSession = useStorePersonaLogoSession();
 
