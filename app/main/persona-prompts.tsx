@@ -27,7 +27,7 @@ const PersonaPrompts: React.FC<PersonaChatbotsProps> = ({
           <PersonaProfile selectedPersona={selectedPersona} />
         )}
 
-        {!isLoading ? (
+        {isLoading ? (
           <PromptLoading.Page />
         ) : (
           <Prompts selectedPersona={selectedPersona} />
@@ -173,16 +173,20 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
       {/* Header of Prompts */}
       <div className="flex flex-col p-4 px-5">
         {/* Breadcrumbs */}
-        <div className="bg-slate-100 dark:bg-slate-600 rounded-full px-5 text-slate-600 dark:text-slate-300 py-1 border mb-4 self-start">
-          <span>{selectedPersona?.persona_name}</span>
+        {isLoading ? (
+          <PromptLoading.BreadCrumbsLoading />
+        ) : (
+          <div className="bg-slate-100 dark:bg-slate-600 rounded-full px-5 text-slate-600 dark:text-slate-300 py-1 border mb-4 self-start">
+            <span>{selectedPersona?.persona_name}</span>
 
-          {defaultRole !== currentRole && (
-            <>
-              <span> &gt; </span>
-              <span>{currentRole}</span>
-            </>
-          )}
-        </div>
+            {defaultRole !== currentRole && (
+              <>
+                <span> &gt; </span>
+                <span>{currentRole}</span>
+              </>
+            )}
+          </div>
+        )}
 
         {/* text */}
         <div>
@@ -195,40 +199,48 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
       {/* Prompts Section and Cards */}
       <div className="flex flex-col p-4 h-full pt-0">
         {/* Default Prompt */}
-        {prompts
-          .filter((p) => p.subpersona === false && p.role === currentRole)
-          .map((p) => (
-            <div
-              key={p.chatbot_id}
-              onClick={() =>
-                storeSession(
-                  selectedPersona?.persona_name,
-                  selectedPersona?.persona_tagline,
-                  p.chatbot_id,
-                  p.persona_id
-                )
-              }
-              className="basis-[30%] mb-4"
-            >
-              <div className="bg-airis-primary dark:bg-cyan-600 dark:hover:bg-cyan-700 h-full relative flex flex-col justify-end rounded-lg p-6 hover:cursor-pointer hover:bg-slate-700">
-                <h4 className="text-4xl text-white">{p.task}</h4>
-                <DiagonalArrow />
+        {isLoading ? (
+          <PromptLoading.DefaultPromptLoading />
+        ) : (
+          prompts
+            .filter((p) => p.subpersona === false && p.role === currentRole)
+            .map((p) => (
+              <div
+                key={p.chatbot_id}
+                onClick={() =>
+                  storeSession(
+                    selectedPersona?.persona_name,
+                    selectedPersona?.persona_tagline,
+                    p.chatbot_id,
+                    p.persona_id
+                  )
+                }
+                className="basis-[30%] mb-4"
+              >
+                <div className="bg-airis-primary dark:bg-cyan-600 dark:hover:bg-cyan-700 h-full relative flex flex-col justify-end rounded-lg p-6 hover:cursor-pointer hover:bg-slate-700">
+                  <h4 className="text-4xl text-white">{p.task}</h4>
+                  <DiagonalArrow />
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+        )}
 
         {/* PROMPS LISTS */}
         <div className="w-full basis-[70%] h-full max-h-full grid grid-cols-3 overflow-auto gap-4 grid-rows-fixed">
           {/* Role List */}
-          {roles.map(
-            (role: string | undefined, idx: Key | null | undefined) =>
-              role != currentRole && (
-                <RoleCard
-                  key={role}
-                  role={role}
-                  onRoleChange={handleRoleChange}
-                />
-              )
+          {isLoading ? (
+            <PromptLoading.PromptsListLoading />
+          ) : (
+            roles.map(
+              (role: string | undefined, idx: Key | null | undefined) =>
+                role != currentRole && (
+                  <RoleCard
+                    key={role}
+                    role={role}
+                    onRoleChange={handleRoleChange}
+                  />
+                )
+            )
           )}
           {/* Prompt List */}
           {prompts
