@@ -21,7 +21,7 @@ const FileUploadComponent = ({ onFileChange }: { onFileChange: any }) => {
           e.preventDefault();
           handleButtonClick();
         }}
-        className="text-slate-500 hover:bg-slate-200 flex justify-center items-center w-[40px] h-[40px] text-sm rounded mr-2"
+        className="text-slate-500 hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-800 flex justify-center items-center w-[40px] h-[40px] text-sm rounded mr-2"
       >
         <AttachmentIcon />
       </button>

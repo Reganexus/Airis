@@ -12,16 +12,24 @@ const dummyFiles: any[] = [
   { fileName: "pic.jpg", fileType: "img" },
 ];
 
-type UploadedFilesProps = { files: File[]; onDelete: (i : number) => void };
+type UploadedFilesProps = { files: File[]; onDelete: (i: number) => void };
 
 const UploadedFiles = ({ files, onDelete }: UploadedFilesProps) => {
   return (
-    <div className="max-w-5xl m-auto w-full bg-white mb-1 py-1 pt-2 px-4 rounded-lg border border-slate-200  flex gap-3">
+    <div
+      className={`${
+        !files.length && "hidden"
+      } max-w-5xl m-auto w-full bg-white mb-1 py-1 pt-2 px-4 rounded-lg border border-slate-200 flex gap-3 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-500`}
+    >
       {files.map((f, i) => (
-        <FileCard 
-        key={i} 
-        fileName={f.name} 
-        onDelete={()=> { onDelete(i)}} file={f} />
+        <FileCard
+          key={i}
+          fileName={f.name}
+          onDelete={() => {
+            onDelete(i);
+          }}
+          file={f}
+        />
       ))}
     </div>
   );
@@ -69,10 +77,10 @@ const FileCard = ({ fileName, onDelete, file }: FileProps) => {
   const fileSize = getFileSize(file);
 
   return (
-    <div className="hover:text-slate-700 text-slate-600 relative max-w-16 group">
+    <div className="hover:text-slate-700 text-slate-600 dark:text-slate-300 relative max-w-16 group">
       {/* CloseButton */}
       <button
-        className="hidden group-hover:inline absolute top-[-.5rem] right-[-.5rem] text-slate-500 hover:text-red-800 z-10"
+        className="hidden group-hover:inline absolute top-[-.5rem] right-[-.5rem] text-slate-500 hover:text-red-800 dark:hover:text-red-400 z-10 dark:text-slate-300 "
         onClick={(e) => {
           e.preventDefault();
           onDelete?.();
@@ -81,7 +89,7 @@ const FileCard = ({ fileName, onDelete, file }: FileProps) => {
         <CloseIcon />
       </button>
 
-      <div className="w-16 h-16 border border-slate-300 rounded-md hover:bg-slate-100 flex justify-center items-center relative">
+      <div className="w-16 h-16 border border-slate-300 rounded-md hover:bg-slate-100 flex justify-center items-center relative dark:bg-slate-600 dark:border-slate-400">
         {/* File Type */}
         {fileType === "image" && <ImageIcon />}
         {fileType === "document" && <FilesIcon />}
@@ -93,11 +101,11 @@ const FileCard = ({ fileName, onDelete, file }: FileProps) => {
       </div>
 
       {/* File Name */}
-      <p className="mt-1 text-xs text-center px-1 text-slate-600 truncate relative group">
+      <p className="mt-1 text-xs text-center px-1 text-slate-600 dark:text-slate-300 truncate relative group">
         {fileName}
       </p>
       {/* Tooltip */}
-      <span className="text-xs hidden group-hover:block absolute bottom-[calc(100%+0.5rem)] left-1/2 transform -translate-x-1/2 text-slate-600 bg-white p-1 rounded-sm border shadow-sm">
+      <span className="text-xs hidden group-hover:block absolute bottom-[calc(100%+0.5rem)] left-1/2 transform -translate-x-1/2 text-slate-600 bg-white p-1 rounded-sm border shadow-sm dark:bg-slate-600 dark:text-slate-300 text-nowrap">
         {fileName}
       </span>
     </div>
