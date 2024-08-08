@@ -1,0 +1,62 @@
+/* styles/Tooltip.module.css */
+
+.tooltip {
+  position: absolute;
+  z-index: 10;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.tooltip-content {
+  background-color: #ffffff;
+  border: 1px solid #b9b9b9;
+  text-wrap: nowrap;
+  color: #363535;
+  padding: 0.5rem;
+  padding-left: 16px;
+  padding-right: 16px;
+  border-radius: 0.25rem;
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+}
+
+.dark .tooltip-content {
+  background-color: #0d1016e3;
+  border: 1px solid #646464;
+  text-wrap: nowrap;
+  color: #fff;
+  padding: 0.5rem;
+  padding-left: 16px;
+  padding-right: 16px;
+  border-radius: 0.25rem;
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+}
+
+.tooltip.top {
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.tooltip.bottom {
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.tooltip.left {
+  top: 50%;
+  right: 100%;
+  transform: translateY(-50%);
+}
+
+.tooltip.right {
+  top: 50%;
+  left: 105%;
+  transform: translateY(-50%);
+}
+
+.relative:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}

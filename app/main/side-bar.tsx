@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 
 import { getServerSession } from "next-auth";
 import Link from "next/link";
+import Tooltip from "@/components/component/tooltip";
 
 interface SideBarProps {
   id?: string;
@@ -75,13 +76,24 @@ const SideBar: React.FC<SideBarProps> = ({ id }) => {
 
         {/* ---Icon Buttons--- */}
 
-        <ProfileIconButton />
-        <SettingsIconButton />
-        <ToggleDarkModeIconButton
-          onClick={onDarkModeToggle}
-          isDarkMode={isDarkMode}
-        />
-        <LogoutIconButton />
+        <Tooltip content="Profile">
+          <ProfileIconButton />
+        </Tooltip>
+
+        <Tooltip content="Settings">
+          <SettingsIconButton />
+        </Tooltip>
+
+        <Tooltip content={`Toggle ${isDarkMode ? "Light Mode" : "Dark Mode"}`}>
+          <ToggleDarkModeIconButton
+            onClick={onDarkModeToggle}
+            isDarkMode={isDarkMode}
+          />
+        </Tooltip>
+
+        <Tooltip content="Logout">
+          <LogoutIconButton />
+        </Tooltip>
       </div>
     </div>
   );
