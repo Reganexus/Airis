@@ -3,6 +3,7 @@ import Image from "next/image";
 import "./persona-selection-scrollbar.css";
 import Link from "next/link";
 import { Persona } from "@/lib/types";
+import { useStorePersonaLogoSession } from "@/lib/functions/local-storage/sessionStorage-chabot";
 
 interface PersonaSelectionProps {
   personas?: Persona[];
@@ -69,6 +70,9 @@ const PersonaCard: React.FC<PersonaCardProps> = ({ persona, isSelected }) => {
   const hoverStyles = `transform transition hover:scale-105 hover:shadow-lg hover:outline hover:outline-3 hover:border-0 hover:outline-airis-primary`;
 
   const link = "/persona/" + persona_link;
+  
+  // Store the logo link on the local storage, it's slower to call the img per click of a persona
+  const storeSession = useStorePersonaLogoSession();
 
   return (
     <Link href={link}>
@@ -78,6 +82,7 @@ const PersonaCard: React.FC<PersonaCardProps> = ({ persona, isSelected }) => {
             ? "outline outline-2 outline-airis-primary dark:outline-cyan-600"
             : ""
         } bg-airis-primary dark:bg-cyan-600 ${bgimage_name} rounded-2xl min-h-36 border border-slate-300 dark:border-slate-500 shadow relative overflow-clip hover:cursor-pointer ${hoverStyles}`}
+        onClick={() => storeSession(logo_name)}
       >
         <div className="absolute bg-white dark:bg-slate-700 w-full rounded-t-2xl bottom-0 left-0 h-[80%] flex flex-col p-4 pt-9 pl-4 ">
           {isSelected && (
