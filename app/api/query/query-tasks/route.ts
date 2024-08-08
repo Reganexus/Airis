@@ -13,13 +13,10 @@ export async function POST(request: Request) {
 
     // Execute the SQL query using the provided persona_id
     const result = await sql`
-      SELECT c.chatbot_id, c.persona_id, p.name AS persona_name, c.role, c.task, c.subpersona, c.default_prompt 
+      SELECT c.chatbot_id, c.persona_id, p.name AS persona_name, c.role, c.task, c.subpersona, c.default_prompt, c.svg_icon
       FROM chatbot c 
       INNER JOIN persona p ON p.persona_id = c.persona_id  WHERE c.persona_id = ${persona_id} order by subpersona;
     `;
-    console.log('PERSONA_ID: ', persona_id)
-    console.log("RESULT: ");
-    console.log(result);
     // Return the result as JSON
     return NextResponse.json(result.rows);
   } catch (error) {

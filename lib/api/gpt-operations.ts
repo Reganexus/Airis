@@ -35,28 +35,3 @@ export async function generatePreviousChat(convo: any[], messageindex: number, g
     }
     return res.json()
   }
-  
-
-export async function generateTitle(convo_id: number) {
-
-    /**
-     * Generates the title for a chat based on the given conversation ID.
-     * @param convo_id - The ID of the conversation.
-     * @returns A Promise that resolves to the title of the chat.
-     * @throws An error if the network response is not successful.
-     */
-    
-    const response = await fetch('/api/query/query-chat-title', {
-        method: 'POST',
-        body: JSON.stringify({
-            conversation_id: convo_id
-        })
-    });
-
-    if (!response.ok) {
-        throw new Error(`Network response was not ok: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    return data;
-}

@@ -8,6 +8,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      gridTemplateRows: {
+        fixed: "repeat(auto-fill, minmax(9rem, 9rem))",
+      },
       backgroundImage: {
         "main-gradient": "url('/backgrounds/gradient_green_5.jpg')",
         "persona-bg": "url('/backgrounds/backdrop_light.png')",
@@ -26,10 +29,11 @@ const config: Config = {
         zain: ["Zain"],
       },
       colors: {
-        "password-v-weak" : "#EE4035",
-        "password-weak" : "#F37736",
-        "password-strong" : "#FDF498",
-        "password-v-strong" : "#7BC043",
+        "airis-primary": "#2A849E",
+        "password-v-weak": "#EE4035",
+        "password-weak": "#F37736",
+        "password-strong": "#FDF498",
+        "password-v-strong": "#7BC043",
         "ai-intern": "#3CA2D1",
         "ai-marketing": "#AE729F",
         "ai-hr": "#532B48",
@@ -75,6 +79,9 @@ const config: Config = {
     },
 
     keyframes: {
+      shimmer: {
+        "100%": { transform: "translateX(100%)" },
+      },
       "accordion-down": {
         from: {
           height: "0",
@@ -91,6 +98,9 @@ const config: Config = {
           height: "0",
         },
       },
+    },
+    animation: {
+      shimmer: "shimmer 5s infinite",
     },
   },
   plugins: [require("tailwindcss-animate")],

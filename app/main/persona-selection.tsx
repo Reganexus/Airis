@@ -1,74 +1,22 @@
-'use client';
+"use client";
 import Image from "next/image";
 import "./persona-selection-scrollbar.css";
 import Link from "next/link";
-import { fetchPersonas } from "@/lib/db/fetch-queries";
-import { useEffect, useState } from "react";
 import { Persona } from "@/lib/types";
 
 interface PersonaSelectionProps {
   personas?: Persona[];
-  personaClick: (persona_id: string, personaChatbots?: any[]) => void;
+  selectedAgent: any;
 }
 
+const PersonaSelection: React.FC<PersonaSelectionProps> = ({
+  personas,
+  selectedAgent,
+}) => {
+  const noDashAgentString = selectedAgent?.replaceAll("-", " ");
 
-// FOR REFERENCES ON THE COLOR
-// const personasa: Persona[] = [
-//   {
-//     name: "Intern AI",
-//     description: "A dedicated persona to support intership-related tasks.",
-//     icon: "icon_intern.png",
-//     bg: "bg-ai-intern",
-//     outline: "hover:outline-ai-intern",
-//     linkRedirect: 'intern-profile',
-//   },
-//   {
-//     name: "Marketing AI",
-//     description: "An intelligent persona that enhances your marketing efforts.",
-//     icon: "icon_marketing.png",
-//     bg: "bg-ai-marketing",
-//     outline: "hover:outline-ai-marketing",
-//     linkRedirect: 'marketing-profile',
-//   },
-//   {
-//     name: "Human Resources AI",
-//     description:
-//       "A versatile persona that streamlines human resources operations",
-//     icon: "icon_hr.png",
-//     bg: "bg-ai-hr",
-//     outline: "hover:outline-ai-hr",
-//     linkRedirect: 'hr-profile',
-//   },
-//   {
-//     name: "Law AI",
-//     description: "A reliable persona for all your legal needs.",
-//     icon: "icon_law.png",
-//     bg: "bg-ai-law",
-//     outline: "hover:outline-ai-law",
-//     linkRedirect: 'law-profile',
-//   },
-//   {
-//     name: "Admin AI",
-//     description: "A dynamic persona that boosts administrative efficiency.",
-//     icon: "icon_admin.png",
-//     bg: "bg-ai-admin",
-//     outline: "hover:outline-ai-admin",
-//     linkRedirect: 'admin-profile',
-//   },
-//   {
-//     name: "Teacher AI",
-//     description: "An educational persona for delivering online courses.",
-//     icon: "icon_teacher.png",
-//     bg: "bg-ai-teacher",
-//     outline: "hover:outline-ai-teacher",
-//     linkRedirect: 'teacher-profile',
-//   },
-// ];
-
-const PersonaSelection: React.FC<PersonaSelectionProps> = ({ personas, personaClick }) => {
-  
   return (
-    <div className="bg-slate-100 min-w-80 flex flex-col border-r border-slate-300">
+    <div className="bg-slate-100 w-full max-w-[23rem] flex flex-col border-r border-slate-300">
       {/* Header */}
       <div className="shadow flex justify-between items-center p-5 gap-4 px-6 pb-5">
         <div>
@@ -82,9 +30,16 @@ const PersonaSelection: React.FC<PersonaSelectionProps> = ({ personas, personaCl
 
       {/* Persona Selection List */}
       <div className="flex flex-col max-h-full overflow-auto gap-3 p-3 px-4 py-6 h-full relative persona-selection-scrollbar">
-        {personas && personas.map((p) => (
-          <PersonaCard key={p.name} persona={p} personaClick={(persona_id) => personaClick(persona_id)} />
-        ))}
+        {personas &&
+          personas.map((p) => (
+            <PersonaCard
+              key={p.name}
+              persona={p}
+              isSelected={noDashAgentString?.includes(
+                p.name.toLocaleLowerCase()
+              )}
+            />
+          ))}
       </div>
     </div>
   );
@@ -94,23 +49,40 @@ export default PersonaSelection;
 
 interface PersonaCardProps {
   persona: Persona;
-  personaClick: (role: string) => void;
+  isSelected?: Boolean;
 }
 
-const PersonaCard: React.FC<PersonaCardProps> = ({ persona, personaClick }) => {
-  const { persona_id, name, department, tagline, created_at, logo_name, bgimage_name, persona_link } = persona;
-  const hoverStyles = `transform transition hover:scale-105 hover:shadow-lg hover:outline hover:outline-3 hover:border-0`;
+const PersonaCard: React.FC<PersonaCardProps> = ({ persona, isSelected }) => {
+  const {
+    persona_id,
+    name,
+    department,
+    tagline,
+    created_at,
+    logo_name,
+    bgimage_name,
+    persona_link,
+  } = persona;
+  const hoverStyles = `transform transition hover:scale-105 hover:shadow-lg hover:outline hover:outline-3 hover:border-0 hover:outline-airis-primary`;
   //const hoverStyles = `transform transition hover:scale-105 hover:shadow-lg hover:outline hover:outline-3 ${outline} hover:border-0`;
 
-  const link = '/persona/' + persona_link;
+  const link = "/persona/" + persona_link;
+
   return (
     <Link href={link}>
       <div
-        className={`${bgimage_name} rounded-2xl min-h-36 border border-slate-300 shadow relative overflow-clip hover:cursor-pointer ${hoverStyles}`}
+        className={`${
+          isSelected ? "outline outline-2 outline-airis-primary" : ""
+        } bg-airis-primary ${bgimage_name} rounded-2xl min-h-36 border border-slate-300 shadow relative overflow-clip hover:cursor-pointer ${hoverStyles}`}
       >
         <div className="absolute bg-white w-full rounded-t-2xl bottom-0 left-0 h-[80%] flex flex-col p-4 pt-9 pl-4 ">
+          {isSelected && (
+            <span className="absolute top-2 right-2 text-xs py-1 px-2 bg-airis-primary bg-opacity-20 rounded-2xl text-airis-primary font-semibold">
+              Selected
+            </span>
+          )}
           <Image
-            src={"/persona_icons/" + logo_name}
+            src={logo_name ?? "/persona_icons/" + { logo_name }}
             alt={name + "'s photo"}
             width={50}
             height={50}
@@ -121,7 +93,6 @@ const PersonaCard: React.FC<PersonaCardProps> = ({ persona, personaClick }) => {
         </div>
       </div>
     </Link>
-
   );
 };
 

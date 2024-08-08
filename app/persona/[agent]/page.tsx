@@ -1,56 +1,44 @@
-'use client';
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import personaData from "@/lib/persona-url";
-import { format } from "path";
-import { fetchChatbotAllSelection, fetchPersonas } from "@/lib/db/fetch-queries";
-import { Persona, PersonaChatbots, SelectedPersona } from "@/lib/types";
+"use client";
+
+import { Suspense, useEffect, useState } from "react";
+import { SelectedPersona } from "@/lib/types";
 import { useParams } from "next/navigation";
 import PromptSelection from "@/app/main/prompt-selection";
+import { fetchPersonaSelected } from "@/lib/db/fetch-queries";
+import Loading from "../persona-selection-loading";
 
 /**
- * Renders the Sidebar, Persona Selection and Prompt Selection Components
+ * Renders the Prompt Selection Components
  */
 export default function Home() {
+  const [isLoading, setIsLoading] = useState<Boolean>(false);
+
   /**
-   * variable that wil hold the url of all personas's
+   * variable that wil hold the URL of all personas's
    */
   const [selectedPersona, setSelectedPersonaId] = useState<SelectedPersona>();
 
-  const { agent } = useParams(); // Access the dynamic route parameter
+  // Access the dynamic route parameter
+  const { agent } = useParams();
 
   useEffect(() => {
-    async function fetchPersona() {
-      const response = await fetch('/api/query/query-persona-selected', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          persona: agent
-        }),
-        cache: 'force-cache',
-        next: { revalidate: 3600 }
-      });
+    setIsLoading(true);
 
-
-
-      const data = await response.json();
+    // Get the Selected Persona Information
+    async function getPersona() {
+      const data = await fetchPersonaSelected(agent);
       setSelectedPersonaId({
-        persona_id: data[0].persona_id,
-        persona_name: data[0].name,
-        persona_tagline: data[0].tagline,
-        persona_link: data[0].persona_link
-    });
+        persona_id: data.persona_id,
+        persona_name: data.name,
+        persona_tagline: data.tagline,
+        persona_link: data.persona_link,
+      });
+      setIsLoading(false);
     }
-
-    fetchPersona();
+    getPersona();
   }, [agent]);
 
-    
-
   return (
-    <PromptSelection selectedPersona={selectedPersona} />
+    <PromptSelection selectedPersona={selectedPersona} isLoading={isLoading} />
   );
 }

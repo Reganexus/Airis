@@ -17,17 +17,14 @@ import { formatTextToHTML } from "@/lib/textToHTML";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { generatePreviousChat, generateTitle } from "@/lib/api/gpt-operations";
 import { generateDALLE } from "@/lib/api/dall-e-operations";
 
 import {
   fetchChatbot,
   fetchSaveConvo,
-  fetchChatHistory,
   fetchOldChat,
   fetchChatUID,
 } from "@/lib/db/fetch-queries";
-import { fetchAndSetChatHistory } from "@/lib/chat/handle-chat-history";
 import { handleChatRegenerate } from "@/lib/chat/handle-chat-submit";
 
 import UploadFilesDropdown from "./file-upload-component";
@@ -103,6 +100,8 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const [blob, setBlob] = useState<PutBlobResult | null>(null);
   const [image, setImage] = useState<string>("");
   const [displayImage, setDisplayImage] = useState<string>("");
+  
+  const [refreshHistory, setRefreshHistory] = useState<boolean>(false);
   useEffect(() => {
     // Clean up the URL object when the component unmounts or when the image changes
     return () => {
@@ -176,12 +175,16 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   // we will get a chatbot
   const [chatbotId, setChatbotId] = useState<string | null>(null);
   const [personaId, setPersonaId] = useState<string | null>(null);
+  const [aiName, setAiName] = useState<string | null>(null);
   useEffect(() => {
     // Retrieve values from sessionStorage
     const chatbot_id = sessionStorage.getItem("chatbot_id");
     const persona_id = sessionStorage.getItem("persona_id");
+    const ai_name = sessionStorage.getItem('aiName');
+    const aiDescription = sessionStorage.getItem('aiDescription');
     setChatbotId(chatbot_id);
     setPersonaId(persona_id);
+    setAiName(ai_name);
   }, []);
 
 
@@ -204,8 +207,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
         router.push('/');
         return;
       }
-
-      console.log(status)
 
       if (status === 'authenticated' && user != undefined) {
         const validateUser = async () => {
@@ -277,7 +278,10 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                 content: stringify
               },
             ]);
-            promptSubmit({ preventDefault: () => { } });
+            promptSubmit({
+              preventDefault: () => { },
+              target: undefined
+            });
           } catch (error) {
             console.error("Failed to fetch chatbot data", error);
           }
@@ -340,10 +344,11 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
           conversationId
         );
         // we need to run GPT to generate title on the new convo only
+
         console.log("NEW CONVO", data);
         if (data.new_convo) {
           setConversationId(data.convo_id);
-          await generateTitle(data.convo_id);
+          setRefreshHistory(true)
         }
       };
 
@@ -614,7 +619,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     <div className="flex h-screen w-full">
       <SideBar />
 
-      {isHistoryOpen && <PersonaChatHistory />}
+      {isHistoryOpen && <PersonaChatHistory refreshHistory={refreshHistory}/>}
 
       {/* Main Content */}
       <div className="flex flex-1 flex-col h-screen">
@@ -777,6 +782,13 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                 }
                 onChange={handleInputChange}
                 disabled={isLoading || isLoading2}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey && input) {
+                    e.preventDefault(); // Prevents default form submission
+                    promptSubmit(e); // Triggers form submission
+                  }
+                }}
+
               />
 
               {/* <input name="file"
@@ -795,7 +807,8 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                     variant="default"
                     size="icon"
                     className="bg-primary order-last p-3"
-                    disabled={isLoading || isLoading2 || input.length == 0}
+
+                    disabled={isLoading || isLoading2 || !input}
                   >
                     <SendIcon />
                     <span className="sr-only">Send</span>

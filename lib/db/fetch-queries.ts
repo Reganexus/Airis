@@ -10,7 +10,6 @@ export async function fetchChatbot(chatbot_id: string | null) {
     }
     
     const data = await response.json();
-    console.log("Data: ", data.chatbot);
     return data
 }
 
@@ -23,12 +22,9 @@ export async function fetchChatbotAllSelection() {
     }
     
     const data = await response.json();
-    console.log("Chatbots Data: ", data.chatbot);
     return data.chatbot
 }
 
-
-  
 export async function fetchSaveConvo(message: any[], email: any, chatbot_id: number, convo_id: number) {
     const response = await fetch('/api/query/query-save-convo', {
       method: 'POST',
@@ -103,19 +99,56 @@ export async function fetchPersonas() {
   });
   const data = await res.json()
 
-  console.log(data)
   return data;
 }
 
-export async function fetchSelectedPersona() {
-  const res = await fetch("/api/query/query-persona", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  const data = await res.json()
+export async function fetchPrompts(persona_id: string) {
+    const response = await fetch('/api/query/query-tasks', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ persona_id: persona_id }), // Send persona_id in the request body
+      cache: 'force-cache',                             // forced caching
+      next: { revalidate: 3600 }
+    });
 
-  console.log(data)
-  return data;
+    const data = await response.json();
+    return data
+}
+
+export async function fetchPersonaSelected(agent: string | string[] ) {
+  const response = await fetch('/api/query/query-persona-selected', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      persona_link: agent
+    }),
+    cache: 'force-cache',
+    next: { revalidate: 3600 }
+  });
+
+  const data = await response.json();
+  return data[0]
+
+}
+
+export async function fetchPersonaForPromptEdit(persona_name: string | string[] ) {
+  const response = await fetch('/api/query/query-persona-selected', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      persona_name: persona_name
+    }),
+    cache: 'force-cache',
+    next: { revalidate: 3600 }
+  });
+
+  const data = await response.json();
+  return data[0]
+
 }
