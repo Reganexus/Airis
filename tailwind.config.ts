@@ -93,6 +93,12 @@ const config: Config = {
     },
 
     keyframes: {
+      dots: {
+        "0%, 20%": { content: '"."' },
+        "40%": { content: '".."' },
+        "60%": { content: '"..."' },
+        "80%, 100%": { content: '""' },
+      },
       shimmer: {
         "100%": { transform: "translateX(100%)" },
       },
@@ -115,6 +121,7 @@ const config: Config = {
     },
     animation: {
       shimmer: "shimmer 5s infinite",
+      dots: "dots 1.5s steps(1, end) infinite",
     },
   },
   plugins: [require("tailwindcss-animate")],

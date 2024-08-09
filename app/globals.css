@@ -69,3 +69,9 @@
     @apply border-border;
   }
 }
+
+@layer base {
+  .TypeCursor {
+    display: none;
+  }
+}

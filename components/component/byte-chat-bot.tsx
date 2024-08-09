@@ -28,6 +28,12 @@ import UploadedFiles from "./uploaded-files";
 import FileUploadComponent from "./file-upload-component";
 import { PutBlobResult } from "@vercel/blob";
 import { upload } from "@vercel/blob/client";
+import AgentChatLoading from "./agent-chat-loading";
+import Typewriter from "typewriter-effect";
+
+import { Inter } from "next/font/google";
+
+const inter = Inter({ subsets: ["latin"] });
 
 interface ByteChatBotProps {
   historyConversationId?: string;
@@ -39,6 +45,9 @@ interface ByteChatBotProps {
  * @returns {JSX.Element} The Chat component.
  */
 export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
+  const endOfMessagesRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLPreElement>(null);
+
   // Router
   const router = useRouter();
   // Access user information from session
@@ -86,10 +95,9 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
 
   // const aiDescription = sessionStorage.getItem('aiDescription');
 
-
   // Temporary url of images
 
-// <!--   const [blob, setBlob] = useState<PutBlobResult | null>(null); -->
+  // <!--   const [blob, setBlob] = useState<PutBlobResult | null>(null); -->
   const [refreshHistory, setRefreshHistory] = useState<boolean>(false);
 
   /**
@@ -115,6 +123,12 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const [quantity, setQuantity] = useState(1);
   const [model, setModel] = useState("gpt-4o-mini");
 
+  useEffect(() => {
+    // Scroll to the bottom whenever new content is added
+
+    endOfMessagesRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
   // Sets some attribute to its corresponding default value depending on the model used for generating image
   useEffect(() => {
     if (model == "dall-e-2") {
@@ -137,9 +151,9 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     // Retrieve values from sessionStorage
     const chatbot_id = sessionStorage.getItem("chatbot_id");
     const persona_id = sessionStorage.getItem("persona_id");
-    const ai_name = sessionStorage.getItem('aiName');
-    const aiTask = sessionStorage.getItem('task');
-    const logo = sessionStorage.getItem('persona_logo');
+    const ai_name = sessionStorage.getItem("aiName");
+    const aiTask = sessionStorage.getItem("task");
+    const logo = sessionStorage.getItem("persona_logo");
 
     setChatbotId(chatbot_id);
     setPersonaId(persona_id);
@@ -325,7 +339,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
         setMessages(messagesToSet);
       }
 
-
       setImgIdx((num) => num + 2);
 
       setImageFileNames([]);
@@ -347,20 +360,15 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
               handleUploadUrl: "/api/avatar/upload",
             });
 
-
-            setDownloadUrls(prevState => ({
+            setDownloadUrls((prevState) => ({
               ...prevState,
               [imgIdx]: [...(prevState[imgIdx] || []), newBlob.downloadUrl],
             }));
-
-
-
           }
         }
       }
 
       // Resets variables after submitting messages
-
     } else {
       /**
        * DALL-E MODEL
@@ -454,13 +462,18 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     console.log("UPDATED BASE 64 IMAGES: ", images64);
   }, [images64]);
 
-
-  const [downloadUrls, setDownloadUrls] = useState<{ [key: string]: string[] }>({});
+  const [downloadUrls, setDownloadUrls] = useState<{ [key: string]: string[] }>(
+    {}
+  );
   useEffect(() => {
     console.log("UPDATED BLOBS URLS: ", downloadUrls);
   }, [downloadUrls]);
-  const [displayImages, setDisplayImages] = useState<{ [key: number]: string[] }>({});
-  const [imgFileNames, setImageFileNames] = useState<(string | ArrayBuffer | null)[]>([]);
+  const [displayImages, setDisplayImages] = useState<{
+    [key: number]: string[];
+  }>({});
+  const [imgFileNames, setImageFileNames] = useState<
+    (string | ArrayBuffer | null)[]
+  >([]);
 
   useEffect(() => {
     console.log("UPDATED IMAGE FILE NAMES: ", imgFileNames);
@@ -551,16 +564,15 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       timeoutRef.current = setTimeout(() => {
         if (isImageModel && input) {
           console.log("Timeout function");
-          
+
           const promptSuggestion = async (user_input: string) => {
-            
             const data = await fetchPromptSuggestion(user_input);
 
-            const suggestions = data.response.split(",")
+            const suggestions = data.response.split(",");
             setPromptSuggestions(suggestions);
           };
-  
-          promptSuggestion(input)
+
+          promptSuggestion(input);
         }
       }, 1500);
     }
@@ -580,7 +592,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     try {
       const response = await fetch(url, {
         method: "GET",
-        headers: {}
+        headers: {},
       });
       const buffer = await response.arrayBuffer();
       const downloadFileName = generateRandomFileName();
@@ -602,13 +614,15 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   const addSuggestion = (suggestion: string) => {
     // Combine suggestion with the current input value
     const combinedInput = `${input} \n[${suggestion.trim()}]`;
-  
+
     // Create a synthetic event object with the value property
-    const event = { target: { value: combinedInput } } as ChangeEvent<HTMLTextAreaElement>;
-  
+    const event = {
+      target: { value: combinedInput },
+    } as ChangeEvent<HTMLTextAreaElement>;
+
     // Update the input state with the combined value
     handleInputChange(event);
-  }
+  };
 
   // JSX ELEMENT:
   return (
@@ -620,7 +634,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       {/* Main Content */}
 
       <div className="flex flex-1 flex-col h-screen dark:bg-dark-mode dark:text-slate-100">
-        <main className="relative overflow-auto pt-5 bg-slate-100 dark:bg-opacity-0 pb-0 h-full">
+        <main className="relative overflow-auto pt-5 bg-slate-100 dark:bg-opacity-0 pb-12 h-full">
           <PersonaCard
             persona={"ai"}
             setIsOpenHistory={setIsHistoryOpen}
@@ -628,6 +642,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
             logo={aiLogo}
           />
 
+          {/* MAIN CHAT BUBBLE */}
           <div className="pt-4 px-2 ps-4 pb-8 grid gap-6 max-w-5xl m-auto">
             {messages.map((m, i) => {
               const isLastMessage: boolean = i === messages.length - 1;
@@ -643,24 +658,34 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                       m.content.startsWith("https") ||
                       m.content.startsWith("blob:http") ? (
                         <div className="flex items-start gap-4 justify-end">
-                          <div className="grid gap-1.5 rounded-lg bg-primary p-3 px-4">
-
-
+                          <div className="grid gap-1.5 rounded-lg bg-primary p-3 px-3">
                             <img
                               src={m.content}
                               alt={`Uploaded preview`}
-                              style={{ maxWidth: '200px', height: 'auto' }}
+                              style={{ maxWidth: "200px", height: "auto" }}
+                              className="rounded-lg"
                             ></img>
                             <a
                               href={m.content}
                               download
-                              onClick={e => handleDownload(e, m.content)}
+                              onClick={(e) => handleDownload(e, m.content)}
+                              className="mt-1 text-white hover:text-cyan-200 dark:hover:text-cyan-300"
                             >
-                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke-width="1.5"
+                                stroke="currentColor"
+                                className="size-6"
+                              >
+                                <path
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
+                                />
                               </svg>
                             </a>
-
                           </div>
                         </div>
                       ) : (
@@ -682,7 +707,14 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                   /* Chatbot message */
                 }
 
+                // WHEN THE CHATBOT IS GENERATING (Loading state)
+                if (isLoading && isLastMessage)
+                  return (
+                    <AgentChatLoading key={i} aiLogo={aiLogo} aiName={aiName} />
+                  );
+
                 const isHovered: boolean = i === hoveredMessageIndex;
+
                 return (
                   <div
                     key={i}
@@ -711,20 +743,47 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                             <p>Here is your image:</p>
                             <img src={m.content} alt="Generated" />
 
-
                             <a href={m.data}>
-                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke-width="1.5"
+                                stroke="currentColor"
+                                className="size-6"
+                              >
+                                <path
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
+                                />
                               </svg>
                             </a>
                           </div>
                         ) : (
                           // Otherwise, assume the output is text and format it accordingly
-                          <div
-                            dangerouslySetInnerHTML={{
-                              __html: formatTextToHTML(m.content),
-                            }}
-                          />
+                          <>
+                            <pre
+                              className={`${inter.className} text-wrap agent-response`}
+                            >
+                              <Typewriter
+                                options={{
+                                  strings: m.content,
+                                  autoStart: true,
+                                  delay: 5,
+                                  skipAddStyles: true,
+                                  cursorClassName: "TypeCursor",
+                                }}
+                              />
+                            </pre>
+                          </>
+                          // <div
+                          //   dangerouslySetInnerHTML={{
+                          //     __html: formatTextToHTML(m.content),
+                          //   }}
+                          // />
+
+                          // <Typewriter text={m.content} speed={100} />
                         )
                       }
 
@@ -763,6 +822,8 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                 );
               }
             })}
+            {/* End to scroll automatically */}
+            <div ref={endOfMessagesRef} />
           </div>
         </main>
 
@@ -800,13 +861,12 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                 onChange={handleInputChange}
                 disabled={isLoading || isLoading2}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey && input) {
+                  if (e.key === "Enter" && !e.shiftKey && input) {
                     // submit it
 
                     e.preventDefault(); // Prevents default form submission
                     promptSubmit(e); // Triggers form submission
                   } else {
-
                     if (isImageModel) {
                       handleTimeout();
                     }
@@ -857,7 +917,12 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
               />
 
               {/* Suggestion Chips */}
-              {isImageModel && <SuggestionChips suggestions={promptSuggestions} suggestionClicked={addSuggestion} />}
+              {isImageModel && (
+                <SuggestionChips
+                  suggestions={promptSuggestions}
+                  suggestionClicked={addSuggestion}
+                />
+              )}
             </div>
 
             {/* Image model setting */}
@@ -1022,7 +1087,10 @@ interface SuggestionChipsProps {
   suggestionClicked: (role: string) => void;
 }
 
-const SuggestionChips: React.FC<SuggestionChipsProps> = ({ suggestions = [], suggestionClicked }) => {
+const SuggestionChips: React.FC<SuggestionChipsProps> = ({
+  suggestions = [],
+  suggestionClicked,
+}) => {
   return (
     <div className="w-full mt-auto flex gap-1">
       {suggestions.map((s) => (
