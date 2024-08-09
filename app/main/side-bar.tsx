@@ -16,8 +16,6 @@ interface SideBarProps {
 const SideBar: React.FC<SideBarProps> = ({ id }) => {
   const [isDarkMode, setIsDarkMode] = React.useState<boolean>(false);
   const { data: session, status } = useSession()
-  console.log('STATUS: ', status);
-
 
   React.useEffect(() => {
     // Check local storage for the dark mode preference

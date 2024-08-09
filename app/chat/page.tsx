@@ -1,12 +1,12 @@
 'use client';
-import { ByteChatBot } from "@/components/component/byte-chat-bot";
+import { AirisChat } from "@/components/component/airis-chat";
 import { SessionProvider } from "next-auth/react";
 
 export default function ChatPage() {
 
   return (
     <SessionProvider>
-      <ByteChatBot />
+      <AirisChat />
     </SessionProvider>
   );
 }

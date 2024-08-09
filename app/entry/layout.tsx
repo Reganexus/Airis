@@ -5,7 +5,7 @@ const outfit = Outfit({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "airis",
-  description: "An AI Chatbot called ByteBot, powered by OpenAI",
+  description: "An AI Chatbot called Airis, powered by OpenAI",
   icons: "/public/airis_logo_sq_trans.png",
 };
 

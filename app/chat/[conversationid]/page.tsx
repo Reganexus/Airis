@@ -1,5 +1,5 @@
 'use client';
-import { ByteChatBot } from "@/components/component/byte-chat-bot";
+import { AirisChat } from "@/components/component/airis-chat";
 import { SessionProvider } from "next-auth/react";
 import { useParams } from "next/navigation";
 
@@ -9,7 +9,7 @@ export default function ChatPage() {
 
     return (
         <SessionProvider>
-            {conversationid && <ByteChatBot historyConversationId={conversationid as string} />}
+            {conversationid && <AirisChat historyConversationId={conversationid as string} />}
         </SessionProvider>
     );
 }
