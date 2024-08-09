@@ -90,3 +90,21 @@ export async function updateChatbot(
   const data = await response.json();
   return data[0]
 }
+
+export async function updateChatbotFrequency(
+  chatbot_id: string,
+) {
+  /**
+   * function required updating the specific persona
+   */
+  await fetch('/api/query/query-chatbot-frequency', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      chatbot_id: chatbot_id
+    })
+  });
+
+}

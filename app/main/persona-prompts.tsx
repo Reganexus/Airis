@@ -9,6 +9,7 @@ import { promptIcons } from "@/lib/prompticons";
 import PersonaProfileLoading from "./persona-profile-loading";
 import * as PromptLoading from "./prompts-loading";
 import * as PromptLoadingStatic from "./prompts-loading-static";
+import { updateChatbotFrequency } from "@/lib/db/update-queries";
 
 interface PersonaChatbotsProps {
   selectedPersona?: SelectedPersona;
@@ -214,6 +215,16 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
     console.log("toilet");
   }
 
+  async function addFrequency(name: any, tagline: any, chatbot_id: any, persona_id: any, task: any) {
+    storeSession(
+      name,
+      tagline,
+      chatbot_id,
+      persona_id,
+      task
+    )
+    updateChatbotFrequency(chatbot_id)
+  }
   return (
     <div className="border rounded-md flex flex-col rounded-t-none grow dark:border-slate-600">
       {/* Header of Prompts */}
@@ -254,7 +265,7 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
               <div
                 key={p.chatbot_id}
                 onClick={() =>
-                  storeSession(
+                  addFrequency(
                     selectedPersona?.persona_name,
                     selectedPersona?.persona_tagline,
                     p.chatbot_id,
@@ -360,10 +371,20 @@ const PromptCard: React.FC<PromptCardProps> = ({
     }
   }
 
+  async function addFrequency(name: any, tagline: any, chatbot_id: any, persona_id: any, task: any) {
+    storeSession(
+      name,
+      tagline,
+      chatbot_id,
+      persona_id,
+      task
+    )
+    updateChatbotFrequency(chatbot_id)
+  }
   return (
     <div
       onClick={() =>
-        storeSession(
+        addFrequency(
           aiName,
           aiDescription,
           promptObj.chatbot_id,
