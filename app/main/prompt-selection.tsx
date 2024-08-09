@@ -13,8 +13,6 @@ const PromptSelection: React.FC<PromptSelectionProps> = ({
 }) => {
   return (
     <div className="bg-slate-200 grow flex justify-center items-center dark:bg-dark-mode">
-      {/* <WelcomeScreen /> */}
-
       <PersonaPrompts selectedPersona={selectedPersona} isLoading={isLoading} />
     </div>
   );

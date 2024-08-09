@@ -19,7 +19,7 @@ const PersonaPrompts: React.FC<PersonaChatbotsProps> = ({
   selectedPersona,
   isLoading,
 }) => {
-  console.log("skibidi", selectedPersona, selectedPersona?.persona_name)
+  console.log("skibidi", selectedPersona, selectedPersona?.persona_name);
   return (
     <div className="h-full w-full p-8">
       {/* The big card */}
@@ -74,7 +74,7 @@ const PersonaProfile: React.FC<PersonaChatbotsProps> = ({
         </div>
 
         {/* Persona Action Buttons */}
-        <div className="flex items-center ml-auto text-sm">
+        <div className="flex items-center ml-auto text-sm hidden">
           <PersonaSettingsButton />
 
           <button className="text-slate-500 dark:text-slate-400 py-2 pr-3 pl-2 hover:bg-slate-100 dark:hover:bg-slate-700 dark:hover:text-slate-300 border border-slate-500  border-r-0 flex items-center gap-2">
@@ -192,26 +192,26 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
 
   let prompt_bg = "";
 
-  if (selectedPersona?.persona_name == "Intern AI"){
+  if (selectedPersona?.persona_name == "Intern AI") {
     prompt_bg = "bg-prompt-intern-large";
-    console.log("gyatt")
-  } else if (selectedPersona?.persona_name == "Marketing AI"){
+    console.log("gyatt");
+  } else if (selectedPersona?.persona_name == "Marketing AI") {
     prompt_bg = "bg-prompt-marketing-large";
-    console.log("gyatt")
-  } else if (selectedPersona?.persona_name == "Human Resources AI"){
+    console.log("gyatt");
+  } else if (selectedPersona?.persona_name == "Human Resources AI") {
     prompt_bg = "bg-prompt-hr-large";
-    console.log("gyatt")
-  } else if (selectedPersona?.persona_name == "Law AI"){
+    console.log("gyatt");
+  } else if (selectedPersona?.persona_name == "Law AI") {
     prompt_bg = "bg-prompt-law-large";
-    console.log("gyatt")
-  } else if (selectedPersona?.persona_name == "Admin AI"){
+    console.log("gyatt");
+  } else if (selectedPersona?.persona_name == "Admin AI") {
     prompt_bg = "bg-prompt-admin-large";
-    console.log("gyatt")
-  } else if (selectedPersona?.persona_name == "Teacher AI"){
+    console.log("gyatt");
+  } else if (selectedPersona?.persona_name == "Teacher AI") {
     prompt_bg = "bg-prompt-teacher-large";
-    console.log("gyatt")
+    console.log("gyatt");
   } else {
-    console.log("toilet")
+    console.log("toilet");
   }
 
   return (
@@ -264,7 +264,9 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
                 }
                 className="basis-[30%] mb-4"
               >
-                <div className={`${prompt_bg} bg-right bg-airis-primary dark:bg-cyan-600 dark:hover:bg-cyan-700 h-full relative flex flex-col justify-end rounded-lg p-6 hover:cursor-pointer hover:bg-slate-700`}>
+                <div
+                  className={`${prompt_bg} bg-right bg-airis-primary dark:bg-cyan-600 dark:hover:bg-cyan-700 h-full relative flex flex-col justify-end rounded-lg p-6 hover:cursor-pointer hover:bg-slate-700`}
+                >
                   <h4 className="text-4xl text-white">{p.task}</h4>
                   <DiagonalArrow />
                 </div>

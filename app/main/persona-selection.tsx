@@ -29,9 +29,9 @@ const PersonaSelection: React.FC<PersonaSelectionProps> = ({
             Select a persona from list below
           </p>
         </div>
-        <Tooltip content="Add Persona">
+        {/* <Tooltip content="Add Persona">
           <AddPersonaIcon />
-        </Tooltip>
+        </Tooltip> */}
       </div>
 
       {/* Persona Selection List */}

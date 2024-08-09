@@ -80,9 +80,9 @@ const SideBar: React.FC<SideBarProps> = ({ id }) => {
           <ProfileIconButton />
         </Tooltip>
 
-        <Tooltip content="Settings">
+        {/* <Tooltip content="Settings">
           <SettingsIconButton />
-        </Tooltip>
+        </Tooltip> */}
 
         <Tooltip content={`Toggle ${isDarkMode ? "Light Mode" : "Dark Mode"}`}>
           <ToggleDarkModeIconButton
