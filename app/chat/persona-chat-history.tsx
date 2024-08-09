@@ -103,7 +103,7 @@ const PersonaChatHistory: React.FC<PersonaChatHistoryProps> = ({
     setAiName(name);
     setAiDescription(description);
     setAiLogo(logo);;
-  }, []);
+  }, [sessionStorage.getItem('aiName'), sessionStorage.getItem('persona_logo')]);
 
   useEffect(() => {
     // Check if the User is logged in

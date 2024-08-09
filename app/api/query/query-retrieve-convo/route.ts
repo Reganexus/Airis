@@ -6,7 +6,21 @@ export async function POST(req: Request) {
 
     const imgList = await list();
     const information = await req.json()
-    const result = await sql`SELECT chatbot_id, messages FROM conversation WHERE conversation_id = ${information.conversation_id}`;
+    const result = await sql`
+      SELECT 
+          c.chatbot_id, 
+          c.messages, 
+          p.logo_name, 
+          p.tagline,
+          p.name 
+      FROM 
+          conversation c
+      INNER JOIN 
+          chatbot cb ON c.chatbot_id = cb.chatbot_id
+      INNER JOIN 
+          persona p ON cb.persona_id = p.persona_id 
+      WHERE 
+          c.conversation_id = ${information.conversation_id}`;
     const conversation = result.rows[0].messages;
     const chatbot_id = result.rows[0].chatbot_id;
 
@@ -47,7 +61,7 @@ export async function POST(req: Request) {
     }
 
     if (result.rows.length > 0) {
-      return new Response(JSON.stringify({ error: '', messages: conversation, chatbot_id: chatbot_id }));
+      return new Response(JSON.stringify({ error: '', messages: conversation, chatbot_id: chatbot_id, result: result.rows[0] }));
     } else {
       return new Response(JSON.stringify({ error: 'no saved conversation', messages: null }));
     }

@@ -33,7 +33,7 @@ import HeaderAvatar from "@/components/component/header-avatar";
 
 import { useChat } from "ai/react";
 
-export function ByteChatBot() {
+export function AirisChat() {
   const { messages, input, handleInputChange, handleSubmit } = useChat();
 
   return (
