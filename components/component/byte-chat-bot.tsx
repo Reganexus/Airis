@@ -136,23 +136,14 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   useEffect(() => {
     // Retrieve values from sessionStorage
     const chatbot_id = sessionStorage.getItem("chatbot_id");
-    const persona_id = sessionStorage.getItem("persona_id");
-    const ai_name = sessionStorage.getItem('aiName');
-    const aiTask = sessionStorage.getItem('task');
-    const logo = sessionStorage.getItem('persona_logo');
-
     setChatbotId(chatbot_id);
-    setPersonaId(persona_id);
-    setAiName(ai_name);
-    setAiTask(aiTask);
-    setLogo(logo);
   }, []);
 
   useEffect(() => {
     if (historyConversationId) {
       const numberHistoryConversationId = Number(historyConversationId);
 
-      // VALIDATE -  historyConversationId type should be number
+      // VALIDATE - historyConversationId type should be number
       if (isNaN(numberHistoryConversationId)) {
         // Redirect to base chat route if invalid ID
         // TO BE REVISED, GO TO CHAT SELECTION INSTEEEEEEED
@@ -190,14 +181,34 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                 }
                 console.log(
                   "Here is the fetched chatbot id of the chosen chat history,",
-                  data.chatbot_id
+                  data
                 );
-                // Fetch the Chatbot as well
                 const chatdata = await fetchChatbot(data.chatbot_id);
+                console.log(chatdata);
                 setChosenChatbot(chatdata.chatbot);
 
-                console.log("THIS IS THE OLD DATA MESSAGES");
-                console.log(data.messages);
+
+                const personalogo = await fetch("/api/image/image-persona-logo", {
+                  method: "POST",
+                  cache: "no-cache",
+                });
+                const response = await personalogo.json();
+                const blobs = response.blob;
+
+                blobs.forEach((blob: any) => {
+                  const filename = blob.pathname.replace("Assets/persona_icons/", "");
+                  if (filename === data.result.logo_name) {
+                    setLogo(blob.url);
+                    sessionStorage.setItem('persona_logo', blob.url);
+                  }
+                });
+
+                sessionStorage.setItem('aiName', data.result.name ?? "");
+                sessionStorage.setItem('aiDescription', data.result.tagline ?? "");
+                sessionStorage.setItem('chatbot_id', chatdata.chatbot.chatbot_id ?? "");
+                
+                setAiName(data.result.name);
+                setAiTask(chatdata.chatbot.task);
 
                 console.log("Messages Set");
                 setMessages(data.messages);
@@ -222,15 +233,27 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       }
     } else {
       if (!mounted.current) return;
-      if (chatbotId) {
+      if (chatbotId == null && !historyConversationId) router.push('/persona');
+      if (chatbotId && !historyConversationId) {
+        const persona_id = sessionStorage.getItem("persona_id");
+        const logo = sessionStorage.getItem('persona_logo');    
+        const ai_name = sessionStorage.getItem('aiName');
+        setPersonaId(persona_id);
+        setAiName(ai_name); 
+        setLogo(logo);
+        
         // fetch the chatbot data
         const fetchData = async (chatbotId: string | null) => {
           console.log("Chatbot ID", chatbotId);
           console.log("fetchData called");
           try {
             const data = await fetchChatbot(chatbotId);
+            
             setChosenChatbot(data.chatbot);
+            sessionStorage.setItem('task', data.chatbot.task);
+            setAiTask(data.chatbot.task)
             const stringify = JSON.stringify(data.chatbot?.sysprompt);
+
             setMessages([
               {
                 id: "firstprompt",
@@ -238,10 +261,12 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                 content: stringify,
               },
             ]);
+
             promptSubmit({
               preventDefault: () => {},
               target: undefined,
             });
+
           } catch (error) {
             console.error("Failed to fetch chatbot data", error);
           }
@@ -728,12 +753,13 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                         )
                       }
 
-                      {(isLastMessage || isHovered) && (
+                      {((isLastMessage || isHovered) && !m.content.startsWith("https")) && (
                         <div className="absolute z-10 bottom-[-15px] left-4 mt-1 flex gap-2">
                           <Button
                             variant="ghost"
                             size="iconSmall"
                             className="bg-none"
+                            onClick={() => navigator.clipboard.writeText(m.content)}
                           >
                             <CopyIcon />
                             <span className="sr-only">More</span>
