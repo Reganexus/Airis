@@ -29,7 +29,7 @@ import FileUploadComponent from "./file-upload-component";
 import { PutBlobResult } from "@vercel/blob";
 import { upload } from "@vercel/blob/client";
 
-interface ByteChatBotProps {
+interface AirisChatProps {
   historyConversationId?: string;
 }
 
@@ -38,7 +38,7 @@ interface ByteChatBotProps {
  * @param {Object} params - The id object, telling which persona will be utilized.
  * @returns {JSX.Element} The Chat component.
  */
-export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
+export function AirisChat({ historyConversationId }: AirisChatProps): JSX.Element {
   // Router
   const router = useRouter();
   // Access user information from session
@@ -296,6 +296,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
    * Handles the submission event of both chat components (GPT or DALL-E)
    * this is called by the form
    */
+  
   async function promptSubmit(e: { target: any; preventDefault: () => void }) {
     e.preventDefault();
     // let newBlob = {'url': ""};
@@ -610,6 +611,56 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
     handleInputChange(event);
   }
 
+  const handleInputPaste = (e: ClipboardEvent) => {
+    // Check if the event target is the correct element (optional)
+    if (e.target instanceof HTMLTextAreaElement) {
+      console.log('Pasting content detected');
+
+      // Access pasted data
+      const items = e.clipboardData?.items;
+      if (items) {
+        for (const item of items) {
+          // console.logs pasted data
+          if (item.type.startsWith('image/')) {
+            const blob = item.getAsFile();
+            if (blob) {
+              const pastedImageName = generateRandomFileName();
+              const pastedimageFile = new File([blob], `pasted-${pastedImageName}.png`, { type: blob.type });
+              console.log('Pasted image File:', pastedimageFile);
+              
+              // Use the process from inputFileChange
+
+              // add the pasted image file to the array of image files
+              setImgFiles((prevFiles) => [...prevFiles, pastedimageFile]);
+
+              // add the name of the pasted image to the array of image file names
+              setImageFileNames((prevFileNames) => [...prevFileNames, pastedimageFile.name]);
+              const url = URL.createObjectURL(pastedimageFile);
+
+              // add the temporary display url of the pasted image 
+              setDisplayImages((prevState) => ({
+                ...prevState,
+                [imgIdx]: [...(prevState[imgIdx] || []), url],
+              }));
+        
+              // convert to base64
+              const reader = new FileReader();
+              reader.readAsDataURL(pastedimageFile); 
+              reader.onload = () => {
+                if (typeof reader.result == "string") {
+                  setImages64((prevImages) => [...prevImages, reader.result]);
+                }
+              };
+              reader.onerror = (error) => {
+                console.log("error: " + error);
+              };
+            }
+          }
+        }
+      }
+    }
+  };
+
   // JSX ELEMENT:
   return (
     <div className="flex h-screen w-full">
@@ -799,6 +850,7 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
                     : `bg-transparent px-1 pt-1 placeholder:text-base h-full persona-selection-scrollbar` //image mode
                 }
                 onChange={handleInputChange}
+                onPaste={handleInputPaste}
                 disabled={isLoading || isLoading2}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey && input) {
