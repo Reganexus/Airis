@@ -6,6 +6,7 @@ import Team from "./team";
 import Pricing from "./pricing";
 import Footer from "./footer";
 import MobileNav from "./mobile-nav";
+import "./landing.css"
 
 // Define Props Interface
 interface MyComponentProps {}

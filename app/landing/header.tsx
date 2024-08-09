@@ -15,9 +15,9 @@ const Header: FC<MyComponentProps> = () => {
       <Logo />
 
       <ul className="hidden sm:flex sm:gap-10 absolute inset-0 justify-center items-center gap-10">
-        <Link href="#">Features</Link>
-        <Link href="#">Pricing</Link>
-        <Link href="#">About Us</Link>
+        <Link href="#features">Features</Link>
+        <Link href="#pricing">Pricing</Link>
+        <Link href="#about">About Us</Link>
       </ul>
 
       <div className="hidden sm:flex sm:gap-3 items-align gap-4 py-3 z-20">

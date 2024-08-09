@@ -2,7 +2,7 @@ import React, { FC } from "react";
 
 const Pricing: FC = () => {
   return (
-    <section className="bg-pricing h-auto py-16 bg-cover">
+    <section id="pricing" className="bg-pricing h-auto py-16 bg-cover">
       <div className="text-white text-center pt-5 pb-10 max-w-[1000px] m-auto px-12 xl:px-16">
         <h2 className="text-3xl mb-8 font-medium">Pricing</h2>
         <p className="text-xl">
