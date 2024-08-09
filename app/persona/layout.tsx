@@ -8,6 +8,7 @@ import PersonaSelection from "../main/persona-selection";
 import React from "react";
 import Loading from "./persona-selection-loading";
 import PersonaSelectionLoading from "./persona-selection-loading";
+import { SessionProvider } from 'next-auth/react';
 
 export default function SelectionLayout({
   children,
@@ -83,7 +84,10 @@ export default function SelectionLayout({
 
   return (
     <main className="flex h-screen">
+
+    <SessionProvider>
       <SideBar />
+    </SessionProvider>
 
       {isLoading ? (
         <PersonaSelectionLoading />
