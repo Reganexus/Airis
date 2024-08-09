@@ -102,6 +102,18 @@ export async function fetchPersonas() {
   return data;
 }
 
+export async function fetchFeaturedPrompts() {
+  const res = await fetch("/api/query/query-chatbot-featured", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const data = await res.json()
+
+  return data;
+}
+
 export async function fetchPrompts(persona_id: string) {
     const response = await fetch('/api/query/query-tasks', {
       method: 'POST',

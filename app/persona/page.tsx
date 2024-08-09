@@ -11,6 +11,7 @@ import { Persona, PersonaChatbots, SelectedPersona } from "@/lib/types";
 import { useParams } from "next/navigation";
 import PromptSelection from "@/app/main/prompt-selection";
 import WelcomeScreen from "../main/welcome-screen";
+import { SessionProvider } from "next-auth/react";
 
 /**
  * Renders the Sidebar, Persona Selection and Prompt Selection Components
@@ -18,7 +19,9 @@ import WelcomeScreen from "../main/welcome-screen";
 export default function Home() {
   return (
     <main className="bg-slate-200 w-full flex justify-center items-center dark:bg-dark-mode">
-      <WelcomeScreen />
+      <SessionProvider>
+        <WelcomeScreen />
+      </SessionProvider>
     </main>
   );
 }
