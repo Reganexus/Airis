@@ -12,7 +12,7 @@ import { useChat } from "ai/react";
 import PersonaCard from "./persona-card";
 import { formatTextToHTML } from "@/lib/textToHTML";
 import Image from "next/image";
-import { useSession } from "next-auth/react";
+import { SessionProvider, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { generateDALLE } from "@/lib/api/dall-e-operations";
 import {
@@ -613,8 +613,9 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
   // JSX ELEMENT:
   return (
     <div className="flex h-screen w-full">
+    <SessionProvider>
       <SideBar />
-
+    </SessionProvider>
       {isHistoryOpen && <PersonaChatHistory refreshHistory={refreshHistory} />}
 
       {/* Main Content */}
