@@ -40,7 +40,7 @@ const PersonaCard: React.FC<PersonaCardProps> = ({
         {task ?? ""}
       </p>
 
-      <div className="flex item-center z-10">
+      <div className="item-center z-10 hidden">
         <Button
           variant="ghost"
           size="icon"
