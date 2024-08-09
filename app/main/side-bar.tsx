@@ -3,11 +3,11 @@
 import Image from "next/image";
 import React from "react";
 import { signOut } from "next-auth/react";
-import { useRouter } from "next/navigation";
-
+import { redirect, useRouter } from "next/navigation";
 import { getServerSession } from "next-auth";
 import Link from "next/link";
 import Tooltip from "@/components/component/tooltip";
+import { useSession, getSession } from "next-auth/react"
 
 interface SideBarProps {
   id?: string;
@@ -15,6 +15,7 @@ interface SideBarProps {
 
 const SideBar: React.FC<SideBarProps> = ({ id }) => {
   const [isDarkMode, setIsDarkMode] = React.useState<boolean>(false);
+  const { data: session, status } = useSession()
 
   React.useEffect(() => {
     // Check local storage for the dark mode preference
@@ -91,9 +92,16 @@ const SideBar: React.FC<SideBarProps> = ({ id }) => {
           />
         </Tooltip>
 
-        <Tooltip content="Logout">
-          <LogoutIconButton />
-        </Tooltip>
+        {status == 'authenticated' ?
+          (<Tooltip content="Logout">
+            <LogoutIconButton />
+          </Tooltip>)
+          :
+          (<Tooltip content="Login">
+            <LoginIconButton />
+          </Tooltip>)
+        }
+
       </div>
     </div>
   );
@@ -203,6 +211,37 @@ const LogoutIconButton = () => {
         signOut({ callbackUrl: "/" });
       }}
       title="Sign Out"
+      className="text-slate-500 p-4 hover:bg-red-100 hover:text-red-500 rounded-lg dark:text-slate-300 dark:hover:bg-red-500/30 dark:hover:text-red-300"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+        className="size-6"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"
+        />
+      </svg>
+    </button>
+  );
+};
+
+const LoginIconButton = () => {
+
+  const router = useRouter();
+
+  return (
+    <button
+      onClick={() => {
+        router.push('/entry');
+        router.refresh();
+      }}
+      title="Sign In"
       className="text-slate-500 p-4 hover:bg-red-100 hover:text-red-500 rounded-lg dark:text-slate-300 dark:hover:bg-red-500/30 dark:hover:text-red-300"
     >
       <svg

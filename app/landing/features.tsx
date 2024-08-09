@@ -6,7 +6,7 @@ import Link from "next/link";
 // Functional Component
 const Features: FC = () => {
   return (
-    <section className="bg-white flex flex-col items-center gap-8 py-20">
+    <section id="features" className="bg-white flex flex-col items-center gap-8 py-20">
       <Feature1 />
       <Feature2 />
       <Feature3 />
@@ -27,7 +27,8 @@ const Feature1: FC = () => {
 
       <div className="sm:basis-[50%] p-8 pr-4 flex flex-col justify-center">
         <h2 className="text-4xl sm:text-3xl font-bold text-slate-700 mb-6">
-          Do more with generative AI
+          Do more with
+          Artificial Intelligence
         </h2>
         <p className="text-xl sm:text-lg mb-10">
           Elevate your business with generative AI, enabling rapid content
@@ -91,12 +92,12 @@ const Feature3: FC = () => {
 
       <div className="sm:basis-[50%] p-8 pr-4 flex flex-col justify-center">
         <h2 className="text-4xl sm:text-3xl font-bold text-slate-700 mb-6">
-          Streamline your work 
+          Streamline your work
         </h2>
         <p className="text-xl sm:text-lg mb-10">
-        Increase efficiency by automating routine tasks and minimizing mistakes with 
-        our easy-to-use automation tools. Save time and boost productivity, letting 
-        your team concentrate on important, high-value projects.
+          Increase efficiency by automating routine tasks and minimizing mistakes with
+          our easy-to-use automation tools. Save time and boost productivity, letting
+          your team concentrate on important, high-value projects.
         </p>
         <div>
           <Link

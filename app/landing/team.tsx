@@ -62,7 +62,7 @@ const team: TeamMember[] = [
 
 const Team: FC = () => {
   return (
-    <section className="bg-plus bg-cover min-h-[50rem] flex flex-col items-center pb-28">
+    <section id="about" className="bg-plus bg-cover min-h-[50rem] flex flex-col items-center pb-28">
       <div className="bg-white w-full text-center py-12 md:py-16 px-12 xl:px-16 shadow-lg">
         <h2 className="text-4xl font-bold mb-8 text-slate-800">
           Meet the Team

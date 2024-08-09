@@ -12,7 +12,7 @@ import { useChat } from "ai/react";
 import PersonaCard from "./persona-card";
 import { formatTextToHTML } from "@/lib/textToHTML";
 import Image from "next/image";
-import { useSession } from "next-auth/react";
+import { SessionProvider, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { generateDALLE } from "@/lib/api/dall-e-operations";
 import {
@@ -30,6 +30,7 @@ import { PutBlobResult } from "@vercel/blob";
 import { upload } from "@vercel/blob/client";
 import { usePromptSuggestions } from "@/lib/functions/timer/prompt-suggestion-timer";
 
+
 interface AirisChatProps {
   historyConversationId?: string;
 }
@@ -39,12 +40,11 @@ interface AirisChatProps {
  * @param {Object} params - The id object, telling which persona will be utilized.
  * @returns {JSX.Element} The Chat component.
  */
-export function AirisChat({ historyConversationId }: AirisChatProps) {
+export function AirisChat({ historyConversationId }: AirisChatProps): JSX.Element {
 
   const router = useRouter();                     // Router
   const { data: session, status } = useSession(); // Access user information from session
     const user = session?.user;
-
   /**
    * Represents a useChat hook from ai-sdk
    * - the main backbone for streaming text like ChatGPT
@@ -274,13 +274,11 @@ export function AirisChat({ historyConversationId }: AirisChatProps) {
     }
 
     if (!isLoading && !isLoading2 && status == "authenticated" && user) {
-      
       // Skip saving if the first prompt (systemprompt) is being set
       if (isPromptRendered.current) {
         isPromptRendered.current = false;
         return;
       }
-
       /**
        * Only save the data after the generation of GPT's response has stopped
        *  - setConversationId into the new conversation id if new chat has been saved
@@ -293,6 +291,7 @@ export function AirisChat({ historyConversationId }: AirisChatProps) {
           chosenChatbot.chatbot_id,
           conversationId
         );
+        console.log("NEW CONVO", data);
         if (data.new_convo) {
           setConversationId(data.convo_id);
           setRefreshHistory(true);
@@ -307,6 +306,7 @@ export function AirisChat({ historyConversationId }: AirisChatProps) {
    * Handles the submission event of both chat components (GPT or DALL-E)
    * this is called by the form
    */
+
   async function promptSubmit(e: { target: any; preventDefault: () => void }) {
     e.preventDefault();
     // let newBlob = {'url': ""};
@@ -353,6 +353,7 @@ export function AirisChat({ historyConversationId }: AirisChatProps) {
               access: "public",
               handleUploadUrl: "/api/avatar/upload",
             });
+
             setDownloadUrls(prevState => ({
               ...prevState,
               [imgIdx]: [...(prevState[imgIdx] || []), newBlob.downloadUrl],
@@ -360,6 +361,7 @@ export function AirisChat({ historyConversationId }: AirisChatProps) {
           }
         }
       }
+
     } else {
       /**
        * DALL-E MODEL
@@ -409,7 +411,6 @@ export function AirisChat({ historyConversationId }: AirisChatProps) {
               // Assuming res.filenames is an array with the same length as res.response
             });
           }
-          console.log("NOW WATCH  ME WHIP, HEY FUK", messagesToShow)
           setMessages([...messages, ...messagesToShow]);
         }
       );
@@ -446,6 +447,21 @@ export function AirisChat({ historyConversationId }: AirisChatProps) {
   const [displayImages, setDisplayImages] = useState<{ [key: number]: string[] }>({});        // Manages the display URLs for the images that are currently visible to the user in the UI.
   const [imgFileNames, setImageFileNames] = useState<(string | ArrayBuffer | null)[]>([]);    // Keeps track of the file names of the images selected, which can be used for annotations or references.
   const [imgIdx, setImgIdx] = useState(0);                                                    // Index for managing the current set of images being handled, useful for categorization or segmented display.
+  //useEffect(() => {
+  //  console.log("FILES IN imgFiles: ", imgFiles);
+  //}, [imgFiles]);
+  //useEffect(() => {
+  //  console.log("UPDATED BASE 64 IMAGES: ", images64);
+  //}, [images64]);
+  //useEffect(() => {
+  //  console.log("UPDATED BLOBS URLS: ", downloadUrls);
+  //}, [downloadUrls]);
+  //useEffect(() => {
+  //  console.log("UPDATED IMAGE FILE NAMES: ", imgFileNames);
+  //}, [imgFileNames]);
+  //useEffect(() => {
+  //  console.log("UPDATED DISPLAY IMAGES: ", displayImages);
+  //}, [displayImages]);
 
   // Function to handle file selection
   const handleFileChange = (event: any) => {
@@ -455,6 +471,7 @@ export function AirisChat({ historyConversationId }: AirisChatProps) {
       setImgFiles([]);
       return;
     }
+
     const selectedFiles = Array.from(event.target.files as FileList);
     console.log("SELECTED FILE CHANGED: ", selectedFiles);
     setImgFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
@@ -482,6 +499,7 @@ export function AirisChat({ historyConversationId }: AirisChatProps) {
       };
     }
   };
+
   // Function to handle file deletion
   const handleDeleteFile = (index: any) => {
     console.log("INDEX TO REMOVE: ", index);
@@ -515,6 +533,7 @@ export function AirisChat({ historyConversationId }: AirisChatProps) {
     return `image-${timestamp}-${randomNumber}`;
   };
   const handleDownload = async (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, url: string | URL | Request) => {
+
     e.preventDefault();
     try {
       const response = await fetch(url, {
@@ -546,11 +565,62 @@ export function AirisChat({ historyConversationId }: AirisChatProps) {
     handleInputChange(event);
   }
 
+  const handleInputPaste = (e: ClipboardEvent) => {
+    // Check if the event target is the correct element (optional)
+    if (e.target instanceof HTMLTextAreaElement) {
+      console.log('Pasting content detected');
+
+      // Access pasted data
+      const items = e.clipboardData?.items;
+      if (items) {
+        for (const item of items) {
+          // console.logs pasted data
+          if (item.type.startsWith('image/')) {
+            const blob = item.getAsFile();
+            if (blob) {
+              const pastedImageName = generateRandomFileName();
+              const pastedimageFile = new File([blob], `pasted-${pastedImageName}.png`, { type: blob.type });
+              console.log('Pasted image File:', pastedimageFile);
+              
+              // Use the process from inputFileChange
+
+              // add the pasted image file to the array of image files
+              setImgFiles((prevFiles) => [...prevFiles, pastedimageFile]);
+
+              // add the name of the pasted image to the array of image file names
+              setImageFileNames((prevFileNames) => [...prevFileNames, pastedimageFile.name]);
+              const url = URL.createObjectURL(pastedimageFile);
+
+              // add the temporary display url of the pasted image 
+              setDisplayImages((prevState) => ({
+                ...prevState,
+                [imgIdx]: [...(prevState[imgIdx] || []), url],
+              }));
+        
+              // convert to base64
+              const reader = new FileReader();
+              reader.readAsDataURL(pastedimageFile); 
+              reader.onload = () => {
+                if (typeof reader.result == "string") {
+                  setImages64((prevImages) => [...prevImages, reader.result]);
+                }
+              };
+              reader.onerror = (error) => {
+                console.log("error: " + error);
+              };
+            }
+          }
+        }
+      }
+    }
+  };
+
   // JSX ELEMENT:
   return (
     <div className="flex h-screen w-full">
+    <SessionProvider>
       <SideBar />
-
+    </SessionProvider>
       {isHistoryOpen && <PersonaChatHistory refreshHistory={refreshHistory} />}
 
       {/* Main Content */}
@@ -735,6 +805,7 @@ export function AirisChat({ historyConversationId }: AirisChatProps) {
                     : `bg-transparent px-1 pt-1 placeholder:text-base h-full persona-selection-scrollbar` //image mode
                 }
                 onChange={handleInputChange}
+                onPaste={handleInputPaste}
                 disabled={isLoading || isLoading2}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey && input) {

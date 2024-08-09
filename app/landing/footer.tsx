@@ -4,9 +4,9 @@ import Link from "next/link";
 
 const Footer: FC = () => {
   return (
-    <footer className="flex-col md:flex-row py-5 relative flex justify-between h-fit border-b border-slate-300 px-4 bg-white">
+    <footer className="flex-col md:flex-row py-5 relative flex justify-between h-fit border-b border-slate-300 px-16 bg-white">
       <div className="mb-4 mx-auto sm:mx-auto md:mx-0 sm:mb-2 md:mb-0">
-        <ul className="flex flex-col gap-2 ">
+        <ul className="flex flex-col gap-1 ">
           <li className="flex self-center md:self-start items-center justify-center gap-2 text-sm text-slate-600">
             <span>
               <LocationIcon />
@@ -30,8 +30,9 @@ const Footer: FC = () => {
         </ul>
       </div>
 
-      <p className="text-slate-700 flex justify-center items-center gap-10 text-sm md:text-md mb-3 md:mb-0">
-        © 2023 Smart Prodigy. All rights reserved.
+      <p className="text-slate-700 flex justify-center items-center text-center gap-10 text-sm md:text-md mb-3 md:mb-0">
+        © 2023 Smart Prodigy. All rights reserved. <br />
+        Terms and Conditions | Privacy Policy
       </p>
 
       <div className="flex items-align justify-center gap-4 py-3 z-20">
