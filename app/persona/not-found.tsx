@@ -22,12 +22,6 @@ export default function NotFoundAgent() {
         >
           Return to Homepage
         </Link>
-        <Link
-          href="#"
-          className="py-2 px-6 border border-slate-400 rounded-lg dark:border-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
-        >
-          Create a Persona
-        </Link>
       </div>
     </div>
   );
