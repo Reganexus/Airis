@@ -30,7 +30,7 @@ import { PutBlobResult } from "@vercel/blob";
 import { upload } from "@vercel/blob/client";
 import { usePromptSuggestions } from "@/lib/functions/timer/prompt-suggestion-timer";
 
-interface ByteChatBotProps {
+interface AirisChatProps {
   historyConversationId?: string;
 }
 
@@ -39,7 +39,7 @@ interface ByteChatBotProps {
  * @param {Object} params - The id object, telling which persona will be utilized.
  * @returns {JSX.Element} The Chat component.
  */
-export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
+export function AirisChat({ historyConversationId }: AirisChatProps) {
 
   const router = useRouter();                     // Router
   const { data: session, status } = useSession(); // Access user information from session
