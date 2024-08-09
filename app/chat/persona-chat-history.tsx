@@ -96,14 +96,17 @@ const PersonaChatHistory: React.FC<PersonaChatHistoryProps> = ({
     older: [],
   });
   useEffect(() => {
-    const name = sessionStorage.getItem('aiName');
-    const description = sessionStorage.getItem('aiDescription');
-    const logo = sessionStorage.getItem('persona_logo');
+    const name = sessionStorage.getItem("aiName");
+    const description = sessionStorage.getItem("aiDescription");
+    const logo = sessionStorage.getItem("persona_logo");
 
     setAiName(name);
     setAiDescription(description);
-    setAiLogo(logo);;
-  }, [sessionStorage.getItem('aiName'), sessionStorage.getItem('persona_logo')]);
+    setAiLogo(logo);
+  }, [
+    sessionStorage.getItem("aiName"),
+    sessionStorage.getItem("persona_logo"),
+  ]);
 
   useEffect(() => {
     // Check if the User is logged in
@@ -163,7 +166,7 @@ const PersonaChatHistory: React.FC<PersonaChatHistoryProps> = ({
         <h3 className=" font-bold text-slate-700 dark:text-slate-300">
           Chat History
         </h3>
-        {status == 'authenticated' && (
+        {status == "authenticated" && (
           <ClearHistoryButton historyCleared={handleHistoryCleared} />
         )}
       </div>
@@ -172,19 +175,36 @@ const PersonaChatHistory: React.FC<PersonaChatHistoryProps> = ({
       <div className="flex flex-col max-h-full max-w-full overflow-y-auto gap-3 p-3 px-4 py-4 h-full relative persona-selection-scrollbar">
         {groupedHistory && (
           <>
-            {status == 'loading' || status != 'authenticated' && (
-              <div className="w-full flex flex-col justify-center items-center">
-                <h1 className="text-slate-600 dark:text-slate-300">
-                  Chat History Unavailable
-                </h1>
-                <p className="text-slate-600 dark:text-slate-300">
-                  To view your chat history:
-                </p>
-                <Link href="/entry" className="text-blue-500">
-                  Sign In Now
-                </Link>
-              </div>
-            )}
+            {status == "loading" ||
+              (status != "authenticated" && (
+                <div className="w-full h-full flex flex-col items-center px-4 pt-12">
+                  <Image
+                    src={"/img/hourglass_slate400.png"}
+                    alt="hourglass icon"
+                    width={90}
+                    height={90}
+                  />
+                  <h1 className="text-slate-700 dark:text-slate-200 font-semibold text-xl mt-4 mb-2">
+                    History Unavailable
+                  </h1>
+                  <p className="text-slate-500 dark:text-slate-300 text-center">
+                    <Link
+                      className="underline hover:text-cyan-600 dark:hover:text-cyan-500"
+                      href={"/entry?type=register"}
+                    >
+                      Create an Account
+                    </Link>{" "}
+                    or{" "}
+                    <Link
+                      className="underline hover:text-cyan-600 dark:hover:text-cyan-500"
+                      href={"/entry"}
+                    >
+                      Sign in
+                    </Link>{" "}
+                    to view your chat history
+                  </p>
+                </div>
+              ))}
             {groupedHistory.today.length > 0 && (
               <ChatHistoryBatch date="Today" topics={groupedHistory.today} />
             )}
