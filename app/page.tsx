@@ -6,7 +6,7 @@ export default function Home() {
   const router = useRouter();
 
   // temporary
-  router.push('/persona/intern-ai-agent');
+  router.push('/persona');
   router.refresh();
   return null;
 
