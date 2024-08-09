@@ -233,7 +233,6 @@ export function ByteChatBot({ historyConversationId }: ByteChatBotProps) {
       }
     } else {
       if (!mounted.current) return;
-      if (chatbotId == null && !historyConversationId) router.push('/persona');
       if (chatbotId && !historyConversationId) {
         const persona_id = sessionStorage.getItem("persona_id");
         const logo = sessionStorage.getItem('persona_logo');    
