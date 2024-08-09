@@ -29,7 +29,7 @@ import FileUploadComponent from "./file-upload-component";
 import { PutBlobResult } from "@vercel/blob";
 import { upload } from "@vercel/blob/client";
 
-interface ByteChatBotProps {
+interface AirisChatProps {
   historyConversationId?: string;
 }
 
@@ -38,7 +38,7 @@ interface ByteChatBotProps {
  * @param {Object} params - The id object, telling which persona will be utilized.
  * @returns {JSX.Element} The Chat component.
  */
-export function AirisChat({ historyConversationId }: ByteChatBotProps): JSX.Element {
+export function AirisChat({ historyConversationId }: AirisChatProps): JSX.Element {
   // Router
   const router = useRouter();
   // Access user information from session
