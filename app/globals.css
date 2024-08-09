@@ -68,4 +68,7 @@
   * {
     @apply border-border;
   }
+  .TypeCursor {
+    display: none;
+  }
 }
