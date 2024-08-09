@@ -163,14 +163,28 @@ const PersonaChatHistory: React.FC<PersonaChatHistoryProps> = ({
         <h3 className=" font-bold text-slate-700 dark:text-slate-300">
           Chat History
         </h3>
-
-        <ClearHistoryButton historyCleared={handleHistoryCleared} />
+        {status == 'authenticated' && (
+          <ClearHistoryButton historyCleared={handleHistoryCleared} />
+        )}
       </div>
 
       {/* Chat History Selection List */}
       <div className="flex flex-col max-h-full max-w-full overflow-y-auto gap-3 p-3 px-4 py-4 h-full relative persona-selection-scrollbar">
         {groupedHistory && (
           <>
+            {status == 'loading' || status != 'authenticated' && (
+              <div className="w-full flex flex-col justify-center items-center">
+                <h1 className="text-slate-600 dark:text-slate-300">
+                  Chat History Unavailable
+                </h1>
+                <p className="text-slate-600 dark:text-slate-300">
+                  To view your chat history:
+                </p>
+                <Link href="/entry" className="text-blue-500">
+                  Sign In Now
+                </Link>
+              </div>
+            )}
             {groupedHistory.today.length > 0 && (
               <ChatHistoryBatch date="Today" topics={groupedHistory.today} />
             )}
