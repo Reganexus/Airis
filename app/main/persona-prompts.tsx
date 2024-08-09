@@ -222,7 +222,7 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
     persona_id: any,
     task: any
   ) {
-    storeSession(name, tagline, chatbot_id, persona_id, task);
+    storeSession(name, tagline, chatbot_id, task);
     updateChatbotFrequency(chatbot_id);
   }
   return (
@@ -378,7 +378,7 @@ const PromptCard: React.FC<PromptCardProps> = ({
     persona_id: any,
     task: any
   ) {
-    storeSession(name, tagline, chatbot_id, persona_id, task);
+    storeSession(name, tagline, chatbot_id, task);
     updateChatbotFrequency(chatbot_id);
   }
   return (

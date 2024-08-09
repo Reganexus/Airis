@@ -92,7 +92,7 @@ const WelcomeScreen = () => {
     console.log("Featured Prompt Click", prompt.logo_name)
     updateChatbotFrequency(prompt.chatbot_id.toString());
     storeLogoSession(prompt.logo_name);
-    storeChatbotSession(prompt.name, prompt.tagline, prompt.chatbot_id.toString(), prompt.toString(), prompt.task);
+    storeChatbotSession(prompt.name, prompt.tagline, prompt.chatbot_id.toString(), prompt.task);
   }
 
   return (
