@@ -66,15 +66,15 @@ const SideBar: React.FC<SideBarProps> = ({ id }) => {
       {/* Profile Section */}
       <div className="flex flex-col justify-between border-t border-slate-300 dark:border-slate-600 items-center py-2 px-2 pb-4 pt-3">
         {status == 'authenticated' && (
-        <div className="p-2 flex justify-center items-center hover:cursor-pointer hover:bg-slate-200 rounded-lg mb-1 dark:hover:bg-slate-700">
-          <Image
-            src="/user_placeholder_img.png"
-            alt="user photo"
-            width={50}
-            height={50}
-            className="rounded-full border-2 border-white shadow-md dark:border-slate-400"
-          />
-        </div>
+          <div className="p-2 flex justify-center items-center hover:cursor-pointer hover:bg-slate-200 rounded-lg mb-1 dark:hover:bg-slate-700">
+            <Image
+              src="/user_placeholder_img.png"
+              alt="user photo"
+              width={50}
+              height={50}
+              className="rounded-full border-2 border-white shadow-md dark:border-slate-400"
+            />
+          </div>
         )}
 
         {/* ---Icon Buttons--- */}
@@ -248,19 +248,9 @@ const LoginIconButton = () => {
       title="Sign In"
       className="text-slate-500 p-4 hover:bg-red-100 hover:text-red-500 rounded-lg dark:text-slate-300 dark:hover:bg-red-500/30 dark:hover:text-red-300"
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={1.5}
-        stroke="currentColor"
-        className="size-6"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"
-        />
+
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="m11.25 9-3 3m0 0 3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
       </svg>
     </button>
   );
