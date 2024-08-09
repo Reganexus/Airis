@@ -65,6 +65,7 @@ const SideBar: React.FC<SideBarProps> = ({ id }) => {
 
       {/* Profile Section */}
       <div className="flex flex-col justify-between border-t border-slate-300 dark:border-slate-600 items-center py-2 px-2 pb-4 pt-3">
+        {status == 'authenticated' && (
         <div className="p-2 flex justify-center items-center hover:cursor-pointer hover:bg-slate-200 rounded-lg mb-1 dark:hover:bg-slate-700">
           <Image
             src="/user_placeholder_img.png"
@@ -74,12 +75,15 @@ const SideBar: React.FC<SideBarProps> = ({ id }) => {
             className="rounded-full border-2 border-white shadow-md dark:border-slate-400"
           />
         </div>
+        )}
 
         {/* ---Icon Buttons--- */}
 
-        <Tooltip content="Profile">
-          <ProfileIconButton />
-        </Tooltip>
+        {status == 'authenticated' && (
+          <Tooltip content="Profile">
+            <ProfileIconButton />
+          </Tooltip>
+        )}
 
         {/* <Tooltip content="Settings">
           <SettingsIconButton />

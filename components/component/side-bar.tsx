@@ -4,9 +4,6 @@ import React, { MouseEventHandler } from "react";
 import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
-import { Persona } from '@/lib/types';
-import { Personas } from '@/lib/types';
-import { PersonaCode } from '@/lib/types';
 import { useRouter } from "next/navigation";
 
 
