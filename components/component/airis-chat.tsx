@@ -8,7 +8,7 @@ import "@/app/main/persona-selection-scrollbar.css";
 // import HeaderAvatar from "@/components/component/header-avatar";
 import SideBar from "@/app/main/side-bar";
 import PersonaChatHistory from "@/app/chat/persona-chat-history";
-import { useChat } from "ai/react";
+import { Message, useChat } from "ai/react";
 import PersonaCard from "./persona-card";
 import { formatTextToHTML } from "@/lib/textToHTML";
 import Image from "next/image";
@@ -33,6 +33,8 @@ import AgentChatLoading from "./agent-chat-loading";
 import Typewriter from "typewriter-effect";
 
 import { Inter } from "next/font/google";
+import DOMPurify from 'dompurify';
+
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -48,11 +50,15 @@ interface AirisChatProps {
 export function AirisChat({
   historyConversationId,
 }: AirisChatProps): JSX.Element {
-  const endOfMessagesRef = useRef<HTMLDivElement>(null);
+
 
   const [mobileIsOpenHistory, setMobileIsOpenHistory] = useState(false);
 
+
+  const endOfMessagesRef = useRef<HTMLDivElement>(null);
+
   const router = useRouter(); // Router
+  
   const { data: session, status } = useSession(); // Access user information from session
   const user = session?.user;
   /**
@@ -207,17 +213,17 @@ export function AirisChat({
                 );
                 if (filename === data.result.logo_name) {
                   setLogo(blob.url);
-                  sessionStorage.setItem("persona_logo", blob.url);
+                  localStorage.setItem("persona_logo", blob.url);
                 }
               });
 
-              // Store the necessary strings in sessionStorage
-              sessionStorage.setItem("aiName", data.result.name ?? "");
-              sessionStorage.setItem(
+              // Store the necessary strings in localStorage
+              localStorage.setItem("aiName", data.result.name ?? "");
+              localStorage.setItem(
                 "aiDescription",
                 data.result.tagline ?? ""
               );
-              sessionStorage.setItem(
+              localStorage.setItem(
                 "chatbot_id",
                 chatdata.chatbot.chatbot_id ?? ""
               );
@@ -238,13 +244,13 @@ export function AirisChat({
     } else {
       /**
        * no historyConversationId means the chat is new
-       * - information regarding chatbot_id and others (task, persona_logo, etc.) will be accessed on sessionStorage
+       * - information regarding chatbot_id and others (task, persona_logo, etc.) will be accessed on localStorage
        */
 
       // Assign the session variables into its respective states
-      const chatbot_id = sessionStorage.getItem("chatbot_id");
-      const logo = sessionStorage.getItem("persona_logo");
-      const ai_name = sessionStorage.getItem("aiName");
+      const chatbot_id = localStorage.getItem("chatbot_id");
+      const logo = localStorage.getItem("persona_logo");
+      const ai_name = localStorage.getItem("aiName");
 
       setChatbotId(chatbot_id);
       setLogo(logo);
@@ -260,7 +266,7 @@ export function AirisChat({
             const stringify = JSON.stringify(data.chatbot?.sysprompt);
 
             // Set the remaining variables respectively
-            sessionStorage.setItem("task", data.chatbot.task);
+            localStorage.setItem("task", data.chatbot.task);
             setChosenChatbot(data.chatbot);
             setAiTask(data.chatbot.task);
 
@@ -423,7 +429,7 @@ export function AirisChat({
           console.log(res.filenames);
 
           // Response of the GPT
-          let messagesToShow = [
+          let messagesToShow: Message[] = [
             {
               id: "",
               role: "user",
@@ -481,7 +487,7 @@ export function AirisChat({
     [key: number]: string[];
   }>({}); // Manages the display URLs for the images that are currently visible to the user in the UI.
   const [imgFileNames, setImageFileNames] = useState<
-    (string | ArrayBuffer | null)[]
+    (any)[]
   >([]); // Keeps track of the file names of the images selected, which can be used for annotations or references.
   const [imgIdx, setImgIdx] = useState(0); // Index for managing the current set of images being handled, useful for categorization or segmented display.
   //useEffect(() => {
@@ -606,7 +612,7 @@ export function AirisChat({
     handleInputChange(event);
   };
 
-  const handleInputPaste = (e: ClipboardEvent) => {
+  const handleInputPaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     // Check if the event target is the correct element (optional)
     if (e.target instanceof HTMLTextAreaElement) {
       console.log("Pasting content detected");
@@ -721,7 +727,9 @@ export function AirisChat({
                                 viewBox="0 0 24 24"
                                 stroke-width="1.5"
                                 stroke="currentColor"
+
                                 className="size-6"
+
                               >
                                 <path
                                   stroke-linecap="round"
@@ -751,10 +759,10 @@ export function AirisChat({
                   /* Chatbot message */
                 }
 
-                if (isLoading && isLastMessage)
-                  return (
-                    <AgentChatLoading key={i} aiLogo={aiLogo} aiName={aiName} />
-                  );
+                // if ((isLoading || isLoading2) && isLastMessage)
+                //   return (
+                //     <AgentChatLoading key={i} aiLogo={aiLogo} aiName={aiName} />
+                //   );
 
                 const isHovered: boolean = i === hoveredMessageIndex;
                 return (
@@ -794,7 +802,7 @@ export function AirisChat({
                             <p>Here is your image:</p>
                             <img src={m.content} alt="Generated" />
 
-                            <a href={m.data}>
+                            <a href={m.data?.toString()}>
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
@@ -813,24 +821,24 @@ export function AirisChat({
                           </div>
                         ) : (
                           // Otherwise, assume the output is text and format it accordingly
-                          <pre
-                            className={`${inter.className} text-wrap agent-response`}
-                          >
-                            <Typewriter
-                              options={{
-                                strings: m.content,
-                                autoStart: true,
-                                delay: 5,
-                                skipAddStyles: true,
-                                cursorClassName: "TypeCursor",
-                              }}
-                            />
-                          </pre>
-                          // <div
-                          //   dangerouslySetInnerHTML={{
-                          //     __html: formatTextToHTML(m.content),
-                          //   }}
-                          // />
+                          // <pre
+                          //   className={`${inter.className} text-wrap agent-response`}
+                          // >
+                          //   <Typewriter
+                          //     options={{
+                          //       strings: m.content,
+                          //       autoStart: true,
+                          //       delay: 5,
+                          //       skipAddStyles: true,
+                          //       cursorClassName: "TypeCursor",
+                          //     }}
+                          //   />
+                          // </pre>
+                          <div
+                            dangerouslySetInnerHTML={{
+                              __html: DOMPurify.sanitize(formatTextToHTML(m.content)) ,
+                            }}
+                          />
                         )
                       }
 
@@ -1097,7 +1105,9 @@ export function AirisChat({
                     ))}
                   </select>
                 </div>
-                <button className="py-2 bg-primary text-white rounded-lg mt-2">
+                <button className="py-2 bg-primary text-white rounded-lg mt-2"
+                 disabled={isLoading || isLoading2}
+                >
                   Generate
                 </button>
               </div>

@@ -1,9 +1,12 @@
+'use client';
 import { fetchFeaturedPrompts } from "@/lib/db/fetch-queries";
 import { updateChatbotFrequency } from "@/lib/db/update-queries";
+
 import {
   useStoreChatbotSession,
   useStorePersonaLogoSession,
 } from "@/lib/functions/local-storage/sessionStorage-chabot";
+
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -11,27 +14,6 @@ import { useMediaQuery } from "react-responsive";
 import PersonaSelectionLoading from "../persona/persona-selection-loading";
 import PersonaSelection from "./persona-selection";
 import { usePersonaContext } from "../persona/layout";
-
-// const prompts = [
-//   { ai: "Intern AI", bg: "bg-ai-intern", prompt: "Create a Resume" },
-//   {
-//     ai: "Marketing AI",
-//     bg: "bg-ai-marketing",
-//     prompt: "Create a Company Brand",
-//   },
-//   {
-//     ai: "Human Resources AI",
-//     bg: "bg-ai-hr",
-//     prompt: "Create an Employment Contract",
-//   },
-//   { ai: "Law AI", bg: "bg-ai-law", prompt: "Create a Prospectus" },
-//   { ai: "Admin AI", bg: "bg-ai-admin", prompt: "Create an Expense Report" },
-//   {
-//     ai: "Teacher AI",
-//     bg: "bg-ai-teacher",
-//     prompt: "Create a Test Review Sheet",
-//   },
-// ];
 
 interface featuredPrompts {
   persona_id: number;

@@ -7,6 +7,14 @@
     // Convert inline code (e.g., `code` to <code>code</code>)
     text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
 
+    // HEADERS
+    text = text.replace(/###### (.*)/g, '<h6>$1</h6>');
+    text = text.replace(/##### (.*)/g, '<h5>$1</h5>');
+    text = text.replace(/#### (.*)/g, '<h4>$1</h4>');
+    text = text.replace(/### (.*)/g, '<h3>$1</h3>');
+    text = text.replace(/## (.*)/g, '<h2>$1</h2>');
+    text = text.replace(/# (.*)/g, '<h1>$1</h1>');
+
     // Convert markdown tables into  table body
     // STILL HAS ISSUES
     text = text.replace(
@@ -35,13 +43,7 @@
     );
 
 
-    // HEADERS
-    // text = text.replace(/###### (.*)/g, '<h6>$1</h6>');
-    // text = text.replace(/##### (.*)/g, '<h5>$1</h5>');
-    // text = text.replace(/#### (.*)/g, '<h4>$1</h4>');
-     text = text.replace(/### (.*)/g, '<h3>$1</h3>');
-    // text = text.replace(/## (.*)/g, '<h2>$1</h2>');
-    // text = text.replace(/# (.*)/g, '<h1>$1</h1>');
+    
     // Convert headers (e.g., ## Header to <h2>Header</h2>)
     text = text.replace(/^(#{2,6})\s*(.*)$/gm, (_, hashes, content) => {
       const level = hashes.length;

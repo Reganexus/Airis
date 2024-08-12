@@ -2,7 +2,7 @@ import { sql } from '@vercel/postgres';
 import { getServerSession } from 'next-auth/next';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-export async function POST(req: NextApiRequest){
+export async function POST(req: Request){
   try {
     // Use getSession to automatically handle fetching session based on the incoming request
     const session = await getServerSession();

@@ -3,7 +3,7 @@ import Image from "next/image";
 import "./persona-selection-scrollbar.css";
 import Link from "next/link";
 import { Persona } from "@/lib/types";
-import { useStorePersonaLogoSession } from "@/lib/functions/local-storage/sessionStorage-chabot";
+import { useStorePersonaLogoSession } from "@/lib/functions/local-storage/localStorage-chabot";
 import Tooltip from "@/components/component/tooltip";
 import { usePersonaContext } from "../persona/layout";
 

@@ -3,7 +3,7 @@ import Image from "next/image";
 
 import { Key, Suspense, useCallback, useEffect, useState } from "react";
 import { SelectedPersona } from "@/lib/types";
-import { useStoreChatbotSession } from "@/lib/functions/local-storage/sessionStorage-chabot";
+import { useStoreChatbotSession } from "@/lib/functions/local-storage/localStorage-chabot";
 import { fetchPrompts } from "@/lib/db/fetch-queries";
 import { promptIcons } from "@/lib/prompticons";
 import PersonaProfileLoading from "./persona-profile-loading";
@@ -191,13 +191,13 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
    */
   //   const router = useRouter();
   //   const handleClick = (prompt: any) => {
-  //     // Store values in sessionStorage, to be used on the /chat page
+  //     // Store values in localStorage, to be used on the /chat page
 
-  //     sessionStorage.setItem('task', prompt ?? "");
-  //     sessionStorage.setItem('aiName', selectedPersona?.persona_name ?? "");
-  //     sessionStorage.setItem('aiDescription', selectedPersona?.persona_tagline ?? "");
-  //     sessionStorage.setItem('chatbot_id', prompt.chatbot_id);
-  //     sessionStorage.setItem('persona_id', prompt.persona_id);
+  //     localStorage.setItem('task', prompt ?? "");
+  //     localStorage.setItem('aiName', selectedPersona?.persona_name ?? "");
+  //     localStorage.setItem('aiDescription', selectedPersona?.persona_tagline ?? "");
+  //     localStorage.setItem('chatbot_id', prompt.chatbot_id);
+  //     localStorage.setItem('persona_id', prompt.persona_id);
   //     router.push('/chat');
   //   };
 
