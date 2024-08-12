@@ -1,9 +1,10 @@
-import { sql } from '@vercel/postgres';
+import { db, sql } from '@vercel/postgres';
 
 export async function POST(req: Request) {
+  const client = await db.connect();
   try {
     const chosenChatbot = await req.json()
-    const chatbotquery = await sql`SELECT * FROM chatbot WHERE chatbot_id = ${chosenChatbot.id}`;
+    const chatbotquery = await client.sql`SELECT * FROM chatbot WHERE chatbot_id = ${chosenChatbot.id}`;
     const { rows: chatbot } = chatbotquery;
     if (chatbot.length === 0) {
       return new Response(JSON.stringify({ error: 'Chatbot not found', chatbot: null }));

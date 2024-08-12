@@ -1,12 +1,13 @@
 
-import { sql } from '@vercel/postgres';
+import { db, sql } from '@vercel/postgres';
 
 export async function POST(req: Request) {
+  const client = await db.connect();
   try {
     const chatbotInformation = await req.json()
     
     // Update the default chatbot of a specific persona
-    const result = await sql`
+    const result = await client.sql`
       UPDATE chatbot
         SET role = ${chatbotInformation.personaDefaultRole}, 
             task = ${chatbotInformation.task}, 

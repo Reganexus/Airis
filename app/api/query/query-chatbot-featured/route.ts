@@ -7,7 +7,7 @@ export async function POST(request: Request) {
   try {
     
     // Execute the SQL query using the provided persona_id
-    const result = await sql`
+    const result = await client.sql`
         SELECT DISTINCT ON (p.persona_id) 
             p.persona_id, p.name, p.tagline, p.logo_name, c.chatbot_id, c.frequency, c.task
         FROM persona p

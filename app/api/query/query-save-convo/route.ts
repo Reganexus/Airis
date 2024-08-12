@@ -1,11 +1,12 @@
-import { sql } from '@vercel/postgres';
+import { db, sql } from '@vercel/postgres';
 import { generateText } from 'ai';
 import { openai } from '@ai-sdk/openai';
 
 export async function POST(req: Request) {
+  const client = await db.connect();
   try {
     const information = await req.json()
-    const result = await sql`SELECT user_id FROM users WHERE email = ${information.email}`;
+    const result = await client.sql`SELECT user_id FROM users WHERE email = ${information.email}`;
     const user_id = result.rows[0].user_id;
 
     if (information.conversation_id == 0) {
@@ -28,7 +29,7 @@ export async function POST(req: Request) {
         });
         
         if (title) {
-          const result2 = await sql`INSERT INTO conversation (user_id, chatbot_id, title, messages) VALUES (${user_id}, ${information.chatbot_id}, ${title.text}, ${messageStringify}::jsonb) RETURNING conversation_id`;
+          const result2 = await client.sql`INSERT INTO conversation (user_id, chatbot_id, title, messages) VALUES (${user_id}, ${information.chatbot_id}, ${title.text}, ${messageStringify}::jsonb) RETURNING conversation_id`;
           const conversation_id = result2.rows[0].conversation_id;
           if (result2) {
               console.log("Query executed successfully");
@@ -47,7 +48,7 @@ export async function POST(req: Request) {
          */
         const messageStringify = JSON.stringify(information.messages)
 
-        const result2 = await sql`UPDATE conversation SET messages = ${messageStringify}::jsonb WHERE conversation_id = ${information.conversation_id}`;
+        const result2 = await client.sql`UPDATE conversation SET messages = ${messageStringify}::jsonb WHERE conversation_id = ${information.conversation_id}`;
 
         if (result2) {
             console.log("Update executed successfully");

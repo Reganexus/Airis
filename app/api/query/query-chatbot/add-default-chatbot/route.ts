@@ -1,12 +1,13 @@
 
-import { sql } from '@vercel/postgres';
+import { db, sql } from '@vercel/postgres';
 
 export async function POST(req: Request) {
+  const client = await db.connect();
   try {
     const chatbotInformation = await req.json()
 
     // Insert a new chatbot related to the new persona
-    const result = await sql`
+    const result = await client.sql`
       INSERT INTO chatbot (persona_id, frequency, role, subpersona, default_prompt, task, sysprompt)
         VALUES (${chatbotInformation.personaId}, 
                 0, 

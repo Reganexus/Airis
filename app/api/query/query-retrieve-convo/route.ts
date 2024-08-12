@@ -1,12 +1,13 @@
-import { sql } from '@vercel/postgres';
+import { db, sql } from '@vercel/postgres';
 import { list } from '@vercel/blob';
 
 export async function POST(req: Request) {
+  const client = await db.connect();
   try {
 
     const imgList = await list();
     const information = await req.json()
-    const result = await sql`
+    const result = await client.sql`
       SELECT 
           c.chatbot_id, 
           c.messages, 

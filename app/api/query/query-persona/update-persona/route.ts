@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server';
-import { sql } from '@vercel/postgres';
+import { db, sql } from '@vercel/postgres';
 
 export async function POST(req: Request) {
+  const client = await db.connect();
   try {
     
     const personaInformation = await req.json()
     
     // Update the existing persona data as user requested
-    const result = await sql`
+    const result = await client.sql`
     UPDATE personas
         SET name = ${personaInformation.name}, 
             department = ${personaInformation.department}, 
