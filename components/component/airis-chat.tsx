@@ -744,10 +744,10 @@ export function AirisChat({
                   /* Chatbot message */
                 }
 
-                if ((isLoading || isLoading2) && isLastMessage)
-                  return (
-                    <AgentChatLoading key={i} aiLogo={aiLogo} aiName={aiName} />
-                  );
+                // if ((isLoading || isLoading2) && isLastMessage)
+                //   return (
+                //     <AgentChatLoading key={i} aiLogo={aiLogo} aiName={aiName} />
+                //   );
 
                 const isHovered: boolean = i === hoveredMessageIndex;
                 return (
@@ -797,24 +797,24 @@ export function AirisChat({
                           </div>
                         ) : (
                           // Otherwise, assume the output is text and format it accordingly
-                          <pre
-                            className={`${inter.className} text-wrap agent-response`}
-                          >
-                            <Typewriter
-                              options={{
-                                strings: m.content,
-                                autoStart: true,
-                                delay: 5,
-                                skipAddStyles: true,
-                                cursorClassName: "TypeCursor",
-                              }}
-                            />
-                          </pre>
-                          // <div
-                          //   dangerouslySetInnerHTML={{
-                          //     __html: DOMPurify.sanitize(formatTextToHTML(m.content)) ,
-                          //   }}
-                          // />
+                          // <pre
+                          //   className={`${inter.className} text-wrap agent-response`}
+                          // >
+                          //   <Typewriter
+                          //     options={{
+                          //       strings: m.content,
+                          //       autoStart: true,
+                          //       delay: 5,
+                          //       skipAddStyles: true,
+                          //       cursorClassName: "TypeCursor",
+                          //     }}
+                          //   />
+                          // </pre>
+                          <div
+                            dangerouslySetInnerHTML={{
+                              __html: DOMPurify.sanitize(formatTextToHTML(m.content)) ,
+                            }}
+                          />
                         )
                       }
 
