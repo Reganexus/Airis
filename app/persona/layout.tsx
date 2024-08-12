@@ -2,13 +2,34 @@
 import { fetchPersonas } from "@/lib/db/fetch-queries";
 import { Persona } from "@/lib/types";
 import { useParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import {
+  createContext,
+  Suspense,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import SideBar from "../main/side-bar";
 import PersonaSelection from "../main/persona-selection";
 import React from "react";
 import Loading from "./persona-selection-loading";
 import PersonaSelectionLoading from "./persona-selection-loading";
-import { SessionProvider } from 'next-auth/react';
+import { SessionProvider } from "next-auth/react";
+import { useMediaQuery } from "react-responsive";
+
+interface PersonaContextType {
+  setIsPersonaSelectionOpen: (isOpen: boolean) => void;
+}
+
+const PersonaContext = createContext<PersonaContextType | undefined>(undefined);
+
+export const usePersonaContext = () => {
+  const context = useContext(PersonaContext);
+  if (!context) {
+    throw new Error("usePersonaContext must be used within a PersonaProvider");
+  }
+  return context;
+};
 
 export default function SelectionLayout({
   children,
@@ -27,6 +48,10 @@ export default function SelectionLayout({
   const [personaLists, setPersonaLists] = useState<Persona[]>();
   const [personaBlobs, setPersonaBlobs] = useState<any[]>([]);
   const [temp, setTemp] = useState<Persona[]>([]);
+  const [isPersonaSelectionOpen, setIsPersonaSelectionOpen] =
+    useState<Boolean>(false);
+
+  const isMobile = useMediaQuery({ query: "(max-width: 640px)" });
 
   useEffect(() => {
     setIsLoading(true);
@@ -77,25 +102,40 @@ export default function SelectionLayout({
   // Clone children and pass the agent prop (persona_url)
   const childrenWithProps = React.Children.map(children, (child) => {
     if (React.isValidElement(child)) {
-      return React.cloneElement(child, { agent } as { [key: string]: any });
+      return React.cloneElement(child, { agent, setIsPersonaSelectionOpen } as {
+        [key: string]: any;
+        setIsPersonaSelectionOpen: any;
+      });
     }
     return child;
   });
 
+  console.log("mob: ", setIsPersonaSelectionOpen);
+
   return (
     <main className="flex h-screen">
+      <SessionProvider>
+        <SideBar />
+      </SessionProvider>
 
-    <SessionProvider>
-      <SideBar />
-    </SessionProvider>
-
-      {isLoading ? (
-        <PersonaSelectionLoading />
-      ) : (
-        <PersonaSelection personas={personaLists} selectedAgent={agent} />
-      )}
-
-      {childrenWithProps}
+      <div
+        className={`${
+          isPersonaSelectionOpen && isMobile
+            ? "fixed inset-0 z-20"
+            : "mob:hidden w-full max-w-[23rem]"
+        } h-screen  bg-slate-100`}
+      >
+        {isLoading ? (
+          <PersonaSelectionLoading />
+        ) : (
+          <PersonaContext.Provider value={{ setIsPersonaSelectionOpen }}>
+            <PersonaSelection personas={personaLists} selectedAgent={agent} />
+          </PersonaContext.Provider>
+        )}
+      </div>
+      <PersonaContext.Provider value={{ setIsPersonaSelectionOpen }}>
+        {childrenWithProps}
+      </PersonaContext.Provider>
     </main>
   );
 }

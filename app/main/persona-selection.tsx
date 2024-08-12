@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Persona } from "@/lib/types";
 import { useStorePersonaLogoSession } from "@/lib/functions/local-storage/sessionStorage-chabot";
 import Tooltip from "@/components/component/tooltip";
+import { usePersonaContext } from "../persona/layout";
 
 interface PersonaSelectionProps {
   personas?: Persona[];
@@ -16,11 +17,19 @@ const PersonaSelection: React.FC<PersonaSelectionProps> = ({
   selectedAgent,
 }) => {
   const noDashAgentString = selectedAgent?.replaceAll("-", " ");
+  const { setIsPersonaSelectionOpen } = usePersonaContext();
 
   return (
-    <div className="bg-slate-100 w-full max-w-[23rem] flex flex-col border-r border-slate-300 dark:bg-slate-900 dark:border-slate-500">
+    <div className="bg-slate-100 w-full max-w-[23rem] mob:max-w-full max-h-full flex flex-col border-r border-slate-300 dark:bg-slate-900 dark:border-slate-500 relative">
       {/* Header */}
-      <div className="shadow flex justify-between items-center p-5 gap-4 px-6 pb-5 border-b border-slate-300 dark:border-slate-600">
+      <div className="shadow flex mob:flex-col items-center mob:items-start p-5 gap-4 px-6 pb-5 border-b border-slate-300 dark:border-slate-600 mob:pl-5">
+        <button
+          onClick={() => setIsPersonaSelectionOpen(false)}
+          className="hidden mob:flex items-center text-sm"
+        >
+          <BackIcon /> Return
+        </button>
+
         <div>
           <h3 className="text-xl font-bold text-slate-700 dark:text-slate-200">
             Persona Selection
@@ -130,5 +139,25 @@ const AddPersonaIcon = () => {
         />
       </svg>
     </button>
+  );
+};
+const BackIcon = () => {
+  return (
+    <span className="text-slate-500 mr-1 hover:bg-slate-200 hover:text-primary rounded-lg  dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+        className="size-4"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M15.75 19.5 8.25 12l7.5-7.5"
+        />
+      </svg>
+    </span>
   );
 };

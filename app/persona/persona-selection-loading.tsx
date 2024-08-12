@@ -1,6 +1,6 @@
 const PersonaSelectionLoading = () => {
   return (
-    <div className="bg-slate-100 w-full max-w-[23rem] flex flex-col border-r border-slate-300 dark:bg-slate-900 dark:border-slate-500">
+    <div className="bg-slate-100 w-full max-w-[23rem] mob:max-w-full flex flex-col border-r border-slate-300 dark:bg-slate-900 dark:border-slate-500">
       {/* Header */}
       <div className="shadow flex justify-between items-center p-5 gap-4 px-6 pb-5 border-b dark:border-slate-600">
         <div>

@@ -9,6 +9,9 @@ const config: Config = {
   darkMode: "class",
   theme: {
     extend: {
+      screens: {
+        mob: { max: "640px" },
+      },
       gridTemplateRows: {
         fixed: "repeat(auto-fill, minmax(9rem, 9rem))",
       },
