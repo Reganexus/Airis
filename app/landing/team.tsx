@@ -45,7 +45,7 @@ const team: TeamMember[] = [
       "Linda crafts strategies that boost our brand and engage customers, thanks to her understanding of market trends.",
   },
   {
-    pic: "/img/jonson_formal.png",
+    pic: "/img/team_4.png",
     name: "John Lyrick Jonson",
     title: "Backend Developer",
     description:
