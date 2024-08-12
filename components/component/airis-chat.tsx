@@ -1094,7 +1094,9 @@ export function AirisChat({
                     ))}
                   </select>
                 </div>
-                <button className="py-2 bg-primary text-white rounded-lg mt-2">
+                <button className="py-2 bg-primary text-white rounded-lg mt-2"
+                 disabled={isLoading || isLoading2}
+                >
                   Generate
                 </button>
               </div>
