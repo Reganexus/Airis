@@ -3,7 +3,6 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { compare } from 'bcrypt';
 import { db, sql } from '@vercel/postgres';
 
-const client = await db.connect();
 const handler = NextAuth({
   session: {
     strategy: 'jwt',
@@ -19,6 +18,7 @@ const handler = NextAuth({
       },
       async authorize(credentials, req) {
         //
+        const client = await db.connect();
         console.log({credentials});
         const response = await client.sql`
         SELECT * FROM users WHERE email=${credentials?.user_or_email} or username=${credentials?.user_or_email}`;
