@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import { hash } from 'bcrypt';
-import { sql } from '@vercel/postgres';
+import { db, sql } from '@vercel/postgres';
 
 export async function POST(request: Request) {
+    const client = await db.connect();
   try {
     const { fname, lname, username, email, password, password2 } = await request.json();
     let errors = [];
@@ -23,7 +24,7 @@ export async function POST(request: Request) {
     }
 
     // Validating username 
-    const existing_usernames = await sql`SELECT COUNT(*) AS count FROM users WHERE username = ${username};`;
+    const existing_usernames = await client.sql`SELECT COUNT(*) AS count FROM users WHERE username = ${username};`;
     const username_is_unique =  existing_usernames.rows[0].count == 0;
     if(!username_is_unique){
         errors.push("Username is already taken.");
@@ -33,7 +34,7 @@ export async function POST(request: Request) {
         errors.push("Username can only contain letters, numbers, underscores, and periods.");
     }
     // Validating email
-    const existing_emails = await sql`SELECT COUNT(*) AS count FROM users WHERE email = ${email};`;
+    const existing_emails = await client.sql`SELECT COUNT(*) AS count FROM users WHERE email = ${email};`;
     const email_is_unique =  existing_emails.rows[0].count == 0;
     if(!email_is_unique){
         errors.push("Email is already used.");
@@ -64,7 +65,7 @@ export async function POST(request: Request) {
 
         const hashedPassword = await hash(password, 10);
     
-        const response = await sql`
+        const response = await client.sql`
           INSERT INTO users (firstname, lastname, username, email, password)
           VALUES (${fname}, ${lname}, ${username}, ${email}, ${hashedPassword})
         `;

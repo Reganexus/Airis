@@ -1,10 +1,12 @@
-import { sql } from '@vercel/postgres';
+import { db, sql } from '@vercel/postgres';
 
 export async function POST(req: Request) {
+  const client = await db.connect();
   try {
+    
     // must take user email and conversation_id
     const information = await req.json()
-    const result = await sql`SELECT * FROM conversation WHERE conversation_id = ${information.convo_id}`;
+    const result = await client.sql`SELECT * FROM conversation WHERE conversation_id = ${information.convo_id}`;
     
     if (result.rows.length > 0) {
       return new Response(JSON.stringify({ error: '' }));

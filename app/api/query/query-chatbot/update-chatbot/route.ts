@@ -1,7 +1,8 @@
 
-import { sql } from '@vercel/postgres';
+import { db, sql } from '@vercel/postgres';
 
 export async function POST(req: Request) {
+  const client = await db.connect();
   try {
     const chatbotInformation = await req.json()
     
@@ -13,7 +14,7 @@ export async function POST(req: Request) {
      * is the default Role, thus possibly changing the default prompt of default role
      *  
      */ 
-    const defaultRole = await sql`
+    const defaultRole = await client.sql`
         SELECT chatbot_id, role
         FROM chatbot
         WHERE default_prompt = true
@@ -28,7 +29,7 @@ export async function POST(req: Request) {
          * Chanage the previous Default Role into false
          */
 
-        const result2 = await sql`
+        const result2 = await client.sql`
           UPDATE chatbot
             SET default_prompt = false,
                 subpersona = true
@@ -37,7 +38,7 @@ export async function POST(req: Request) {
         if (!result2) {
             return new Response(JSON.stringify({ error: 'Error demoting default chatbot' }));
         }
-        const result = await sql`
+        const result = await client.sql`
           UPDATE chatbot
             SET role = ${chatbotInformation.role}, 
                 task = ${chatbotInformation.task}, 
@@ -54,7 +55,7 @@ export async function POST(req: Request) {
         /**
          * Current Chatbot is either in Default Role but not Default Choice, or not Default Role
          */
-        const result = await sql`
+        const result = await client.sql`
           UPDATE chatbot
             SET role = ${chatbotInformation.role}, 
                 task = ${chatbotInformation.task}, 

@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
-import { sql } from '@vercel/postgres';
+import { db, sql } from '@vercel/postgres';
 
 export async function POST(request: Request) {
+  const client = await db.connect();
   try {
     const { persona_id } = await request.json(); 
     // Parse the JSON body to get persona_id
@@ -12,7 +13,7 @@ export async function POST(request: Request) {
     }
 
     // Execute the SQL query using the provided persona_id
-    const result = await sql`
+    const result = await client.sql`
       SELECT c.chatbot_id, c.persona_id, p.name AS persona_name, c.role, c.task, c.subpersona, c.default_prompt, c.svg_icon
       FROM chatbot c 
       INNER JOIN persona p ON p.persona_id = c.persona_id  WHERE c.persona_id = ${persona_id} order by subpersona;

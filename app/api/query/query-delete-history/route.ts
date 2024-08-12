@@ -1,8 +1,8 @@
-import { sql } from '@vercel/postgres';
+import { db, sql } from '@vercel/postgres';
 import { getServerSession } from 'next-auth/next';
-import type { NextApiRequest, NextApiResponse } from 'next';
 
 export async function POST(req: Request){
+  const client = await db.connect();
   try {
     // Use getSession to automatically handle fetching session based on the incoming request
     const session = await getServerSession();
@@ -22,7 +22,7 @@ export async function POST(req: Request){
     console.log("Attempting to delete records for:", email, username);
 
     // Execute the SELECT operation to find the user ID
-    const userQueryResult = await sql`SELECT user_id FROM users WHERE email = ${email} AND username = ${username}`;
+    const userQueryResult = await client.sql`SELECT user_id FROM users WHERE email = ${email} AND username = ${username}`;
 
     if (userQueryResult.rowCount === 0) {
       return new Response(JSON.stringify({ error: 'User not found' }));
@@ -33,7 +33,7 @@ export async function POST(req: Request){
     console.log("USER ID: ", userId);
 
     // Execute the DELETE operation
-    const deleteResult = await sql`DELETE FROM conversation WHERE user_id = ${userId}`;
+    const deleteResult = await client.sql`DELETE FROM conversation WHERE user_id = ${userId}`;
     console.log("DELETE RESULT: ", deleteResult)
 
     if (deleteResult.rows.length == 0) {
