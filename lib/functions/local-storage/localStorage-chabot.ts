@@ -1,4 +1,5 @@
 
+'use client';
 import { useRouter } from "next/navigation"; // Make sure to import from 'next/router' not 'next/navigation'
 
 export const useStoreChatbotSession = () => {

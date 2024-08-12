@@ -1,3 +1,4 @@
+'use client';
 import Image from "next/image";
 import "/app/main/persona-selection-scrollbar.css";
 import Link from "next/link";
@@ -103,10 +104,7 @@ const PersonaChatHistory: React.FC<PersonaChatHistoryProps> = ({
     setAiName(name);
     setAiDescription(description);
     setAiLogo(logo);
-  }, [
-    localStorage.getItem("aiName"),
-    localStorage.getItem("persona_logo"),
-  ]);
+  }, []);
 
   useEffect(() => {
     // Check if the User is logged in
