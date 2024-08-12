@@ -10,6 +10,8 @@ import PersonaProfileLoading from "./persona-profile-loading";
 import * as PromptLoading from "./prompts-loading";
 import * as PromptLoadingStatic from "./prompts-loading-static";
 import { updateChatbotFrequency } from "@/lib/db/update-queries";
+import { useMediaQuery } from "react-responsive";
+import Link from "next/link";
 
 interface PersonaChatbotsProps {
   selectedPersona?: SelectedPersona;
@@ -20,11 +22,18 @@ const PersonaPrompts: React.FC<PersonaChatbotsProps> = ({
   selectedPersona,
   isLoading,
 }) => {
+  const isMobile = useMediaQuery({ query: "(max-width: 640px)" });
+
   console.log("skibidi", selectedPersona, selectedPersona?.persona_name);
+
   return (
-    <div className="h-full w-full p-8">
+    <div
+      className={`${
+        isMobile ? "fixed inset-0 z-30" : ""
+      } h-full w-full p-8 mob:p-0`}
+    >
       {/* The big card */}
-      <div className="h-full w-full bg-white rounded-lg border border-slate-300 dark:border-slate-600 shadow flex flex-col p-4 dark:bg-slate-800">
+      <div className="h-full w-full bg-white rounded-lg mob:rounded-none border border-slate-300 dark:border-slate-600 shadow flex flex-col p-4 dark:bg-slate-800 mob:p-0">
         {isLoading ? (
           <PersonaProfileLoading />
         ) : (
@@ -47,13 +56,13 @@ const PersonaProfile: React.FC<PersonaChatbotsProps> = ({
   selectedPersona,
 }) => {
   return (
-    <div className="border rounded-md rounded-b-none border-b-0 relative dark:border-slate-600 overflow-clip flex flex-col">
+    <div className="border rounded-md mob:rounded-none rounded-b-none border-b-0 relative dark:border-slate-600 overflow-clip flex flex-col">
       {/* just a background color style */}
-      <div className="bg-airis-primary h-1"></div>
+      <div className="bg-airis-primary h-1 mob:hidden"></div>
 
-      <div className="relative w-full h-[95%] bottom-0 flex px-4 py-3 items-center gap-3">
+      <div className="relative w-full h-[95%] bottom-0 flex px-4 py-3 items-center gap-3 mob:hidden">
         {/* Image of the persona */}
-        <div className="rounded-full w-14 h-14 border-4 border-white dark:border-slate-700 overflow-clip relative">
+        <div className="rounded-full w-14 h-14 mob:min-h-14 mob:min-w-14 border-4 border-white dark:border-slate-700 overflow-clip relative">
           <Image
             src={selectedPersona?.persona_icon ?? "/logo/airis_logo_sq.png"}
             alt="icon picture"
@@ -65,11 +74,11 @@ const PersonaProfile: React.FC<PersonaChatbotsProps> = ({
 
         {/* Persona Name and Descriptions */}
         <div className="flex flex-col">
-          <h2 className="text-2xl text-slate-800 font-bold dark:text-slate-300">
+          <h2 className="text-2xl text-slate-800 font-bold dark:text-slate-300 mob:text-base">
             {selectedPersona?.persona_name}
           </h2>
 
-          <p className="text-slate-500 dark:text-slate-400">
+          <p className="text-slate-500 dark:text-slate-400 mob:text-xs">
             {selectedPersona?.persona_tagline}
           </p>
         </div>
@@ -88,6 +97,16 @@ const PersonaProfile: React.FC<PersonaChatbotsProps> = ({
             Add Prompt
           </button>
         </div>
+      </div>
+
+      <div className="hidden mob:flex py-4 px-2">
+        <Link
+          href={`/persona`}
+          className="flex items-center text-slate-600 text-sm"
+        >
+          <BackIcon />
+          Return
+        </Link>
       </div>
     </div>
   );
@@ -233,7 +252,7 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
         {isLoading ? (
           <PromptLoading.BreadCrumbsLoading />
         ) : (
-          <div className="bg-slate-100 dark:bg-slate-600 rounded-full px-5 text-slate-600 dark:text-slate-300 py-1 border mb-4 self-start">
+          <div className="bg-slate-100 dark:bg-slate-600 rounded-full px-5 text-slate-600 dark:text-slate-300 py-1 border mb-4 self-start mob:text-sm">
             <span>{selectedPersona?.persona_name}</span>
 
             {defaultRole !== currentRole && (
@@ -278,7 +297,7 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
                 <div
                   className={`${prompt_bg} bg-right bg-airis-primary dark:bg-cyan-600 dark:hover:bg-cyan-700 h-full relative flex flex-col justify-end rounded-lg p-6 hover:cursor-pointer hover:bg-slate-700`}
                 >
-                  <h4 className="text-4xl text-white">{p.task}</h4>
+                  <h4 className="text-4xl text-white mob:text-2xl">{p.task}</h4>
                   <DiagonalArrow />
                 </div>
               </div>
@@ -286,7 +305,7 @@ const Prompts: React.FC<PersonaChatbotsProps> = ({ selectedPersona }) => {
         )}
 
         {/* PROMPS LISTS */}
-        <div className="w-full basis-[70%] h-full max-h-full grid grid-cols-3 overflow-auto gap-4 grid-rows-fixed">
+        <div className="w-full basis-[70%] h-full max-h-full grid grid-cols-3 overflow-auto gap-4 grid-rows-fixed mob:flex mob:flex-col">
           {/* Role List */}
           {isLoading ? (
             <PromptLoading.PromptsListLoading />
@@ -393,9 +412,9 @@ const PromptCard: React.FC<PromptCardProps> = ({
         )
       }
     >
-      <div className="w-full h-full flex text-xl p-3 px-4 border rounded-md border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-200 hover:text-slate-800 dark:hover:bg-slate-700 dark:hover:text-slate-200 hover:cursor-pointer">
+      <div className="w-full h-full flex text-xl mob:text-lg p-3 px-4 border rounded-md border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-200 hover:text-slate-800 dark:hover:bg-slate-700 dark:hover:text-slate-200 hover:cursor-pointer">
         {/* ADD THE ICONS HERE */}
-        <p>{findSvgByName(svg_icon)}</p>
+        <p className="pt-1 mr-1">{findSvgByName(svg_icon)}</p>
         &nbsp;
         {promptObj.role == currentRole && <p>{promptObj.task}</p>}
       </div>
@@ -415,12 +434,12 @@ const RoleCard: React.FC<RoleCardProps> = ({ role = "<--", onRoleChange }) => {
 
   return (
     <div onClick={handleClick}>
-      <div className="relative w-full h-full text-xl p-3 px-4 border rounded-md border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-200 hover:text-slate-800 dark:hover:bg-slate-700 dark:hover:text-slate-200 hover:cursor-pointer">
+      <div className="relative w-full h-full mob:h-auto text-xl mob:text-lg p-3 px-4 border rounded-md border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-200 hover:text-slate-800 dark:hover:bg-slate-700 dark:hover:text-slate-200 hover:cursor-pointer">
         <p>
           {role} {role == "<--" && "Return"}
         </p>
 
-        <span className="absolute bottom-2 right-2">
+        <span className="absolute bottom-2 right-2 mob:bottom-[10px]">
           {role != "<--" && <ArrowIcon />}
         </span>
       </div>
@@ -533,6 +552,27 @@ const ModifyPromptIcon = () => {
           strokeLinecap="round"
           strokeLinejoin="round"
           d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75"
+        />
+      </svg>
+    </span>
+  );
+};
+
+const BackIcon = () => {
+  return (
+    <span className="text-slate-500 mr-1 hover:bg-slate-200 hover:text-primary rounded-lg  dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+        className="size-4"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M15.75 19.5 8.25 12l7.5-7.5"
         />
       </svg>
     </span>

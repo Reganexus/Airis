@@ -9,8 +9,12 @@ const config: Config = {
   darkMode: "class",
   theme: {
     extend: {
+      screens: {
+        mob: { max: "640px" },
+      },
       gridTemplateRows: {
         fixed: "repeat(auto-fill, minmax(9rem, 9rem))",
+        mobFixed: "repeat(auto-fill, minmax(auto, auto))",
       },
       backgroundImage: {
         "main-gradient": "url('/backgrounds/gradient_green_5.jpg')",

@@ -2,9 +2,9 @@ const PersonaProfileLoading = () => {
   return (
     <div className="border rounded-md rounded-b-none border-b-0 dark:border-slate-600 relative overflow-clip flex flex-col">
       {/* just a background color style */}
-      <div className="bg-airis-primary h-1"></div>
+      <div className="bg-airis-primary h-1 mob:hidden"></div>
 
-      <div className="relative w-full h-[95%] bottom-0  flex px-4 py-3 items-center gap-3">
+      <div className="relative w-full h-[95%] bottom-0  flex px-4 py-3 items-center gap-3 mob:hidden">
         {/* Image of the persona */}
         <div className="rounded-full w-14 h-14 border-4 border-white dark:border-slate-500 overflow-clip relative bg-slate-200 dark:bg-slate-700">
           <div className="absolute inset-0 transform -translate-x-full bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200 dark:from-slate-800 dark:via-slate-700 dark:to-slate-800 animate-shimmer"></div>
@@ -39,6 +39,13 @@ const PersonaProfileLoading = () => {
             Add Prompt
           </button>
         </div>
+      </div>
+
+      <div className="hidden mob:flex py-4 px-2">
+        <span className="flex items-center text-slate-600 text-sm">
+          <BackIcon />
+          Return
+        </span>
       </div>
     </div>
   );
@@ -109,6 +116,27 @@ const ModifyPromptIcon = () => {
           strokeLinecap="round"
           strokeLinejoin="round"
           d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75"
+        />
+      </svg>
+    </span>
+  );
+};
+
+const BackIcon = () => {
+  return (
+    <span className="text-slate-500 mr-1 hover:bg-slate-200 hover:text-primary rounded-lg  dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+        className="size-4"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M15.75 19.5 8.25 12l7.5-7.5"
         />
       </svg>
     </span>

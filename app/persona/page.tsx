@@ -16,7 +16,12 @@ import { SessionProvider } from "next-auth/react";
 /**
  * Renders the Sidebar, Persona Selection and Prompt Selection Components
  */
-export default function Home() {
+interface ChildComponentProps {
+  setIsPersonaSelectionOpen: any;
+}
+
+const Home: React.FC<ChildComponentProps> = ({ setIsPersonaSelectionOpen }) => {
+  console.log("home page: ", setIsPersonaSelectionOpen);
   return (
     <main className="bg-slate-200 w-full flex justify-center items-center dark:bg-dark-mode">
       <SessionProvider>
@@ -24,4 +29,6 @@ export default function Home() {
       </SessionProvider>
     </main>
   );
-}
+};
+
+export default Home;

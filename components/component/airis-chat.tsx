@@ -51,7 +51,12 @@ export function AirisChat({
   historyConversationId,
 }: AirisChatProps): JSX.Element {
 
+
+  const [mobileIsOpenHistory, setMobileIsOpenHistory] = useState(false);
+
+
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
+
   const router = useRouter(); // Router
   
   const { data: session, status } = useSession(); // Access user information from session
@@ -670,20 +675,27 @@ export function AirisChat({
       <SessionProvider>
         <SideBar />
       </SessionProvider>
-      {isHistoryOpen && <PersonaChatHistory refreshHistory={refreshHistory} />}
+      {isHistoryOpen && (
+        <PersonaChatHistory
+          refreshHistory={refreshHistory}
+          mobileIsOpenHistory={mobileIsOpenHistory}
+          setMobileIsOpenHistory={setMobileIsOpenHistory}
+        />
+      )}
 
       {/* Main Content */}
 
       <div className="flex flex-1 flex-col h-screen dark:bg-dark-mode dark:text-slate-100">
-        <main className="relative overflow-auto pt-5 bg-slate-100 dark:bg-opacity-0 pb-0 h-full">
+        <main className="relative overflow-auto pt-5 bg-slate-100 dark:bg-opacity-0 pb-0 h-full mob:pt-12 mob:pb-16">
           <PersonaCard
             persona={"ai"}
             setIsOpenHistory={setIsHistoryOpen}
             task={aiTask}
             logo={aiLogo}
+            setMobileIsOpenHistory={setMobileIsOpenHistory}
           />
 
-          <div className="pt-4 px-2 ps-4 pb-8 grid gap-6 max-w-5xl m-auto">
+          <div className="pt-4 px-2 ps-4 pb-8 grid gap-6 max-w-5xl m-auto mob:pr-4">
             {messages.map((m, i) => {
               const isLastMessage: boolean = i === messages.length - 1;
 
@@ -697,13 +709,13 @@ export function AirisChat({
                       // If the output is an image (URL), display it
                       m.content.startsWith("https") ||
                       m.content.startsWith("blob:http") ? (
-                        <div className="flex items-start gap-4 justify-end">
+                        <div className="flex items-start gap-4 justify-end ">
                           <div className="grid gap-1.5 rounded-lg bg-primary p-3 px-4">
-                            <img
+                            <Image
                               src={m.content}
                               alt={`Uploaded preview`}
                               style={{ maxWidth: "200px", height: "auto" }}
-                            ></img>
+                            ></Image>
                             <a
                               href={m.content}
                               download
@@ -715,7 +727,9 @@ export function AirisChat({
                                 viewBox="0 0 24 24"
                                 stroke-width="1.5"
                                 stroke="currentColor"
-                                className={ "size-6" }
+
+                                className="size-6"
+
                               >
                                 <path
                                   stroke-linecap="round"
@@ -759,7 +773,7 @@ export function AirisChat({
                     onMouseLeave={() => setHoveredMessageIndex(null)}
                   >
                     {/** AI Logo */}
-                    <div className="pt-4">
+                    <div className="pt-4 mob:hidden">
                       <div className="h-[40px] w-[40px] rounded-full bg-slate-400 overflow-clip">
                         <Image
                           src={aiLogo ?? "/default_blue.png"}
@@ -771,7 +785,16 @@ export function AirisChat({
                     </div>
 
                     <div className="relative grid gap-1.5 p-3 px-4 text-base">
-                      <h1 className="font-semibold">{aiName}</h1>
+                      <div className="flex items-center mob:mb-2">
+                        <Image
+                          src={aiLogo ?? "/default_blue.png"}
+                          alt="default chatbot icon"
+                          width={25}
+                          height={25}
+                          className="rounded-full mr-2 hidden mob:flex"
+                        />
+                        <h1 className="font-semibold">{aiName}</h1>
+                      </div>
                       {
                         // If the output is an image (URL), display it
                         m.content.startsWith("https") ? (
@@ -866,7 +889,7 @@ export function AirisChat({
         {/* INPUT */}
         <form
           onSubmit={promptSubmit}
-          className="pb-[20px] bg-slate-100  dark:bg-opacity-0 px-5 max-h-96 flex-1"
+          className="pb-[20px] bg-slate-100 dark:bg-opacity-0 px-5 max-h-96 flex-1 mob:fixed mob:bottom-0 mob:z-10 mob:p-0 mob:w-full"
         >
           {/* UPLOADED FILES LIST is DISPLAYED HERE */}
           <UploadedFiles files={imgFiles} onDelete={handleDeleteFile} />
@@ -874,15 +897,15 @@ export function AirisChat({
           <div
             className={
               !isImageModel
-                ? `rounded-lg max-w-5xl m-auto z-10 flex items-start gap-2 border bg-white dark:bg-slate-700 dark:border-slate-500 px-4 h-auto sm:px-3 p-2`
-                : `rounded-lg max-w-5xl m-auto z-10 flex gap-2 border bg-white dark:bg-slate-700 dark:border-slate-500 px-4 h-auto sm:px-3 p-2`
+                ? `rounded-lg max-w-5xl m-auto z-10 flex items-start  gap-2 border bg-white dark:bg-slate-700 dark:border-slate-500 px-4 h-auto sm:px-3 p-2`
+                : `rounded-lg max-w-5xl m-auto z-10 flex mob:flex-col gap-2 border bg-white dark:bg-slate-700 dark:border-slate-500 px-4 h-auto sm:px-3 p-2`
             }
           >
             <div
               className={
                 !isImageModel
-                  ? `w-full flex items-start justify-between`
-                  : `w-full flex flex-col h-auto gap-1 border rounded-md p-2`
+                  ? `w-full flex items-start justify-between `
+                  : `w-full flex flex-col h-auto gap-1 border rounded-md p-2 mob:flex-row`
               }
             >
               {/* Text Prompt input */}
@@ -891,8 +914,8 @@ export function AirisChat({
                 value={input}
                 className={
                   !isImageModel
-                    ? `bg-transparent placeholder:text-base p-2 px-4 persona-selection-scrollbar h-auto` //text mode
-                    : `bg-transparent px-1 pt-1 placeholder:text-base h-full persona-selection-scrollbar` //image mode
+                    ? `bg-transparent placeholder:text-base p-2 px-4 persona-selection-scrollbar h-auto mob:w-full` //text mode
+                    : `bg-transparent px-1 pt-1 placeholder:text-base h-full persona-selection-scrollbar mob:w-full` //image mode
                 }
                 onChange={handleInputChange}
                 onPaste={handleInputPaste}
@@ -924,21 +947,6 @@ export function AirisChat({
                     <SendIcon />
                     <span className="sr-only">Send</span>
                   </Button>
-
-                  {/* THIS IS THE FILE UPLOAD MENU BUTTON */}
-                  {/* <div
-                    className="bg-none p-2 mx-2 relative"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setIsFileDropdownOpen(!isFileDropdownOpen);
-                    }}
-                  >
-                    <UploadFilesDropdown />
-
-                    <PlusIcon />
-
-                    <span className="sr-only">Upload file</span>
-                  </div> */}
 
                   <FileUploadComponent onFileChange={handleFileChange} />
                 </>
@@ -1106,7 +1114,7 @@ export function AirisChat({
             )}
           </div>
 
-          <p className="text-sm text-center pt-3 text-slate-500 dark:text-slate-400">
+          <p className="mob:hidden text-sm text-center pt-3 text-slate-500 dark:text-slate-400">
             This AI chatbot is for informational purposes only and should not be
             considered professional advice.
           </p>
@@ -1130,7 +1138,7 @@ const SuggestionChips: React.FC<SuggestionChipsProps> = ({
   suggestionClicked,
 }) => {
   return (
-    <div className="w-full mt-auto flex gap-1">
+    <div className="w-full mt-auto flex gap-1 mob:hidden">
       {suggestions.map((s) => (
         <button
           onClick={(e) => {
@@ -1138,7 +1146,7 @@ const SuggestionChips: React.FC<SuggestionChipsProps> = ({
             suggestionClicked(s);
           }}
           key={s}
-          className="bg-slate-50 dark:bg-slate-700 dark:border-slate-500 dark:text-slate-300 border rounded-sm py-1 px-2 text-sm text-slate-500 hover:bg-slate-100 hover:text-slate-600"
+          className="bg-slate-50 dark:bg-slate-700 dark:border-slate-500 dark:text-slate-300 border rounded-sm py-1 px-2 text-sm text-slate-500 hover:bg-slate-100 hover:text-slate-600 mob:hidden"
         >
           {s}
         </button>

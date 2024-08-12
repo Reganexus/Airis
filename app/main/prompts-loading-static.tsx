@@ -20,7 +20,7 @@ export function Page(): any {
         <DefaultPromptLoading />
 
         {/* PROMPS LISTS */}
-        <div className="w-full basis-[70%] h-full max-h-full grid grid-cols-3 overflow-auto gap-4 grid-rows-fixed">
+        <div className="w-full basis-[70%] h-full max-h-full grid grid-cols-3 overflow-auto gap-4 grid-rows-fixed mob:grid-cols-1 mob:grid-rows-none">
           <PromptsListLoading />
         </div>
       </div>

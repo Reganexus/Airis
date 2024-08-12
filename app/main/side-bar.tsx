@@ -7,7 +7,7 @@ import { redirect, useRouter } from "next/navigation";
 import { getServerSession } from "next-auth";
 import Link from "next/link";
 import Tooltip from "@/components/component/tooltip";
-import { useSession, getSession } from "next-auth/react"
+import { useSession, getSession } from "next-auth/react";
 
 interface SideBarProps {
   id?: string;
@@ -15,7 +15,7 @@ interface SideBarProps {
 
 const SideBar: React.FC<SideBarProps> = ({ id }) => {
   const [isDarkMode, setIsDarkMode] = React.useState<boolean>(false);
-  const { data: session, status } = useSession()
+  const { data: session, status } = useSession();
 
   React.useEffect(() => {
     // Check local storage for the dark mode preference
@@ -45,7 +45,7 @@ const SideBar: React.FC<SideBarProps> = ({ id }) => {
   };
 
   return (
-    <div className="bg-slate-50 w-full max-w-20 flex flex-col justify-between border-r border-slate-300 dark:border-slate-600 dark:bg-slate-800">
+    <div className="bg-slate-50 w-full max-w-20 flex flex-col justify-between border-r border-slate-300 dark:border-slate-600 dark:bg-slate-800 mob:hidden">
       {/* LOGO */}
 
       <div className="flex justify-center items-center p-2 mt-2">
@@ -65,7 +65,7 @@ const SideBar: React.FC<SideBarProps> = ({ id }) => {
 
       {/* Profile Section */}
       <div className="flex flex-col justify-between border-t border-slate-300 dark:border-slate-600 items-center py-2 px-2 pb-4 pt-3">
-        {status == 'authenticated' && (
+        {status == "authenticated" && (
           <div className="p-2 flex justify-center items-center hover:cursor-pointer hover:bg-slate-200 rounded-lg mb-1 dark:hover:bg-slate-700">
             <Image
               src="/user_placeholder_img.png"
@@ -79,7 +79,7 @@ const SideBar: React.FC<SideBarProps> = ({ id }) => {
 
         {/* ---Icon Buttons--- */}
 
-        {status == 'authenticated' && (
+        {status == "authenticated" && (
           <Tooltip content="Profile">
             <ProfileIconButton />
           </Tooltip>
@@ -96,16 +96,15 @@ const SideBar: React.FC<SideBarProps> = ({ id }) => {
           />
         </Tooltip>
 
-        {status == 'authenticated' ?
-          (<Tooltip content="Logout">
+        {status == "authenticated" ? (
+          <Tooltip content="Logout">
             <LogoutIconButton />
-          </Tooltip>)
-          :
-          (<Tooltip content="Login">
+          </Tooltip>
+        ) : (
+          <Tooltip content="Login">
             <LoginIconButton />
-          </Tooltip>)
-        }
-
+          </Tooltip>
+        )}
       </div>
     </div>
   );
@@ -236,21 +235,30 @@ const LogoutIconButton = () => {
 };
 
 const LoginIconButton = () => {
-
   const router = useRouter();
 
   return (
     <button
       onClick={() => {
-        router.push('/entry');
+        router.push("/entry");
         router.refresh();
       }}
       title="Sign In"
       className="text-slate-500 p-4 hover:bg-red-100 hover:text-red-500 rounded-lg dark:text-slate-300 dark:hover:bg-red-500/30 dark:hover:text-red-300"
     >
-
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-        <path strokeLinecap="round" strokeLinejoin="round" d="m11.25 9-3 3m0 0 3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+        className="size-6"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="m11.25 9-3 3m0 0 3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+        />
       </svg>
     </button>
   );

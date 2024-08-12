@@ -11,6 +11,7 @@ interface PersonaCardProps {
   setIsOpenHistory: Function;
   task: string | null;
   logo: string | null;
+  setMobileIsOpenHistory: (m: boolean) => void;
 }
 
 const PersonaCard: React.FC<PersonaCardProps> = ({
@@ -18,14 +19,15 @@ const PersonaCard: React.FC<PersonaCardProps> = ({
   setIsOpenHistory,
   task,
   logo,
+  setMobileIsOpenHistory,
 }) => {
   return (
-    <div className="sticky top-0 z-10 flex justify-between items-center gap-4 max-w-5xl m-auto bg-white dark:bg-slate-700 dark:border-slate-500 p-2 px-3 rounded-lg border shadow-md shadow-slate-600/20">
+    <div className="sticky top-0 z-10 flex justify-between items-center gap-4 max-w-5xl m-auto bg-white dark:bg-slate-700 dark:border-slate-500 p-2 px-3 rounded-lg border shadow-md shadow-slate-600/20 mob:shadow-none mob:fixed mob:p-0 w-full mob:py-2 mob:rounded-none mob:bg-slate-100">
       <div className="flex items-center gap-2 z-10">
         <BackToPersonaSelectionButton />
         <PersonaChatHistoryButton setIsOpenHistory={setIsOpenHistory} />
 
-        <div className="w-[40px] h-[40px] rounded-full overflow-clip">
+        <div className="w-[40px] h-[40px] rounded-full overflow-clip mob:hidden">
           <Image
             src={logo ?? "/persona_icons/icon_law.png"}
             alt="default chabot icon"
@@ -36,9 +38,22 @@ const PersonaCard: React.FC<PersonaCardProps> = ({
       </div>
 
       {/* TOPIC NAME INSERT HERE */}
-      <p className="absolute inset-0 w-full flex justify-center items-center font-semibold text-slate-700 dark:text-slate-300">
-        {task ?? ""}
-      </p>
+      <div className="absolute inset-0 w-full flex justify-center items-center font-semibold text-slate-700 dark:text-slate-300 ">
+        <p className="mob:max-w-60 mob:text-nowrap mob:text-center overflow-hidden text-ellipsis mob:px-4">
+          {task ?? ""}
+        </p>
+      </div>
+
+      <div className="hidden mob:flex z-10">
+        <button
+          className="px-4"
+          onClick={() => {
+            setMobileIsOpenHistory(true);
+          }}
+        >
+          <MenuIcon />
+        </button>
+      </div>
 
       <div className="item-center z-10 hidden">
         <Button
@@ -105,12 +120,30 @@ function SettingsIcon() {
     </svg>
   );
 }
+function MenuIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      className="size-6"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+      />
+    </svg>
+  );
+}
 
 const BackToPersonaSelectionButton = () => {
   return (
     <Link
       href={`/`}
-      className="text-slate-500 p-2 hover:bg-slate-200 hover:text-primary rounded-lg dark:text-slate-200 dark:hover:bg-slate-800"
+      className="text-slate-500 p-2 mob:ml-1 hover:bg-slate-200 hover:text-primary rounded-lg dark:text-slate-200 dark:hover:bg-slate-800"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -147,7 +180,7 @@ const PersonaChatHistoryButton: React.FC<PersonaChatHistoryButtonProps> = ({
   return (
     <button
       onClick={handleToggle}
-      className={`text-slate-500 p-2 hover:bg-slate-200 hover:text-primary rounded-lg border border-slate-400 mr-2 ${
+      className={`mob:hidden text-slate-500 p-2 hover:bg-slate-200 hover:text-primary rounded-lg border border-slate-400 mr-2 ${
         isToggled &&
         "bg-slate-500 text-white hover:bg-slate-600 hover:text-white"
       }`}
