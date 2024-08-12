@@ -9,7 +9,7 @@ interface RegisterFormProps {
 }
 
 const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
-  const [errors, setErrors] = useState(null);
+  const [errors, setErrors] = useState([]);
   const [strnth, setStrnth] = useState("");
   const [errorMessageState, setErrorMessageState] = useState<String>("");
 
@@ -215,7 +215,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
             className="absolute top-2 right-2 text-red-400 hover:text-red-800"
             onClick={() => {
               setErrorMessageState("close");
-              setErrors(null);
+              setErrors([]);
             }}
           >
             <ErrorCloseIcon />
