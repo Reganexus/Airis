@@ -10,7 +10,7 @@ interface RegisterFormProps {
 
 const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
   const [errors, setErrors] = useState([]);
-  const [strnth, setStrnth] = useState("");
+  const [strnth, setStrnth] = useState<"" | "very weak" | "weak" | "strong" | "very strong">("");
   const [errorMessageState, setErrorMessageState] = useState<String>("");
 
   const testErrors = [
