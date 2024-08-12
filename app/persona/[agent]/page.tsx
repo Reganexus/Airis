@@ -38,7 +38,7 @@ export default function Home() {
           persona_tagline: data.tagline,
           persona_link: data.persona_link,
 
-          persona_icon: sessionStorage.getItem("persona_logo"), // The persona Logo  is saved when PersonaCard Component is clicked
+          persona_icon: localStorage.getItem("persona_logo"), // The persona Logo  is saved when PersonaCard Component is clicked
 
         });
         setIsLoading(false);

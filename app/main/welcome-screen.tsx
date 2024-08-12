@@ -5,7 +5,7 @@ import { updateChatbotFrequency } from "@/lib/db/update-queries";
 import {
   useStoreChatbotSession,
   useStorePersonaLogoSession,
-} from "@/lib/functions/local-storage/sessionStorage-chabot";
+} from "@/lib/functions/local-storage/localStorage-chabot";
 
 import { useSession } from "next-auth/react";
 import Image from "next/image";
