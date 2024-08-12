@@ -1,5 +1,5 @@
 import { openai } from '@ai-sdk/openai';
-import { convertToCoreMessages, streamText } from 'ai';
+import { convertToCoreMessages, ImagePart, streamText } from 'ai';
 
 
 export const maxDuration = 30;	
@@ -14,8 +14,13 @@ export async function POST(req: Request) {
 
   if(data.images64 != ""){
     // console.log("IMAGE IS SUBMITTED");
-    const messageContent = [ { type: "text", text: (data.textInput == "") ? "What's in this image?" : data.textInput }];
-
+    const messageContent: (ImagePart | { type: 'text', text: string })[] = [
+      {
+        type: "text",
+        text: data.textInput === "" ? "What's in this image?" : data.textInput,
+      }
+    ];
+    
     for (const image64 of data.images64){
       // console.log(typeof(image64));
       messageContent.push(
