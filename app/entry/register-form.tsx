@@ -205,7 +205,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClick }) => {
         </div> */}
       </form>
 
-      {errors != null && (
+      {errors.length != 0 && (
         <div
           className={`${
             errorMessageState === "close" && "hidden"
