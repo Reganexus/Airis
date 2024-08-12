@@ -45,18 +45,18 @@ const team: TeamMember[] = [
       "Linda crafts strategies that boost our brand and engage customers, thanks to her understanding of market trends.",
   },
   {
-    pic: "/img/team_4.png",
-    name: "Robert Brown",
-    title: "Chief Financial Officer",
+    pic: "/img/jonson_formal.png",
+    name: "John Lyrick Jonson",
+    title: "Backend Developer",
     description:
-      "Robert oversees our finances with strategic planning, ensuring growth and stability.",
+      "Lyrick oversees our finances with strategic planning, ensuring growth and stability.",
   },
   {
-    pic: "/img/team_6.png",
-    name: "Emily Wilson",
-    title: "Chief Human Resources Officer",
+    pic: "/img/sabenorio_formal.png",
+    name: "John Carlo Sabenorio",
+    title: "Backend Developer",
     description:
-      "Emily fosters a positive work environment and focuses on employee development to attract and retain talent.",
+      "Carlo fosters a positive work environment and focuses on employee development to attract and retain talent.",
   },
 ];
 
