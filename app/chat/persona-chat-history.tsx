@@ -67,10 +67,14 @@ const groupByDates = (data: Array<Conversation>): GroupedConversation => {
 
 interface PersonaChatHistoryProps {
   refreshHistory: boolean;
+  setMobileIsOpenHistory: (m: boolean) => void;
+  mobileIsOpenHistory: boolean;
 }
 
 const PersonaChatHistory: React.FC<PersonaChatHistoryProps> = ({
   refreshHistory,
+  mobileIsOpenHistory,
+  setMobileIsOpenHistory,
 }) => {
   /**
    * Hooks and Important Variables such as user's session
@@ -135,7 +139,24 @@ const PersonaChatHistory: React.FC<PersonaChatHistoryProps> = ({
   };
 
   return (
-    <div className="bg-slate-100 min-w-80 max-w-80 flex flex-col border-r border-slate-300 dark:bg-slate-800 dark:border-slate-500">
+    <div
+      className={`${
+        mobileIsOpenHistory
+          ? "fixed block z-30 inset-0 w-screen shadow-lg"
+          : "mob:hidden"
+      }  bg-slate-100 min-w-80 max-w-80 mob:max-w-full flex flex-col border-r border-slate-300 dark:bg-slate-800 dark:border-slate-500`}
+    >
+      <div className="py-4 px-2 hidden mob:flex">
+        <button
+          className="flex items-center gap-1"
+          onClick={() => {
+            setMobileIsOpenHistory(false);
+          }}
+        >
+          <BackIcon />
+          Return
+        </button>
+      </div>
       {/* Persona Card */}
       <div className="p-2 bg-slate-50 dark:bg-opacity-0">
         <div className="relative w-full flex flex-col bg-ai-law min-h-48 h-auto overflow-clip rounded-lg border dark:border-slate-500">
@@ -306,5 +327,25 @@ const ClearHistoryButton: React.FC<ClearHistoryProps> = ({
 
       <p className="text-sm">Clear History</p>
     </button>
+  );
+};
+const BackIcon = () => {
+  return (
+    <span className="text-slate-500 mr-1 hover:bg-slate-200 hover:text-primary rounded-lg  dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+        className="size-4"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M15.75 19.5 8.25 12l7.5-7.5"
+        />
+      </svg>
+    </span>
   );
 };
