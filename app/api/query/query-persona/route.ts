@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import { sql } from '@vercel/postgres';
+import { db, sql } from '@vercel/postgres';
 
 export async function POST(request: Request) {
+  const client = await db.connect();
   try {
-    
     // Execute the SQL query using the provided persona_id
-    const result = await sql`
+    const result = await client.sql`
         SELECT * 
         FROM persona 
         ORDER BY persona_id;
