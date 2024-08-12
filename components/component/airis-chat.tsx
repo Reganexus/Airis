@@ -50,9 +50,16 @@ interface AirisChatProps {
 export function AirisChat({
   historyConversationId,
 }: AirisChatProps): JSX.Element {
+
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
 
   const router = useRouter(); // Router
+  
+  // Render do not render chat interface if no sessionStorage
+  if (typeof window === 'undefined') {
+    router.push("/persona");
+  }
+
   const { data: session, status } = useSession(); // Access user information from session
   const user = session?.user;
   /**
