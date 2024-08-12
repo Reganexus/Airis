@@ -12,10 +12,10 @@ export const useStoreChatbotSession = () => {
         task: string
     ) => {
         console.log("Storing session...");
-        sessionStorage.setItem('aiName', name ?? "");
-        sessionStorage.setItem('aiDescription', description ?? "");
-        sessionStorage.setItem('chatbot_id', chatbot_id);
-        sessionStorage.setItem('task', task);
+        localStorage.setItem('aiName', name ?? "");
+        localStorage.setItem('aiDescription', description ?? "");
+        localStorage.setItem('chatbot_id', chatbot_id);
+        localStorage.setItem('task', task);
 
         router.push('/chat');
     };
@@ -27,6 +27,6 @@ export const useStorePersonaLogoSession = () => {
         persona_logo: string | undefined, 
     ) => {
         console.log("Storing persona logo session...");
-        sessionStorage.setItem('persona_logo', persona_logo ?? "");
+        localStorage.setItem('persona_logo', persona_logo ?? "");
     };
 };

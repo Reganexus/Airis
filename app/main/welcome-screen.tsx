@@ -1,6 +1,6 @@
 import { fetchFeaturedPrompts } from "@/lib/db/fetch-queries";
 import { updateChatbotFrequency } from "@/lib/db/update-queries";
-import { useStoreChatbotSession, useStorePersonaLogoSession } from "@/lib/functions/local-storage/sessionStorage-chabot";
+import { useStoreChatbotSession, useStorePersonaLogoSession } from "@/lib/functions/local-storage/localStorage-chabot";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 

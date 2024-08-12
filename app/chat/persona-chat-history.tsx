@@ -96,16 +96,16 @@ const PersonaChatHistory: React.FC<PersonaChatHistoryProps> = ({
     older: [],
   });
   useEffect(() => {
-    const name = sessionStorage.getItem("aiName");
-    const description = sessionStorage.getItem("aiDescription");
-    const logo = sessionStorage.getItem("persona_logo");
+    const name = localStorage.getItem("aiName");
+    const description = localStorage.getItem("aiDescription");
+    const logo = localStorage.getItem("persona_logo");
 
     setAiName(name);
     setAiDescription(description);
     setAiLogo(logo);
   }, [
-    sessionStorage.getItem("aiName"),
-    sessionStorage.getItem("persona_logo"),
+    localStorage.getItem("aiName"),
+    localStorage.getItem("persona_logo"),
   ]);
 
   useEffect(() => {

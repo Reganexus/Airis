@@ -208,17 +208,17 @@ export function AirisChat({
                 );
                 if (filename === data.result.logo_name) {
                   setLogo(blob.url);
-                  sessionStorage.setItem("persona_logo", blob.url);
+                  localStorage.setItem("persona_logo", blob.url);
                 }
               });
 
-              // Store the necessary strings in sessionStorage
-              sessionStorage.setItem("aiName", data.result.name ?? "");
-              sessionStorage.setItem(
+              // Store the necessary strings in localStorage
+              localStorage.setItem("aiName", data.result.name ?? "");
+              localStorage.setItem(
                 "aiDescription",
                 data.result.tagline ?? ""
               );
-              sessionStorage.setItem(
+              localStorage.setItem(
                 "chatbot_id",
                 chatdata.chatbot.chatbot_id ?? ""
               );
@@ -239,13 +239,13 @@ export function AirisChat({
     } else {
       /**
        * no historyConversationId means the chat is new
-       * - information regarding chatbot_id and others (task, persona_logo, etc.) will be accessed on sessionStorage
+       * - information regarding chatbot_id and others (task, persona_logo, etc.) will be accessed on localStorage
        */
 
       // Assign the session variables into its respective states
-      const chatbot_id = sessionStorage.getItem("chatbot_id");
-      const logo = sessionStorage.getItem("persona_logo");
-      const ai_name = sessionStorage.getItem("aiName");
+      const chatbot_id = localStorage.getItem("chatbot_id");
+      const logo = localStorage.getItem("persona_logo");
+      const ai_name = localStorage.getItem("aiName");
 
       setChatbotId(chatbot_id);
       setLogo(logo);
@@ -261,7 +261,7 @@ export function AirisChat({
             const stringify = JSON.stringify(data.chatbot?.sysprompt);
 
             // Set the remaining variables respectively
-            sessionStorage.setItem("task", data.chatbot.task);
+            localStorage.setItem("task", data.chatbot.task);
             setChosenChatbot(data.chatbot);
             setAiTask(data.chatbot.task);
 
